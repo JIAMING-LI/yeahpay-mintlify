@@ -1,0 +1,208 @@
+---
+title: "Signature rules and examples"
+description: "Generate a YeahPay API request signature and send the unchanged raw JSON body"
+---
+
+Generate a new signature for every request. The signature covers the request path, common parameters, raw request body, and `apiKey`.
+
+## Signing text
+
+Join the following fields in this exact order. Insert one ASCII line feed `\n` (`0x0A`) between fields. Do not append a line feed after the final field.
+
+```text
+signUrl
+appId
+timestamp
+version
+nonce
+rawBody
+apiKey
+```
+
+Calculate the signature as follows:
+
+```text
+signature = Base64(SHA-512(UTF-8(signText)))
+```
+
+<Warning>
+  `rawBody` must be the exact JSON string sent in the request. Do not serialize it again, format it, reorder fields, or change whitespace after signing.
+</Warning>
+
+## Signing URL
+
+Use the request path without the protocol, hostname, query parameters, or transport gateway prefix.
+
+Test environment example:
+
+```text
+Request URL:
+https://t-acquire-business.lepass.cn/gw/abroad-business-acceptance-open-api/order/unifiedOrder
+
+Signing URL:
+/abroad-business-acceptance-open-api/order/unifiedOrder
+```
+
+<Note>
+  `/gw` and `/acceptance` are transport gateway prefixes and are not included in the signature. If your merchant environment uses another gateway path, use the verification path provided by YeahPay.
+</Note>
+
+## Generate and send a request
+
+<Steps>
+  <Step title="Freeze the raw request body">
+    Serialize the business object to compact JSON once and save it as `rawBody`.
+  </Step>
+  <Step title="Prepare the common parameters">
+    Generate a 13-digit millisecond `timestamp` and a unique `nonce`. Use `1.0` for `version`.
+  </Step>
+  <Step title="Build the signing text">
+    Join the seven fields in the required order with `\n`.
+  </Step>
+  <Step title="Calculate and send">
+    Calculate the SHA-512 digest, encode it with standard Base64, and put the result in the `signature` header. Send the saved `rawBody` without changing it.
+  </Step>
+</Steps>
+
+## Code examples
+
+<Tabs>
+  <Tab title="JavaScript">
+    ```javascript
+    import { createHash, randomUUID } from "node:crypto";
+
+    const baseUrl =
+      "https://t-acquire-business.lepass.cn/gw/abroad-business-acceptance-open-api";
+    const path = "/order/unifiedOrder";
+    const appId = process.env.YEAHPAY_APP_ID;
+    const apiKey = process.env.YEAHPAY_API_KEY;
+    const version = "1.0";
+    const timestamp = Date.now().toString();
+    const nonce = randomUUID().replaceAll("-", "");
+
+    const body = {
+      payWay: "PayNowPay",
+      merchantId: "YOUR_MERCHANT_ID",
+      thirdOrderId: `ORDER_${timestamp}`,
+      amount: 100,
+      currency: "SGD",
+      jspayFlag: "NATIVE",
+    };
+
+    // Serialize once. Signing and sending must use the same string.
+    const rawBody = JSON.stringify(body);
+
+    function buildSignUrl(requestBaseUrl, requestPath) {
+      const basePath = new URL(requestBaseUrl).pathname
+        .replace(/^\/(?:gw|acceptance)(?=\/)/, "")
+        .replace(/\/+$/, "");
+      return `${basePath}/${requestPath.replace(/^\/+/, "")}`;
+    }
+
+    const signUrl = buildSignUrl(baseUrl, path);
+    const signText = [
+      signUrl,
+      appId,
+      timestamp,
+      version,
+      nonce,
+      rawBody,
+      apiKey,
+    ].join("\n");
+
+    const signature = createHash("sha512")
+      .update(signText, "utf8")
+      .digest("base64");
+
+    const response = await fetch(`${baseUrl}${path}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept-Language": "en",
+        "Accept-Timezone": "Asia/Singapore",
+        appId,
+        version,
+        timestamp,
+        nonce,
+        algorithm: "SHA-512",
+        signature,
+      },
+      body: rawBody,
+    });
+
+    console.log(response.status, await response.text());
+    ```
+  </Tab>
+
+  <Tab title="Java">
+    ```java
+    import java.net.URI;
+    import java.net.http.HttpClient;
+    import java.net.http.HttpRequest;
+    import java.net.http.HttpResponse;
+    import java.nio.charset.StandardCharsets;
+    import java.security.MessageDigest;
+    import java.time.Instant;
+    import java.util.Base64;
+    import java.util.UUID;
+
+    String baseUrl =
+        "https://t-acquire-business.lepass.cn/gw/abroad-business-acceptance-open-api";
+    String path = "/order/unifiedOrder";
+    String appId = System.getenv("YEAHPAY_APP_ID");
+    String apiKey = System.getenv("YEAHPAY_API_KEY");
+    String version = "1.0";
+    String timestamp = String.valueOf(Instant.now().toEpochMilli());
+    String nonce = UUID.randomUUID().toString().replace("-", "");
+
+    // Signing and sending must use exactly the same rawBody.
+    String rawBody = """
+        {"payWay":"PayNowPay","merchantId":"YOUR_MERCHANT_ID","thirdOrderId":"ORDER_001","amount":100,"currency":"SGD","jspayFlag":"NATIVE"}
+        """.strip();
+
+    String basePath = URI.create(baseUrl).getPath();
+    if (basePath.startsWith("/gw/")) {
+        basePath = basePath.substring("/gw".length());
+    } else if (basePath.startsWith("/acceptance/")) {
+        basePath = basePath.substring("/acceptance".length());
+    }
+    String signUrl = basePath.replaceAll("/+$", "")
+        + "/" + path.replaceAll("^/+", "");
+
+    String signText = String.join(
+        "\n", signUrl, appId, timestamp, version, nonce, rawBody, apiKey);
+    byte[] digest = MessageDigest.getInstance("SHA-512")
+        .digest(signText.getBytes(StandardCharsets.UTF_8));
+    String signature = Base64.getEncoder().encodeToString(digest);
+
+    HttpRequest request = HttpRequest.newBuilder(
+            URI.create(baseUrl.replaceAll("/+$", "") + path))
+        .header("Content-Type", "application/json")
+        .header("Accept-Language", "en")
+        .header("Accept-Timezone", "Asia/Singapore")
+        .header("appId", appId)
+        .header("version", version)
+        .header("timestamp", timestamp)
+        .header("nonce", nonce)
+        .header("algorithm", "SHA-512")
+        .header("signature", signature)
+        .POST(HttpRequest.BodyPublishers.ofString(rawBody, StandardCharsets.UTF_8))
+        .build();
+
+    HttpResponse<String> response = HttpClient.newHttpClient().send(
+        request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+    System.out.println(response.statusCode() + " " + response.body());
+    ```
+  </Tab>
+</Tabs>
+
+## Common signature errors
+
+| Problem | Resolution |
+| --- | --- |
+| Signing the complete request URL | Use only the YeahPay verification path without the protocol or hostname |
+| Including `/gw` or `/acceptance` in the signing URL | Remove the transport gateway prefix |
+| Serializing JSON again after signing | Save and reuse the same `rawBody` |
+| Using a timestamp in seconds | Use a 13-digit timestamp in milliseconds |
+| Using a hexadecimal SHA-512 digest | Use standard Base64 encoding |
+| Sending `apiKey` in a request header | Use `apiKey` only when calculating the signature |

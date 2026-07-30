@@ -1,0 +1,63 @@
+---
+title: "Get Started"
+description: "Learn the YeahPay API environments, authentication parameters, and integration flow"
+---
+
+YeahPay provides payment, query, refund, and checkout APIs over HTTPS with JSON payloads. Before you start, request an `appId` and `apiKey` from YeahPay.
+
+## Environment URLs
+
+| Environment | Base URL | Usage |
+| --- | --- | --- |
+| Test | `https://t-acquire-business.lepass.cn/gw/abroad-business-acceptance-open-api` | Development and integration testing |
+| Production | `https://open-api.yeahpay.sg/acceptance/acceptance-open-api` | Live transactions |
+
+<Warning>
+  The test and production environments use different `appId` and `apiKey` values. When you switch environments, update both the Base URL and its credentials.
+</Warning>
+
+## Common request headers
+
+All API requests use `POST` and `application/json`.
+
+| Header | Required | Example | Description |
+| --- | --- | --- | --- |
+| `appId` | Yes | `1000122333` | Application ID assigned by YeahPay |
+| `version` | Yes | `1.0` | Common parameter version. Use `1.0` |
+| `timestamp` | Yes | `1694082355494` | 13-digit Unix timestamp in milliseconds |
+| `nonce` | Yes | `FGHUdssdfs5sEDF` | A unique random string for each request |
+| `algorithm` | No | `SHA-512` | Signature algorithm |
+| `signature` | Yes | `base64...` | Standard Base64 encoding of the SHA-512 digest |
+| `Accept-Language` | No | `en` | Response language |
+| `Accept-Timezone` | No | `Asia/Singapore` | Response timezone |
+| `Content-Type` | Yes | `application/json` | Request body format |
+
+<Note>
+  The `apiKey` is only used to calculate the signature. Never send it in a header or request body.
+</Note>
+
+## Integration flow
+
+<Steps>
+  <Step title="Request test credentials">
+    Get an `appId` and `apiKey` for the test environment. Store them securely in your server-side configuration.
+  </Step>
+  <Step title="Generate the signature">
+    Serialize the request body once. Use the same raw JSON string to calculate the signature and send the request. See [Signature rules and examples](/en/signature).
+  </Step>
+  <Step title="Complete integration testing">
+    Verify payments, queries, reversal transactions, and asynchronous notifications. After processing a payment or refund notification successfully, return `success` as the response body.
+  </Step>
+  <Step title="Switch to production">
+    Change the Base URL to `https://open-api.yeahpay.sg/acceptance/acceptance-open-api` and use the production credentials. Do not reuse test credentials.
+  </Step>
+</Steps>
+
+<CardGroup cols={2}>
+  <Card title="Signature rules and examples" icon="key" href="/en/signature">
+    Review the signing text, URL rules, and JavaScript and Java examples.
+  </Card>
+  <Card title="API reference" icon="code" href="/en/api-reference/qr-code-transactions/merchant-presented-qr-order-customer-scans-merchant-qr-code">
+    Review request fields, payloads, and response schemas.
+  </Card>
+</CardGroup>

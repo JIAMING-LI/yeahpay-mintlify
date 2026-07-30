@@ -1,0 +1,2568 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "YeahPay API (SG Transactions)",
+    "version": "2.1",
+    "description": "Based on YeahPay API Documentation (SG Transactions) 2.1. Request signatures use SHA-512. Join URL, appId, timestamp, version, nonce, the raw request body, and API key in that order with line feeds (ASCII 0x0A), then calculate the digest. The API key is used only for signing and is never sent in a request header."
+  },
+  "servers": [
+    {
+      "url": "https://t-acquire-business.lepass.cn/gw/abroad-business-acceptance-open-api",
+      "description": "Test environment"
+    }
+  ],
+  "tags": [
+    {
+      "name": "QR code transactions",
+      "description": "Merchant-presented QR, customer-presented QR, query, close, and refund query operations"
+    },
+    {
+      "name": "Unified reversal transactions",
+      "description": "Unified reversal or refund"
+    },
+    {
+      "name": "Card transactions (online payments)",
+      "description": "Apple Pay and Google Pay"
+    },
+    {
+      "name": "Checkout",
+      "description": "Mobile and PC checkout"
+    }
+  ],
+  "security": [
+    {
+      "AppIdAuth": [],
+      "SignatureAuth": []
+    }
+  ],
+  "paths": {
+    "/order/unifiedOrder": {
+      "post": {
+        "tags": [
+          "QR code transactions"
+        ],
+        "summary": "Merchant-presented QR order (customer scans merchant QR code)",
+        "operationId": "unifiedOrder",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/VersionHeader"
+          },
+          {
+            "$ref": "#/components/parameters/TimestampHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AlgorithmHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AppIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/NonceHeader"
+          },
+          {
+            "$ref": "#/components/parameters/SignatureHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptLanguageHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptTimezoneHeader"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UnifiedOrderRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Request successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnifiedOrderResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request parameters"
+          },
+          "401": {
+            "description": "Signature verification or authentication failed"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/order/queryOrder": {
+      "post": {
+        "tags": [
+          "QR code transactions"
+        ],
+        "summary": "Query payment (QR code or card)",
+        "operationId": "queryOrder",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/VersionHeader"
+          },
+          {
+            "$ref": "#/components/parameters/TimestampHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AlgorithmHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AppIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/NonceHeader"
+          },
+          {
+            "$ref": "#/components/parameters/SignatureHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptLanguageHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptTimezoneHeader"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrderLookupRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Request successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueryOrderResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request parameters"
+          },
+          "401": {
+            "description": "Signature verification or authentication failed"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/order/microPay": {
+      "post": {
+        "tags": [
+          "QR code transactions"
+        ],
+        "summary": "Customer-presented QR payment (merchant scans customer code)",
+        "operationId": "microPay",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/VersionHeader"
+          },
+          {
+            "$ref": "#/components/parameters/TimestampHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AlgorithmHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AppIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/NonceHeader"
+          },
+          {
+            "$ref": "#/components/parameters/SignatureHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptLanguageHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptTimezoneHeader"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MicroPayRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Request successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MicroPayResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request parameters"
+          },
+          "401": {
+            "description": "Signature verification or authentication failed"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/order/closeOrder": {
+      "post": {
+        "tags": [
+          "QR code transactions"
+        ],
+        "summary": "Close or reverse an order",
+        "operationId": "closeOrder",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/VersionHeader"
+          },
+          {
+            "$ref": "#/components/parameters/TimestampHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AlgorithmHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AppIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/NonceHeader"
+          },
+          {
+            "$ref": "#/components/parameters/SignatureHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptLanguageHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptTimezoneHeader"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrderLookupRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Request successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CloseOrderResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request parameters"
+          },
+          "401": {
+            "description": "Signature verification or authentication failed"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/order/queryRefund": {
+      "post": {
+        "tags": [
+          "QR code transactions"
+        ],
+        "summary": "Query refund (QR code or card)",
+        "operationId": "queryRefund",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/VersionHeader"
+          },
+          {
+            "$ref": "#/components/parameters/TimestampHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AlgorithmHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AppIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/NonceHeader"
+          },
+          {
+            "$ref": "#/components/parameters/SignatureHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptLanguageHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptTimezoneHeader"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QueryRefundRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Request successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueryRefundResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request parameters"
+          },
+          "401": {
+            "description": "Signature verification or authentication failed"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/unified/reversalOperation": {
+      "post": {
+        "tags": [
+          "Unified reversal transactions"
+        ],
+        "summary": "Unified reversal or refund",
+        "operationId": "reversalOperation",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/VersionHeader"
+          },
+          {
+            "$ref": "#/components/parameters/TimestampHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AlgorithmHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AppIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/NonceHeader"
+          },
+          {
+            "$ref": "#/components/parameters/SignatureHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptLanguageHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptTimezoneHeader"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReversalOperationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Request successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReversalOperationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request parameters"
+          },
+          "401": {
+            "description": "Signature verification or authentication failed"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/cardOrder/googleAndApplePay": {
+      "post": {
+        "tags": [
+          "Card transactions (online payments)"
+        ],
+        "summary": "Apple Pay / Google Pay payment",
+        "operationId": "googleAndApplePay",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/VersionHeader"
+          },
+          {
+            "$ref": "#/components/parameters/TimestampHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AlgorithmHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AppIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/NonceHeader"
+          },
+          {
+            "$ref": "#/components/parameters/SignatureHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptLanguageHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptTimezoneHeader"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WalletPaymentRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Request successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WalletPaymentResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request parameters"
+          },
+          "401": {
+            "description": "Signature verification or authentication failed"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/cardOrder/getRedirectUrl": {
+      "post": {
+        "tags": [
+          "Checkout"
+        ],
+        "summary": "Get checkout URL",
+        "operationId": "getRedirectUrl",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/VersionHeader"
+          },
+          {
+            "$ref": "#/components/parameters/TimestampHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AlgorithmHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AppIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/NonceHeader"
+          },
+          {
+            "$ref": "#/components/parameters/SignatureHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptLanguageHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptTimezoneHeader"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CashierRedirectRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Request successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CashierRedirectResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request parameters"
+          },
+          "401": {
+            "description": "Signature verification or authentication failed"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/cardOrder/getTradeType": {
+      "post": {
+        "tags": [
+          "Checkout"
+        ],
+        "summary": "Query payment methods",
+        "operationId": "getTradeType",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/VersionHeader"
+          },
+          {
+            "$ref": "#/components/parameters/TimestampHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AlgorithmHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AppIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/NonceHeader"
+          },
+          {
+            "$ref": "#/components/parameters/SignatureHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptLanguageHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptTimezoneHeader"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TradeTypeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Request successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TradeTypeResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request parameters"
+          },
+          "401": {
+            "description": "Signature verification or authentication failed"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/cardOrder/getPcRedirectUrl": {
+      "post": {
+        "tags": [
+          "Checkout"
+        ],
+        "summary": "Get PC checkout URL",
+        "operationId": "getPcRedirectUrl",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/VersionHeader"
+          },
+          {
+            "$ref": "#/components/parameters/TimestampHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AlgorithmHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AppIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/NonceHeader"
+          },
+          {
+            "$ref": "#/components/parameters/SignatureHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptLanguageHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptTimezoneHeader"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PcCashierRedirectRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Request successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CashierRedirectResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request parameters"
+          },
+          "401": {
+            "description": "Signature verification or authentication failed"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    }
+  },
+  "webhooks": {
+    "paymentNotification": {
+      "post": {
+        "summary": "Payment result notification",
+        "operationId": "paymentNotification",
+        "description": "Asynchronous payment result notification. Use the complete callback URL when verifying the signature. Return plain text `success` after successful processing. The source document mentions decryption but does not define an encryption algorithm or ciphertext field, so this specification does not infer a decryption structure.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/VersionHeader"
+          },
+          {
+            "$ref": "#/components/parameters/TimestampHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AlgorithmHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AppIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/NonceHeader"
+          },
+          {
+            "$ref": "#/components/parameters/SignatureHeader"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PaymentNotification"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Notification received successfully",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "const": "success"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "refundNotification": {
+      "post": {
+        "summary": "Refund result notification",
+        "operationId": "refundNotification",
+        "description": "Asynchronous refund result notification. Use the complete callback URL when verifying the signature. Return plain text `success` after successful processing. The source document mentions decryption but does not define an encryption algorithm or ciphertext field, so this specification does not infer a decryption structure.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/VersionHeader"
+          },
+          {
+            "$ref": "#/components/parameters/TimestampHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AlgorithmHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AppIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/NonceHeader"
+          },
+          {
+            "$ref": "#/components/parameters/SignatureHeader"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefundNotification"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Notification received successfully",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "const": "success"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "AppIdAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "appId",
+        "description": "Application ID."
+      },
+      "SignatureAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "signature",
+        "description": "SHA-512 request signature."
+      }
+    },
+    "parameters": {
+      "VersionHeader": {
+        "name": "version",
+        "in": "header",
+        "required": true,
+        "description": "Request version. The common parameter table specifies the fixed value 1.0. The 2.0 value in the signing example conflicts with that definition, so this specification uses 1.0.",
+        "schema": {
+          "type": "string",
+          "const": "1.0"
+        },
+        "example": "1.0"
+      },
+      "TimestampHeader": {
+        "name": "timestamp",
+        "in": "header",
+        "required": true,
+        "description": "Request timestamp in milliseconds.",
+        "schema": {
+          "type": "string",
+          "pattern": "^\\d{13}$"
+        },
+        "example": "1694082355494"
+      },
+      "AlgorithmHeader": {
+        "name": "algorithm",
+        "in": "header",
+        "required": false,
+        "description": "Signature algorithm.",
+        "schema": {
+          "type": "string",
+          "const": "SHA-512",
+          "default": "SHA-512"
+        },
+        "example": "SHA-512"
+      },
+      "AppIdHeader": {
+        "name": "appId",
+        "in": "header",
+        "required": true,
+        "description": "Application ID.",
+        "schema": {
+          "type": "string"
+        },
+        "example": "1000122333"
+      },
+      "NonceHeader": {
+        "name": "nonce",
+        "in": "header",
+        "required": true,
+        "description": "Random string.",
+        "schema": {
+          "type": "string"
+        },
+        "example": "FGHUdssdfs5sEDF"
+      },
+      "SignatureHeader": {
+        "name": "signature",
+        "in": "header",
+        "required": true,
+        "description": "SHA-512 signature. The signing text is `URL\\nappId\\ntimestamp\\nversion\\nnonce\\nraw request body\\nAPI key`.",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "AcceptLanguageHeader": {
+        "name": "Accept-Language",
+        "in": "header",
+        "required": false,
+        "description": "Response language.",
+        "schema": {
+          "type": "string",
+          "examples": [
+            "zh-CN"
+          ]
+        }
+      },
+      "AcceptTimezoneHeader": {
+        "name": "Accept-Timezone",
+        "in": "header",
+        "required": false,
+        "description": "Response timezone.",
+        "schema": {
+          "type": "string",
+          "examples": [
+            "Asia/Shanghai"
+          ]
+        }
+      }
+    },
+    "schemas": {
+      "UnifiedOrderRequest": {
+        "type": "object",
+        "properties": {
+          "payWay": {
+            "type": "string",
+            "description": "Payment method",
+            "enum": [
+              "WXZF",
+              "ZFBZF",
+              "PayNowPay",
+              "LiquidPay",
+              "DashPay",
+              "GrabPay"
+            ]
+          },
+          "merchantId": {
+            "type": "string",
+            "description": "Merchant ID"
+          },
+          "thirdOrderId": {
+            "type": "string",
+            "description": "Merchant order number"
+          },
+          "amount": {
+            "type": "integer",
+            "description": "Order amount in the smallest currency unit",
+            "format": "int64",
+            "minimum": 1
+          },
+          "currency": {
+            "type": "string",
+            "description": "Currency",
+            "enum": [
+              "SGD"
+            ]
+          },
+          "jspayFlag": {
+            "type": "string",
+            "description": "Transaction type",
+            "enum": [
+              "NATIVE",
+              "JSAPI",
+              "MICROPAY",
+              "APP",
+              "APPLET",
+              "H5Pay",
+              "ONLINE_CARD"
+            ]
+          },
+          "subAppid": {
+            "type": "string",
+            "description": "Sub-merchant App ID. The field name is retained from the source document."
+          },
+          "subOpenid": {
+            "type": "string",
+            "description": "Sub-merchant user identifier"
+          },
+          "openid": {
+            "type": "string",
+            "description": "User identifier"
+          },
+          "clientIp": {
+            "type": "string",
+            "description": "Client IP address"
+          },
+          "body": {
+            "type": "string",
+            "description": "Product description"
+          },
+          "attach": {
+            "type": "string",
+            "description": "Additional data"
+          },
+          "posNo": {
+            "type": "string",
+            "description": "POS number"
+          },
+          "extendBusinessParams": {
+            "type": "string",
+            "description": "Extended business parameters as a JSON string"
+          },
+          "limitPay": {
+            "type": "string",
+            "description": "Restricted payment methods",
+            "enum": [
+              "NAVERPAY",
+              "TOSSPAY",
+              "TINABA",
+              "MPAY",
+              "ALIPAY_CN",
+              "ALIPAY_HK",
+              "KAKAOPAY",
+              "TNG",
+              "GCASH",
+              "TRUEMONEY"
+            ]
+          },
+          "orderExpiration": {
+            "type": "string",
+            "description": "Order expiration time"
+          },
+          "region": {
+            "type": "string",
+            "description": "Region"
+          },
+          "phoneType": {
+            "type": "string",
+            "description": "Device type"
+          },
+          "jumpUrl": {
+            "type": "string",
+            "description": "Payment completion redirect URL",
+            "format": "uri"
+          },
+          "notifyUrl": {
+            "type": "string",
+            "description": "Payment result notification URL",
+            "format": "uri"
+          }
+        },
+        "required": [
+          "payWay",
+          "merchantId",
+          "thirdOrderId",
+          "amount",
+          "currency",
+          "jspayFlag"
+        ]
+      },
+      "UnifiedOrderResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "oneOf": [
+              {
+                "type": "string",
+                "examples": [
+                  "200"
+                ]
+              },
+              {
+                "type": "integer",
+                "examples": [
+                  0
+                ]
+              }
+            ],
+            "description": "Business result code. Standard transaction examples return a string, while checkout examples return the number 0, so both formats are supported."
+          },
+          "message": {
+            "type": "string",
+            "description": "Result description"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "amount": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Order amount"
+              },
+              "costTime": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Processing duration"
+              },
+              "currency": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Currency"
+              },
+              "leshuaOrderId": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "YeahPay order number"
+              },
+              "merchantId": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Merchant ID"
+              },
+              "tdCode": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "QR code. The field name is retained from the source document."
+              },
+              "thirdOrderId": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Merchant order number"
+              },
+              "payInfo": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Payment information"
+              },
+              "channelOrderId": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Channel order number"
+              }
+            }
+          }
+        },
+        "required": [
+          "code"
+        ]
+      },
+      "OrderLookupRequest": {
+        "type": "object",
+        "properties": {
+          "merchantId": {
+            "type": "string",
+            "description": "Merchant ID"
+          },
+          "thirdOrderId": {
+            "type": "string",
+            "description": "Merchant order number. Provide either this field or leshuaOrderId."
+          },
+          "leshuaOrderId": {
+            "type": "string",
+            "description": "YeahPay order number. Provide either this field or thirdOrderId."
+          }
+        },
+        "required": [
+          "merchantId"
+        ],
+        "anyOf": [
+          {
+            "required": [
+              "thirdOrderId"
+            ]
+          },
+          {
+            "required": [
+              "leshuaOrderId"
+            ]
+          }
+        ]
+      },
+      "QueryOrderResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "oneOf": [
+              {
+                "type": "string",
+                "examples": [
+                  "200"
+                ]
+              },
+              {
+                "type": "integer",
+                "examples": [
+                  0
+                ]
+              }
+            ],
+            "description": "Business result code. Standard transaction examples return a string, while checkout examples return the number 0, so both formats are supported."
+          },
+          "message": {
+            "type": "string",
+            "description": "Result description"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "amount": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Order amount"
+              },
+              "buyerPayAmount": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Buyer payment amount"
+              },
+              "buyerPayCurrency": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Buyer payment currency"
+              },
+              "buyerPayRate": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Buyer payment exchange rate"
+              },
+              "channelOrderId": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Channel order number"
+              },
+              "costTime": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Processing duration"
+              },
+              "currency": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Order currency"
+              },
+              "leshuaOrderId": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "YeahPay order number"
+              },
+              "merchantId": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Merchant ID"
+              },
+              "payTime": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Payment time"
+              },
+              "payWay": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Payment method"
+              },
+              "status": {
+                "type": "string",
+                "description": "Order status",
+                "enum": [
+                  "0",
+                  "2",
+                  "6",
+                  "8",
+                  "10",
+                  "11",
+                  "12"
+                ],
+                "x-enum-descriptions": {
+                  "0": "Unpaid",
+                  "2": "Payment successful",
+                  "6": "Closed",
+                  "8": "Refund processing",
+                  "10": "Refund successful",
+                  "11": "Refund failed",
+                  "12": "Payment processing"
+                }
+              },
+              "subMerchantId": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Sub-merchant ID"
+              },
+              "thirdOrderId": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Merchant order number"
+              },
+              "mppInfo": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "MPP information"
+              },
+              "orderSettleStatus": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Order settlement status"
+              },
+              "cardType": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "description": "Card type"
+              },
+              "cardNativeFlag": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "description": "Local card indicator"
+              },
+              "encryptCardId": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Encrypted card number"
+              },
+              "maskCardId": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Masked card number"
+              }
+            }
+          }
+        },
+        "required": [
+          "code"
+        ]
+      },
+      "MicroPayRequest": {
+        "type": "object",
+        "properties": {
+          "merchantId": {
+            "type": "string",
+            "description": "Merchant ID"
+          },
+          "thirdOrderId": {
+            "type": "string",
+            "description": "Merchant order number"
+          },
+          "amount": {
+            "type": "integer",
+            "description": "Order amount in the smallest currency unit",
+            "format": "int64",
+            "minimum": 1
+          },
+          "currency": {
+            "type": "string",
+            "description": "Currency",
+            "enum": [
+              "SGD"
+            ]
+          },
+          "authCode": {
+            "type": "string",
+            "description": "Customer payment code"
+          },
+          "appid": {
+            "type": "string",
+            "description": "Application ID. The field name is retained from the source document."
+          },
+          "clientIp": {
+            "type": "string",
+            "description": "Client IP address"
+          },
+          "body": {
+            "type": "string",
+            "description": "Product description"
+          },
+          "attach": {
+            "type": "string",
+            "description": "Additional data"
+          },
+          "posNo": {
+            "type": "string",
+            "description": "POS number"
+          },
+          "notifyUrl": {
+            "type": "string",
+            "description": "Payment result notification URL",
+            "format": "uri"
+          }
+        },
+        "required": [
+          "merchantId",
+          "thirdOrderId",
+          "amount",
+          "currency",
+          "authCode"
+        ]
+      },
+      "MicroPayResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "oneOf": [
+              {
+                "type": "string",
+                "examples": [
+                  "200"
+                ]
+              },
+              {
+                "type": "integer",
+                "examples": [
+                  0
+                ]
+              }
+            ],
+            "description": "Business result code. Standard transaction examples return a string, while checkout examples return the number 0, so both formats are supported."
+          },
+          "message": {
+            "type": "string",
+            "description": "Result description"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "channelCode": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Channel result code"
+              },
+              "costTime": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Processing duration"
+              },
+              "leshuaOrderId": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "YeahPay order number"
+              },
+              "merchantId": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Merchant ID"
+              },
+              "payWay": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Payment method"
+              },
+              "status": {
+                "type": "string",
+                "description": "Order status",
+                "enum": [
+                  "0",
+                  "2",
+                  "6",
+                  "8",
+                  "10",
+                  "11",
+                  "12"
+                ],
+                "x-enum-descriptions": {
+                  "0": "Unpaid",
+                  "2": "Payment successful",
+                  "6": "Closed",
+                  "8": "Refund processing",
+                  "10": "Refund successful",
+                  "11": "Refund failed",
+                  "12": "Payment processing"
+                }
+              },
+              "subMerchantId": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Sub-merchant ID"
+              },
+              "thirdOrderId": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Merchant order number"
+              },
+              "channelOrderId": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Channel order number"
+              },
+              "buyerPayAmount": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Buyer payment amount"
+              },
+              "buyerPayCurrency": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Buyer payment currency"
+              },
+              "mppInfo": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "MPP information"
+              },
+              "amount": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Order amount"
+              },
+              "currency": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Order currency"
+              }
+            }
+          }
+        },
+        "required": [
+          "code"
+        ]
+      },
+      "CloseOrderResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "oneOf": [
+              {
+                "type": "string",
+                "examples": [
+                  "200"
+                ]
+              },
+              {
+                "type": "integer",
+                "examples": [
+                  0
+                ]
+              }
+            ],
+            "description": "Business result code. Standard transaction examples return a string, while checkout examples return the number 0, so both formats are supported."
+          },
+          "message": {
+            "type": "string",
+            "description": "Result description"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "leshuaOrderId": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "YeahPay order number"
+              },
+              "merchantId": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Merchant ID"
+              },
+              "status": {
+                "type": "string",
+                "description": "Order status",
+                "enum": [
+                  "0",
+                  "2",
+                  "6",
+                  "8",
+                  "10",
+                  "11",
+                  "12"
+                ],
+                "x-enum-descriptions": {
+                  "0": "Unpaid",
+                  "2": "Payment successful",
+                  "6": "Closed",
+                  "8": "Refund processing",
+                  "10": "Refund successful",
+                  "11": "Refund failed",
+                  "12": "Payment processing"
+                }
+              },
+              "thirdOrderId": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Merchant order number"
+              }
+            }
+          }
+        },
+        "required": [
+          "code"
+        ]
+      },
+      "QueryRefundRequest": {
+        "type": "object",
+        "properties": {
+          "merchantId": {
+            "type": "string",
+            "description": "Merchant ID"
+          },
+          "merchantRefundId": {
+            "type": "string",
+            "description": "Merchant refund number"
+          },
+          "thirdOrderId": {
+            "type": "string",
+            "description": "Merchant order number. Provide either this field or leshuaOrderId."
+          },
+          "leshuaOrderId": {
+            "type": "string",
+            "description": "YeahPay order number. Provide either this field or thirdOrderId."
+          }
+        },
+        "required": [
+          "merchantId",
+          "merchantRefundId"
+        ],
+        "anyOf": [
+          {
+            "required": [
+              "thirdOrderId"
+            ]
+          },
+          {
+            "required": [
+              "leshuaOrderId"
+            ]
+          }
+        ]
+      },
+      "QueryRefundResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "oneOf": [
+              {
+                "type": "string",
+                "examples": [
+                  "200"
+                ]
+              },
+              {
+                "type": "integer",
+                "examples": [
+                  0
+                ]
+              }
+            ],
+            "description": "Business result code. Standard transaction examples return a string, while checkout examples return the number 0, so both formats are supported."
+          },
+          "message": {
+            "type": "string",
+            "description": "Result description"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "amount": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Original order amount"
+              },
+              "costTime": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Processing duration"
+              },
+              "currency": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Currency"
+              },
+              "leshuaOrderId": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "YeahPay order number"
+              },
+              "leshuaRefundId": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "YeahPay refund number"
+              },
+              "merchantId": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Merchant ID"
+              },
+              "merchantRefundId": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Merchant refund number"
+              },
+              "refundAmount": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Refund amount"
+              },
+              "refundTime": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Refund time"
+              },
+              "status": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Refund status"
+              },
+              "thirdOrderId": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Merchant order number"
+              }
+            }
+          }
+        },
+        "required": [
+          "code"
+        ]
+      },
+      "ReversalOperationRequest": {
+        "type": "object",
+        "properties": {
+          "sceneType": {
+            "type": "integer",
+            "description": "Scenario type: 1 refund, 2 reversal",
+            "enum": [
+              1,
+              2
+            ]
+          },
+          "merchantId": {
+            "type": "string",
+            "description": "Merchant ID"
+          },
+          "notifyUrl": {
+            "type": "string",
+            "description": "Result notification URL",
+            "format": "uri"
+          },
+          "amount": {
+            "type": "integer",
+            "description": "Refund amount. Used for refund scenarios.",
+            "format": "int64",
+            "minimum": 1
+          },
+          "leshuaOrderId": {
+            "type": "string",
+            "description": "Original YeahPay order number"
+          },
+          "posNo": {
+            "type": "string",
+            "description": "POS number"
+          },
+          "merchantRefundId": {
+            "type": "string",
+            "description": "Merchant refund number. Required when sceneType is 1."
+          },
+          "terminalId": {
+            "type": "string",
+            "description": "Terminal number. Required only for POS reversals."
+          },
+          "oriThirdOrderId": {
+            "type": "string",
+            "description": "Original merchant order number"
+          },
+          "thirdOrderId": {
+            "type": "string",
+            "description": "Merchant order number. Required when sceneType is 2."
+          }
+        },
+        "required": [
+          "sceneType",
+          "merchantId"
+        ],
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "sceneType": {
+                  "const": 1
+                }
+              },
+              "required": [
+                "sceneType"
+              ]
+            },
+            "then": {
+              "required": [
+                "merchantRefundId"
+              ],
+              "anyOf": [
+                {
+                  "required": [
+                    "leshuaOrderId"
+                  ]
+                },
+                {
+                  "required": [
+                    "thirdOrderId"
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "sceneType": {
+                  "const": 2
+                }
+              },
+              "required": [
+                "sceneType"
+              ]
+            },
+            "then": {
+              "required": [
+                "thirdOrderId"
+              ],
+              "anyOf": [
+                {
+                  "required": [
+                    "leshuaOrderId"
+                  ]
+                },
+                {
+                  "required": [
+                    "oriThirdOrderId"
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "ReversalOperationResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "oneOf": [
+              {
+                "type": "string",
+                "examples": [
+                  "200"
+                ]
+              },
+              {
+                "type": "integer",
+                "examples": [
+                  0
+                ]
+              }
+            ],
+            "description": "Business result code. Standard transaction examples return a string, while checkout examples return the number 0, so both formats are supported."
+          },
+          "message": {
+            "type": "string",
+            "description": "Result description"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "amount": {
+                "type": "string",
+                "description": "Amount"
+              },
+              "payTime": {
+                "type": "string",
+                "description": "Completion time"
+              },
+              "merchantId": {
+                "type": "string",
+                "description": "Merchant ID"
+              },
+              "leshuaRefundId": {
+                "type": "string",
+                "description": "YeahPay reversal number"
+              },
+              "status": {
+                "type": "string",
+                "description": "Processing status",
+                "enum": [
+                  "1",
+                  "2",
+                  "3"
+                ],
+                "x-enum-descriptions": {
+                  "1": "Failed",
+                  "2": "Success",
+                  "3": "Processing"
+                }
+              }
+            },
+            "required": [
+              "amount",
+              "merchantId",
+              "leshuaRefundId",
+              "status"
+            ]
+          }
+        },
+        "required": [
+          "code"
+        ]
+      },
+      "WalletPaymentRequest": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "integer",
+            "description": "Order amount in the smallest currency unit",
+            "format": "int64",
+            "minimum": 1
+          },
+          "currency": {
+            "type": "string",
+            "description": "Currency",
+            "enum": [
+              "SGD"
+            ]
+          },
+          "merchantId": {
+            "type": "string",
+            "description": "Merchant ID"
+          },
+          "methodType": {
+            "type": "string",
+            "description": "Wallet type",
+            "enum": [
+              "GooglePay",
+              "ApplePay"
+            ]
+          },
+          "thirdOrderId": {
+            "type": "string",
+            "description": "Merchant order number"
+          },
+          "notifyUrl": {
+            "type": "string",
+            "description": "Payment result notification URL",
+            "format": "uri"
+          }
+        },
+        "required": [
+          "amount",
+          "currency",
+          "merchantId",
+          "methodType",
+          "thirdOrderId"
+        ]
+      },
+      "WalletPaymentResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "oneOf": [
+              {
+                "type": "string",
+                "examples": [
+                  "200"
+                ]
+              },
+              {
+                "type": "integer",
+                "examples": [
+                  0
+                ]
+              }
+            ],
+            "description": "Business result code. Standard transaction examples return a string, while checkout examples return the number 0, so both formats are supported."
+          },
+          "message": {
+            "type": "string",
+            "description": "Result description"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "clientSecret": {
+                "type": "string",
+                "description": "Client secret"
+              },
+              "countryCode": {
+                "type": "string",
+                "description": "Country or region code"
+              },
+              "intentId": {
+                "type": "string",
+                "description": "Payment intent ID"
+              },
+              "orderId": {
+                "type": "string",
+                "description": "Order ID"
+              },
+              "amount": {
+                "type": "string",
+                "description": "Amount"
+              },
+              "currency": {
+                "type": "string",
+                "description": "Currency"
+              }
+            },
+            "required": [
+              "clientSecret",
+              "countryCode",
+              "intentId",
+              "orderId",
+              "amount",
+              "currency"
+            ]
+          }
+        },
+        "required": [
+          "code"
+        ]
+      },
+      "CashierRedirectRequest": {
+        "type": "object",
+        "properties": {
+          "merchantId": {
+            "type": "string",
+            "description": "Merchant ID"
+          },
+          "orderId": {
+            "type": "string",
+            "description": "Merchant order number"
+          },
+          "merchantReferenceNumber": {
+            "type": "string",
+            "description": "Merchant reference number"
+          },
+          "currency": {
+            "type": "string",
+            "description": "Currency"
+          },
+          "amount": {
+            "type": "string",
+            "description": "Order amount"
+          },
+          "goodsList": {
+            "type": "string",
+            "description": "Product list as a JSON string"
+          },
+          "timestamp": {
+            "type": "string",
+            "description": "Request timestamp"
+          },
+          "callback": {
+            "type": "string",
+            "description": "Frontend redirect URL after payment",
+            "format": "uri"
+          },
+          "lang": {
+            "type": "string",
+            "description": "Page language"
+          },
+          "notifyUrl": {
+            "type": "string",
+            "description": "Payment result notification URL",
+            "format": "uri"
+          },
+          "payWay": {
+            "type": "string",
+            "description": "Payment method"
+          },
+          "limitPay": {
+            "type": "string",
+            "description": "Restricted payment methods"
+          },
+          "countdown": {
+            "type": "string",
+            "description": "Checkout countdown"
+          },
+          "target": {
+            "type": "string",
+            "description": "Page target"
+          }
+        },
+        "required": [
+          "merchantId",
+          "orderId",
+          "merchantReferenceNumber",
+          "currency",
+          "amount",
+          "goodsList",
+          "timestamp",
+          "callback",
+          "lang"
+        ]
+      },
+      "PcCashierRedirectRequest": {
+        "type": "object",
+        "properties": {
+          "merchantId": {
+            "type": "string",
+            "description": "Merchant ID"
+          },
+          "orderId": {
+            "type": "string",
+            "description": "Merchant order number"
+          },
+          "busiType": {
+            "type": "string",
+            "description": "Business type",
+            "enum": [
+              "PHYSICAL",
+              "VIRTUAL"
+            ]
+          },
+          "currency": {
+            "type": "string",
+            "description": "Currency"
+          },
+          "amount": {
+            "type": "string",
+            "description": "Order amount"
+          },
+          "goodsList": {
+            "type": "string",
+            "description": "Product list as a JSON string"
+          },
+          "timestamp": {
+            "type": "string",
+            "description": "Request timestamp"
+          },
+          "callback": {
+            "type": "string",
+            "description": "Frontend redirect URL after payment",
+            "format": "uri"
+          },
+          "lang": {
+            "type": "string",
+            "description": "Page language"
+          },
+          "consumerInfo": {
+            "type": "string",
+            "description": "Consumer information as a JSON string"
+          },
+          "notifyUrl": {
+            "type": "string",
+            "description": "Payment result notification URL",
+            "format": "uri"
+          },
+          "payWay": {
+            "type": "string",
+            "description": "Payment method"
+          },
+          "limitPay": {
+            "type": "string",
+            "description": "Restricted payment methods"
+          },
+          "countdown": {
+            "type": "string",
+            "description": "Checkout countdown"
+          },
+          "target": {
+            "type": "string",
+            "description": "Page target"
+          },
+          "logisticsInfo": {
+            "type": "string",
+            "description": "Logistics information as a JSON string. Required for physical goods."
+          },
+          "billInfo": {
+            "type": "string",
+            "description": "Billing information as a JSON string. Required for physical goods."
+          }
+        },
+        "required": [
+          "merchantId",
+          "orderId",
+          "busiType",
+          "currency",
+          "amount",
+          "goodsList",
+          "timestamp",
+          "callback",
+          "lang",
+          "consumerInfo"
+        ],
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "busiType": {
+                  "const": "PHYSICAL"
+                }
+              },
+              "required": [
+                "busiType"
+              ]
+            },
+            "then": {
+              "required": [
+                "logisticsInfo",
+                "billInfo"
+              ]
+            }
+          }
+        ]
+      },
+      "CashierRedirectResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "oneOf": [
+              {
+                "type": "string",
+                "examples": [
+                  "200"
+                ]
+              },
+              {
+                "type": "integer",
+                "examples": [
+                  0
+                ]
+              }
+            ],
+            "description": "Business result code. Standard transaction examples return a string, while checkout examples return the number 0, so both formats are supported."
+          },
+          "message": {
+            "type": "string",
+            "description": "Result description"
+          },
+          "traceId": {
+            "type": "string",
+            "description": "Trace ID"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "url": {
+                "type": "string",
+                "description": "Checkout URL",
+                "format": "uri"
+              }
+            },
+            "required": [
+              "url"
+            ]
+          }
+        },
+        "required": [
+          "code"
+        ]
+      },
+      "TradeTypeRequest": {
+        "type": "object",
+        "properties": {
+          "merchantId": {
+            "type": "string",
+            "description": "Merchant ID"
+          }
+        },
+        "required": [
+          "merchantId"
+        ]
+      },
+      "TradeType": {
+        "type": "object",
+        "properties": {
+          "tradeCode": {
+            "type": "string",
+            "description": "Payment method code"
+          },
+          "tradeName": {
+            "type": "string",
+            "description": "Payment method name"
+          },
+          "parentTradeCode": {
+            "type": "string",
+            "description": "Parent payment method code"
+          },
+          "level": {
+            "type": "integer",
+            "description": "Level",
+            "enum": [
+              1,
+              2
+            ]
+          },
+          "subTradeType": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TradeType"
+            },
+            "description": "Sub payment method"
+          }
+        },
+        "required": [
+          "tradeCode",
+          "tradeName",
+          "level"
+        ]
+      },
+      "TradeTypeResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "oneOf": [
+              {
+                "type": "string",
+                "examples": [
+                  "200"
+                ]
+              },
+              {
+                "type": "integer",
+                "examples": [
+                  0
+                ]
+              }
+            ],
+            "description": "Business result code. Standard transaction examples return a string, while checkout examples return the number 0, so both formats are supported."
+          },
+          "message": {
+            "type": "string",
+            "description": "Result description"
+          },
+          "traceId": {
+            "type": "string",
+            "description": "Trace ID"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TradeType"
+            }
+          }
+        },
+        "required": [
+          "code"
+        ]
+      },
+      "PaymentNotification": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "string",
+            "description": "Order amount"
+          },
+          "attach": {
+            "type": "string",
+            "description": "Additional data"
+          },
+          "channelDatetime": {
+            "type": "string",
+            "description": "Channel transaction time"
+          },
+          "channelOrderId": {
+            "type": "string",
+            "description": "Channel order number"
+          },
+          "leshuaOrderId": {
+            "type": "string",
+            "description": "YeahPay order number"
+          },
+          "merchantId": {
+            "type": "string",
+            "description": "Merchant ID"
+          },
+          "payTime": {
+            "type": "string",
+            "description": "Payment time"
+          },
+          "payWay": {
+            "type": "string",
+            "description": "Payment method",
+            "enum": [
+              "WXZF",
+              "ZFBZF",
+              "PayNowPay",
+              "LiquidPay",
+              "DashPay",
+              "GrabPay",
+              "AMEX",
+              "ApplePay",
+              "GooglePay",
+              "MASTER",
+              "UnionPay",
+              "VISA"
+            ]
+          },
+          "settlementAmount": {
+            "type": "string",
+            "description": "Settlement amount"
+          },
+          "status": {
+            "type": "string",
+            "description": "Payment status",
+            "const": "2"
+          },
+          "thirdOrderId": {
+            "type": "string",
+            "description": "Merchant order number"
+          },
+          "tradeType": {
+            "type": "string",
+            "description": "Transaction type"
+          },
+          "currency": {
+            "type": "string",
+            "description": "Currency",
+            "enum": [
+              "SGD"
+            ]
+          }
+        },
+        "required": [
+          "amount",
+          "attach",
+          "channelDatetime",
+          "channelOrderId",
+          "leshuaOrderId",
+          "merchantId",
+          "payTime",
+          "payWay",
+          "settlementAmount",
+          "status",
+          "thirdOrderId",
+          "tradeType",
+          "currency"
+        ]
+      },
+      "RefundNotification": {
+        "type": "object",
+        "properties": {
+          "merchantId": {
+            "type": "string",
+            "description": "Merchant ID"
+          },
+          "thirdOrderId": {
+            "type": "string",
+            "description": "Merchant order number"
+          },
+          "leshuaOrderId": {
+            "type": "string",
+            "description": "YeahPay order number"
+          },
+          "status": {
+            "type": "string",
+            "description": "Refund status"
+          },
+          "leshuaRefundId": {
+            "type": "string",
+            "description": "YeahPay refund number"
+          },
+          "totalAmount": {
+            "type": "string",
+            "description": "Original order amount"
+          },
+          "attach": {
+            "type": "string",
+            "description": "Additional data"
+          },
+          "currency": {
+            "type": "string",
+            "description": "Currency",
+            "enum": [
+              "SGD",
+              "HKD"
+            ]
+          },
+          "settlementRefundAmount": {
+            "type": "string",
+            "description": "Settlement refund amount"
+          },
+          "merchantRefundId": {
+            "type": "string",
+            "description": "Merchant refund number"
+          },
+          "refundTime": {
+            "type": "string",
+            "description": "Refund time"
+          }
+        },
+        "required": [
+          "merchantId",
+          "thirdOrderId",
+          "leshuaOrderId",
+          "status",
+          "leshuaRefundId",
+          "totalAmount",
+          "attach",
+          "currency",
+          "settlementRefundAmount",
+          "merchantRefundId"
+        ]
+      }
+    }
+  },
+  "x-source-document": "YeahPay API Documentation (SG Transactions) 2.1.docx",
+  "x-source-notes": [
+    "The document title is 2.1, while the latest revision record says 2.0.1.",
+    "The production URL was confirmed as https://open-api.yeahpay.sg/acceptance/acceptance-open-api/.",
+    "The common parameter table specifies version 1.0, while the signing example uses 2.0. This specification follows the common parameter table."
+  ]
+}
