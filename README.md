@@ -1,6 +1,6 @@
 # YeahPay API 文档站
 
-本仓库用于维护 YeahPay 新加坡交易 API 的 Mintlify 文档站。站点同时提供中文和英文接入指南、OpenAPI 3.1 API Reference、SHA-512 签名说明，以及可生成签名和 cURL 的在线接口调试工具。
+本仓库用于维护 YeahPay API 的 Mintlify 文档站。站点同时提供中文和英文接入指南、OpenAPI 3.1 API Reference、SHA-512 签名说明，以及可生成签名和 cURL 的在线接口调试工具。
 
 当前 OpenAPI 规范版本为 `2.1`，内容包括收银台、扫码交易、统一撤销或退款、支付结果通知和退款结果通知等接口。
 
