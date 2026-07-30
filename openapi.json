@@ -39,6 +39,9 @@
         ],
         "summary": "获取收银台地址",
         "operationId": "getRedirectUrl",
+        "x-mint": {
+          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=getRedirectUrl\">使用此接口参数生成请求签名和 cURL。</Card>"
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/VersionHeader"
@@ -105,6 +108,9 @@
         ],
         "summary": "查询支付方式",
         "operationId": "getTradeType",
+        "x-mint": {
+          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=getTradeType\">使用此接口参数生成请求签名和 cURL。</Card>"
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/VersionHeader"
@@ -171,6 +177,9 @@
         ],
         "summary": "获取 PC 收银台地址",
         "operationId": "getPcRedirectUrl",
+        "x-mint": {
+          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=getPcRedirectUrl\">使用此接口参数生成请求签名和 cURL。</Card>"
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/VersionHeader"
@@ -237,6 +246,9 @@
         ],
         "summary": "统一撤销或退款",
         "operationId": "reversalOperation",
+        "x-mint": {
+          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=reversalOperation\">使用此接口参数生成请求签名和 cURL。</Card>"
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/VersionHeader"
@@ -303,6 +315,9 @@
         ],
         "summary": "主扫（消费者扫商户收款码、线上支付）",
         "operationId": "unifiedOrder",
+        "x-mint": {
+          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=unifiedOrder\">使用此接口参数生成请求签名和 cURL。</Card>"
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/VersionHeader"
@@ -369,6 +384,9 @@
         ],
         "summary": "支付查询（扫码、刷卡）",
         "operationId": "queryOrder",
+        "x-mint": {
+          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=queryOrder\">使用此接口参数生成请求签名和 cURL。</Card>"
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/VersionHeader"
@@ -435,6 +453,9 @@
         ],
         "summary": "被扫（商户扫消费者付款码）",
         "operationId": "microPay",
+        "x-mint": {
+          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=microPay\">使用此接口参数生成请求签名和 cURL。</Card>"
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/VersionHeader"
@@ -501,6 +522,9 @@
         ],
         "summary": "订单关闭或撤销",
         "operationId": "closeOrder",
+        "x-mint": {
+          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=closeOrder\">使用此接口参数生成请求签名和 cURL。</Card>"
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/VersionHeader"
@@ -567,6 +591,9 @@
         ],
         "summary": "退款查询（扫码、刷卡）",
         "operationId": "queryRefund",
+        "x-mint": {
+          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=queryRefund\">使用此接口参数生成请求签名和 cURL。</Card>"
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/VersionHeader"
@@ -1915,6 +1942,10 @@
           "merchantReferenceNumber": {
             "type": "string",
             "description": "商户参考号"
+          },
+          "isOnline": {
+            "type": "boolean",
+            "description": "是否线上交易"
           },
           "currency": {
             "type": "string",

@@ -1,0 +1,13 @@
+---
+title: "API 签名调试"
+description: "填写 API 参数并在浏览器本地生成 YeahPay 请求签名"
+sidebarTitle: "API 签名调试"
+---
+
+import { SignedApiPlayground } from "/snippets/signed-api-playground.jsx"
+
+<SignedApiPlayground locale="zh" />
+
+<Warning>
+  此工具不会自动发送交易请求。请先使用测试凭证验证请求，生产环境操作前应再次检查金额、订单号和回调地址。
+</Warning>

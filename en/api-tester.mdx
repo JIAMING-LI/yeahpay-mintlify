@@ -1,0 +1,13 @@
+---
+title: "Signed API playground"
+description: "Enter API parameters and generate a YeahPay request signature locally in your browser"
+sidebarTitle: "Signed API playground"
+---
+
+import { SignedApiPlayground } from "/snippets/signed-api-playground.jsx"
+
+<SignedApiPlayground locale="en" />
+
+<Warning>
+  This tool does not send transaction requests automatically. Validate requests with test credentials first, and check the amount, order ID, and callback URL before using production.
+</Warning>

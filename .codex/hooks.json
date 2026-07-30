@@ -1,0 +1,43 @@
+{
+  "description": "Keep the YeahPay signed API playground synchronized with openapi.json.",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "apply_patch|Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$(git rev-parse --show-toplevel)/scripts/hooks/generated-artifacts-guard.py\"",
+            "timeout": 10,
+            "statusMessage": "Protecting generated OpenAPI artifacts"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "apply_patch|Edit|Write|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$(git rev-parse --show-toplevel)/scripts/hooks/openapi-artifacts-hook.py\" post",
+            "timeout": 120,
+            "statusMessage": "Synchronizing OpenAPI artifacts"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$(git rev-parse --show-toplevel)/scripts/hooks/openapi-artifacts-hook.py\" stop",
+            "timeout": 120,
+            "statusMessage": "Checking OpenAPI synchronization"
+          }
+        ]
+      }
+    ]
+  }
+}

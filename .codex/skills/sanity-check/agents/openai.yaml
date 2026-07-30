@@ -1,0 +1,4 @@
+interface:
+  display_name: "Sanity Check"
+  short_description: "Check and repair YeahPay OpenAPI generated artifacts"
+  default_prompt: "Use $sanity-check to verify and synchronize the YeahPay OpenAPI generated artifacts."

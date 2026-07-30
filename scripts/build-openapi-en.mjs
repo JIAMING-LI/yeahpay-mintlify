@@ -143,7 +143,8 @@ const translations = new Map(Object.entries({
   "限制支付方式": "Restricted payment methods",
   "随机字符串。": "Random string.",
   "页面打开目标": "Page target",
-  "页面语言": "Page language"
+  "页面语言": "Page language",
+  "是否线上交易": "Whether this is an online transaction"
 }));
 
 function translate(value) {
@@ -162,6 +163,14 @@ function translate(value) {
 }
 
 const output = translate(source);
+
+for (const pathItem of Object.values(output.paths ?? {})) {
+  for (const operation of Object.values(pathItem ?? {})) {
+    if (!operation?.operationId || !operation["x-mint"]?.content) continue;
+    operation["x-mint"].content = `<Card title="Signed request tester" href="/en/api-tester?operationId=${operation.operationId}">Generate the signature and cURL for this operation.</Card>`;
+  }
+}
+
 const serialized = `${JSON.stringify(output, null, 2)}\n`;
 const untranslated = [...new Set(serialized.match(/[^"\n]*[\u3400-\u9fff][^"\n]*/g) ?? [])];
 

@@ -3,9 +3,9 @@
   "theme": "mint",
   "name": "yeahpay-api",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#0055FF",
+    "light": "#0061FF",
+    "dark": "#576DFF"
   },
   "favicon": "/favicon.svg",
   "navigation": {
@@ -21,7 +21,8 @@
                 "group": "接入指南",
                 "pages": [
                   "index",
-                  "signature"
+                  "signature",
+                  "api-tester"
                 ]
               }
             ]
@@ -45,7 +46,8 @@
                 "group": "Integration guide",
                 "pages": [
                   "en/index",
-                  "en/signature"
+                  "en/signature",
+                  "en/api-tester"
                 ]
               }
             ]
