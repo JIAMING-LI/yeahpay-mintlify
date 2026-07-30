@@ -3,8 +3,6 @@ import { readFile, writeFile } from "node:fs/promises";
 const source = JSON.parse(await readFile(new URL("../openapi.json", import.meta.url), "utf8"));
 
 const translations = new Map(Object.entries({
-  "Apple Pay / Google Pay 支付": "Apple Pay / Google Pay payment",
-  "Apple Pay 和 Google Pay": "Apple Pay and Google Pay",
   "MPP 信息": "MPP information",
   "POS 编号": "POS number",
   "SHA-512 签名。签名原文为 `URL\\nappId\\ntimestamp\\nversion\\nnonce\\n原始请求体\\nAPI key`。": "SHA-512 signature. The signing text is `URL\\nappId\\ntimestamp\\nversion\\nnonce\\nraw request body\\nAPI key`.",
@@ -26,7 +24,6 @@ const translations = new Map(Object.entries({
   "二维码。字段名按源文档保留。": "QR code. The field name is retained from the source document.",
   "交易类型": "Transaction type",
   "公共参数表规定 version=1.0，而签名示例使用 2.0；本规范采用公共参数表。": "The common parameter table specifies version 1.0, while the signing example uses 2.0. This specification follows the common parameter table.",
-  "刷卡交易（线上支付）": "Card transactions (online payments)",
   "加密卡号": "Encrypted card number",
   "卡类型": "Card type",
   "原商户订单号": "Original merchant order number",
@@ -110,7 +107,7 @@ const translations = new Map(Object.entries({
   "结算退款金额": "Settlement refund amount",
   "结算金额": "Settlement amount",
   "统一撤销或退款": "Unified reversal or refund",
-  "统一逆向交易": "Unified reversal transactions",
+  "撤销-退款": "Reversal and refund",
   "获取 PC 收银台地址": "Get PC checkout URL",
   "获取收银台地址": "Get checkout URL",
   "被扫（商户扫消费者付款码）": "Customer-presented QR payment (merchant scans customer code)",

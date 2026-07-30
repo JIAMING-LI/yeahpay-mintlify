@@ -13,20 +13,16 @@
   ],
   "tags": [
     {
-      "name": "扫码交易",
-      "description": "主扫、被扫、查询、关闭和退款查询"
+      "name": "收银台",
+      "description": "移动端和 PC 收银台"
     },
     {
-      "name": "统一逆向交易",
+      "name": "撤销-退款",
       "description": "统一撤销或退款"
     },
     {
-      "name": "刷卡交易（线上支付）",
-      "description": "Apple Pay 和 Google Pay"
-    },
-    {
-      "name": "收银台",
-      "description": "移动端和 PC 收银台"
+      "name": "扫码交易",
+      "description": "主扫、被扫、查询、关闭和退款查询"
     }
   ],
   "security": [
@@ -36,6 +32,270 @@
     }
   ],
   "paths": {
+    "/cardOrder/getRedirectUrl": {
+      "post": {
+        "tags": [
+          "收银台"
+        ],
+        "summary": "获取收银台地址",
+        "operationId": "getRedirectUrl",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/VersionHeader"
+          },
+          {
+            "$ref": "#/components/parameters/TimestampHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AlgorithmHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AppIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/NonceHeader"
+          },
+          {
+            "$ref": "#/components/parameters/SignatureHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptLanguageHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptTimezoneHeader"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CashierRedirectRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "请求成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CashierRedirectResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "请求参数错误"
+          },
+          "401": {
+            "description": "签名验证失败或身份认证失败"
+          },
+          "500": {
+            "description": "服务端错误"
+          }
+        }
+      }
+    },
+    "/cardOrder/getTradeType": {
+      "post": {
+        "tags": [
+          "收银台"
+        ],
+        "summary": "查询支付方式",
+        "operationId": "getTradeType",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/VersionHeader"
+          },
+          {
+            "$ref": "#/components/parameters/TimestampHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AlgorithmHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AppIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/NonceHeader"
+          },
+          {
+            "$ref": "#/components/parameters/SignatureHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptLanguageHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptTimezoneHeader"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TradeTypeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "请求成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TradeTypeResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "请求参数错误"
+          },
+          "401": {
+            "description": "签名验证失败或身份认证失败"
+          },
+          "500": {
+            "description": "服务端错误"
+          }
+        }
+      }
+    },
+    "/cardOrder/getPcRedirectUrl": {
+      "post": {
+        "tags": [
+          "收银台"
+        ],
+        "summary": "获取 PC 收银台地址",
+        "operationId": "getPcRedirectUrl",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/VersionHeader"
+          },
+          {
+            "$ref": "#/components/parameters/TimestampHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AlgorithmHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AppIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/NonceHeader"
+          },
+          {
+            "$ref": "#/components/parameters/SignatureHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptLanguageHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptTimezoneHeader"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PcCashierRedirectRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "请求成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CashierRedirectResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "请求参数错误"
+          },
+          "401": {
+            "description": "签名验证失败或身份认证失败"
+          },
+          "500": {
+            "description": "服务端错误"
+          }
+        }
+      }
+    },
+    "/unified/reversalOperation": {
+      "post": {
+        "tags": [
+          "撤销-退款"
+        ],
+        "summary": "统一撤销或退款",
+        "operationId": "reversalOperation",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/VersionHeader"
+          },
+          {
+            "$ref": "#/components/parameters/TimestampHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AlgorithmHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AppIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/NonceHeader"
+          },
+          {
+            "$ref": "#/components/parameters/SignatureHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptLanguageHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptTimezoneHeader"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReversalOperationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "请求成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReversalOperationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "请求参数错误"
+          },
+          "401": {
+            "description": "签名验证失败或身份认证失败"
+          },
+          "500": {
+            "description": "服务端错误"
+          }
+        }
+      }
+    },
     "/order/unifiedOrder": {
       "post": {
         "tags": [
@@ -350,336 +610,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/QueryRefundResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "请求参数错误"
-          },
-          "401": {
-            "description": "签名验证失败或身份认证失败"
-          },
-          "500": {
-            "description": "服务端错误"
-          }
-        }
-      }
-    },
-    "/unified/reversalOperation": {
-      "post": {
-        "tags": [
-          "统一逆向交易"
-        ],
-        "summary": "统一撤销或退款",
-        "operationId": "reversalOperation",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/VersionHeader"
-          },
-          {
-            "$ref": "#/components/parameters/TimestampHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AlgorithmHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AppIdHeader"
-          },
-          {
-            "$ref": "#/components/parameters/NonceHeader"
-          },
-          {
-            "$ref": "#/components/parameters/SignatureHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AcceptLanguageHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AcceptTimezoneHeader"
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ReversalOperationRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "请求成功",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ReversalOperationResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "请求参数错误"
-          },
-          "401": {
-            "description": "签名验证失败或身份认证失败"
-          },
-          "500": {
-            "description": "服务端错误"
-          }
-        }
-      }
-    },
-    "/cardOrder/googleAndApplePay": {
-      "post": {
-        "tags": [
-          "刷卡交易（线上支付）"
-        ],
-        "summary": "Apple Pay / Google Pay 支付",
-        "operationId": "googleAndApplePay",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/VersionHeader"
-          },
-          {
-            "$ref": "#/components/parameters/TimestampHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AlgorithmHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AppIdHeader"
-          },
-          {
-            "$ref": "#/components/parameters/NonceHeader"
-          },
-          {
-            "$ref": "#/components/parameters/SignatureHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AcceptLanguageHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AcceptTimezoneHeader"
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/WalletPaymentRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "请求成功",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/WalletPaymentResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "请求参数错误"
-          },
-          "401": {
-            "description": "签名验证失败或身份认证失败"
-          },
-          "500": {
-            "description": "服务端错误"
-          }
-        }
-      }
-    },
-    "/cardOrder/getRedirectUrl": {
-      "post": {
-        "tags": [
-          "收银台"
-        ],
-        "summary": "获取收银台地址",
-        "operationId": "getRedirectUrl",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/VersionHeader"
-          },
-          {
-            "$ref": "#/components/parameters/TimestampHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AlgorithmHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AppIdHeader"
-          },
-          {
-            "$ref": "#/components/parameters/NonceHeader"
-          },
-          {
-            "$ref": "#/components/parameters/SignatureHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AcceptLanguageHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AcceptTimezoneHeader"
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CashierRedirectRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "请求成功",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CashierRedirectResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "请求参数错误"
-          },
-          "401": {
-            "description": "签名验证失败或身份认证失败"
-          },
-          "500": {
-            "description": "服务端错误"
-          }
-        }
-      }
-    },
-    "/cardOrder/getTradeType": {
-      "post": {
-        "tags": [
-          "收银台"
-        ],
-        "summary": "查询支付方式",
-        "operationId": "getTradeType",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/VersionHeader"
-          },
-          {
-            "$ref": "#/components/parameters/TimestampHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AlgorithmHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AppIdHeader"
-          },
-          {
-            "$ref": "#/components/parameters/NonceHeader"
-          },
-          {
-            "$ref": "#/components/parameters/SignatureHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AcceptLanguageHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AcceptTimezoneHeader"
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/TradeTypeRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "请求成功",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TradeTypeResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "请求参数错误"
-          },
-          "401": {
-            "description": "签名验证失败或身份认证失败"
-          },
-          "500": {
-            "description": "服务端错误"
-          }
-        }
-      }
-    },
-    "/cardOrder/getPcRedirectUrl": {
-      "post": {
-        "tags": [
-          "收银台"
-        ],
-        "summary": "获取 PC 收银台地址",
-        "operationId": "getPcRedirectUrl",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/VersionHeader"
-          },
-          {
-            "$ref": "#/components/parameters/TimestampHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AlgorithmHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AppIdHeader"
-          },
-          {
-            "$ref": "#/components/parameters/NonceHeader"
-          },
-          {
-            "$ref": "#/components/parameters/SignatureHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AcceptLanguageHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AcceptTimezoneHeader"
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/PcCashierRedirectRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "请求成功",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CashierRedirectResponse"
                 }
               }
             }
@@ -1964,118 +1894,6 @@
               "merchantId",
               "leshuaRefundId",
               "status"
-            ]
-          }
-        },
-        "required": [
-          "code"
-        ]
-      },
-      "WalletPaymentRequest": {
-        "type": "object",
-        "properties": {
-          "amount": {
-            "type": "integer",
-            "description": "订单金额，单位为最小货币单位",
-            "format": "int64",
-            "minimum": 1
-          },
-          "currency": {
-            "type": "string",
-            "description": "币种",
-            "enum": [
-              "SGD"
-            ]
-          },
-          "merchantId": {
-            "type": "string",
-            "description": "商户号"
-          },
-          "methodType": {
-            "type": "string",
-            "description": "钱包类型",
-            "enum": [
-              "GooglePay",
-              "ApplePay"
-            ]
-          },
-          "thirdOrderId": {
-            "type": "string",
-            "description": "商户订单号"
-          },
-          "notifyUrl": {
-            "type": "string",
-            "description": "支付结果通知地址",
-            "format": "uri"
-          }
-        },
-        "required": [
-          "amount",
-          "currency",
-          "merchantId",
-          "methodType",
-          "thirdOrderId"
-        ]
-      },
-      "WalletPaymentResponse": {
-        "type": "object",
-        "properties": {
-          "code": {
-            "oneOf": [
-              {
-                "type": "string",
-                "examples": [
-                  "200"
-                ]
-              },
-              {
-                "type": "integer",
-                "examples": [
-                  0
-                ]
-              }
-            ],
-            "description": "业务结果码。普通交易示例以字符串返回；收银台示例以数字 0 返回，因此兼容两种来源格式。"
-          },
-          "message": {
-            "type": "string",
-            "description": "结果描述"
-          },
-          "data": {
-            "type": "object",
-            "properties": {
-              "clientSecret": {
-                "type": "string",
-                "description": "客户端密钥"
-              },
-              "countryCode": {
-                "type": "string",
-                "description": "国家或地区代码"
-              },
-              "intentId": {
-                "type": "string",
-                "description": "支付意图 ID"
-              },
-              "orderId": {
-                "type": "string",
-                "description": "订单 ID"
-              },
-              "amount": {
-                "type": "string",
-                "description": "金额"
-              },
-              "currency": {
-                "type": "string",
-                "description": "币种"
-              }
-            },
-            "required": [
-              "clientSecret",
-              "countryCode",
-              "intentId",
-              "orderId",
-              "amount",
-              "currency"
             ]
           }
         },
