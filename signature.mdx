@@ -1,0 +1,206 @@
+---
+title: "签名规则与示例"
+description: "生成 YeahPay API 请求签名并发送未经修改的原始 JSON"
+sidebarTitle: "签名规则与示例"
+---
+
+每个请求都必须生成独立签名。签名使用请求路径、公共参数、原始请求体和 `apiKey` 计算。
+
+## 签名原文
+
+按以下顺序连接字段。每个字段之间使用一个 ASCII 换行符 `\n`（`0x0A`），最后一个字段后不再追加换行符。
+
+```text
+signUrl
+appId
+timestamp
+version
+nonce
+rawBody
+apiKey
+```
+
+计算方式如下：
+
+```text
+signature = Base64(SHA-512(UTF-8(signText)))
+```
+
+<Warning>
+  `rawBody` 必须是实际发送的原始 JSON 字符串。签名后不能再次序列化、格式化、调整字段顺序或改变空格。
+</Warning>
+
+## 签名 URL
+
+签名使用请求路径，不包含协议、域名、查询参数和网关转发前缀。
+
+测试环境示例：
+
+```text
+请求地址：
+https://t-acquire-business.lepass.cn/gw/abroad-business-acceptance-open-api/order/unifiedOrder
+
+签名 URL：
+/abroad-business-acceptance-open-api/order/unifiedOrder
+```
+
+<Note>
+  `/gw` 和 `/acceptance` 是传输层网关前缀，不参与签名。若商户环境使用了不同的网关路径，请以 YeahPay 提供的验签路径为准。
+</Note>
+
+## 生成步骤
+
+<Steps>
+  <Step title="固定原始请求体">
+    将业务对象序列化为紧凑 JSON，并保存为 `rawBody`。
+  </Step>
+  <Step title="准备公共参数">
+    生成 13 位毫秒 `timestamp` 和本次请求唯一的 `nonce`。`version` 使用 `1.0`。
+  </Step>
+  <Step title="构造签名原文">
+    按规定顺序使用 `\n` 连接七个字段。
+  </Step>
+  <Step title="计算并发送">
+    计算 SHA-512，转换为标准 Base64，并将结果放入 `signature` Header。请求 Body 直接发送之前保存的 `rawBody`。
+  </Step>
+</Steps>
+
+## 示例代码
+
+<Tabs>
+  <Tab title="JavaScript">
+    ```javascript
+    import { createHash, randomUUID } from "node:crypto";
+    
+    const baseUrl =
+      "https://t-acquire-business.lepass.cn/gw/abroad-business-acceptance-open-api";
+    const path = "/order/unifiedOrder";
+    const appId = process.env.YEAHPAY_APP_ID;
+    const apiKey = process.env.YEAHPAY_API_KEY;
+    const version = "1.0";
+    const timestamp = Date.now().toString();
+    const nonce = randomUUID().replaceAll("-", "");
+    
+    const body = {
+      payWay: "PayNowPay",
+      merchantId: "YOUR_MERCHANT_ID",
+      thirdOrderId: `ORDER_${timestamp}`,
+      amount: 100,
+      currency: "SGD",
+      jspayFlag: "NATIVE",
+    };
+    
+    // 只序列化一次：签名和发送必须使用同一个字符串。
+    const rawBody = JSON.stringify(body);
+    
+    function buildSignUrl(requestBaseUrl, requestPath) {
+      const basePath = new URL(requestBaseUrl).pathname
+        .replace(/^\/(?:gw|acceptance)(?=\/)/, "")
+        .replace(/\/+$/, "");
+      return `${basePath}/${requestPath.replace(/^\/+/, "")}`;
+    }
+    
+    const signUrl = buildSignUrl(baseUrl, path);
+    const signText = [
+      signUrl,
+      appId,
+      timestamp,
+      version,
+      nonce,
+      rawBody,
+      apiKey,
+    ].join("\n");
+    
+    const signature = createHash("sha512")
+      .update(signText, "utf8")
+      .digest("base64");
+    
+    const response = await fetch(`${baseUrl}${path}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept-Language": "zh-CN",
+        "Accept-Timezone": "Asia/Shanghai",
+        appId,
+        version,
+        timestamp,
+        nonce,
+        algorithm: "SHA-512",
+        signature,
+      },
+      body: rawBody,
+    });
+    
+    console.log(response.status, await response.text());
+    ```
+  </Tab>
+  <Tab title="Java">
+    ```java
+    import java.net.URI;
+    import java.net.http.HttpClient;
+    import java.net.http.HttpRequest;
+    import java.net.http.HttpResponse;
+    import java.nio.charset.StandardCharsets;
+    import java.security.MessageDigest;
+    import java.time.Instant;
+    import java.util.Base64;
+    import java.util.UUID;
+    
+    String baseUrl =
+        "https://t-acquire-business.lepass.cn/gw/abroad-business-acceptance-open-api";
+    String path = "/order/unifiedOrder";
+    String appId = System.getenv("YEAHPAY_APP_ID");
+    String apiKey = System.getenv("YEAHPAY_API_KEY");
+    String version = "1.0";
+    String timestamp = String.valueOf(Instant.now().toEpochMilli());
+    String nonce = UUID.randomUUID().toString().replace("-", "");
+    
+    // 签名和发送必须使用完全相同的 rawBody。
+    String rawBody = """
+        {"payWay":"PayNowPay","merchantId":"YOUR_MERCHANT_ID","thirdOrderId":"ORDER_001","amount":100,"currency":"SGD","jspayFlag":"NATIVE"}
+        """.strip();
+    
+    String basePath = URI.create(baseUrl).getPath();
+    if (basePath.startsWith("/gw/")) {
+        basePath = basePath.substring("/gw".length());
+    } else if (basePath.startsWith("/acceptance/")) {
+        basePath = basePath.substring("/acceptance".length());
+    }
+    String signUrl = basePath.replaceAll("/+$", "")
+        + "/" + path.replaceAll("^/+", "");
+    
+    String signText = String.join(
+        "\n", signUrl, appId, timestamp, version, nonce, rawBody, apiKey);
+    byte[] digest = MessageDigest.getInstance("SHA-512")
+        .digest(signText.getBytes(StandardCharsets.UTF_8));
+    String signature = Base64.getEncoder().encodeToString(digest);
+    
+    HttpRequest request = HttpRequest.newBuilder(
+            URI.create(baseUrl.replaceAll("/+$", "") + path))
+        .header("Content-Type", "application/json")
+        .header("appId", appId)
+        .header("version", version)
+        .header("timestamp", timestamp)
+        .header("nonce", nonce)
+        .header("algorithm", "SHA-512")
+        .header("signature", signature)
+        .POST(HttpRequest.BodyPublishers.ofString(rawBody, StandardCharsets.UTF_8))
+        .build();
+    
+    HttpResponse<String> response = HttpClient.newHttpClient().send(
+        request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+    System.out.println(response.statusCode() + " " + response.body());
+    ```
+  </Tab>
+</Tabs>
+
+## 常见签名错误
+
+| 问题 | 处理方式 |
+| --- | --- |
+| 把完整请求 URL 用于签名 | 只使用 YeahPay 验签路径，不包含协议和域名 |
+| 把 `/gw` 或 `/acceptance` 加入签名 | 去掉传输层网关前缀 |
+| 签名后重新序列化 JSON | 保存并复用同一个 `rawBody` |
+| 使用秒级时间戳 | 使用 13 位毫秒时间戳 |
+| 使用十六进制 SHA-512 | 使用标准 Base64 编码 |
+| 把 `apiKey` 放进请求 Header | `apiKey` 只参与签名，不能发送 |
