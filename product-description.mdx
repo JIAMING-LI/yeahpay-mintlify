@@ -1,0 +1,102 @@
+---
+title: "产品介绍"
+description: "选择并接入 YeahPay H5 收银台或 PC 收银台"
+---
+
+YeahPay 收银台为商户提供托管支付页面。商户服务端创建收银台会话并取得跳转地址，消费者在 YeahPay 页面完成付款；商户通过异步通知和支付查询确认最终交易结果。
+
+<CardGroup cols={2}>
+  <Card title="H5 收银台" icon="mobile-screen" href="#h5-收银台">
+    面向移动浏览器、App WebView 等移动端场景，商户将消费者跳转到托管收银台完成付款。
+  </Card>
+  <Card title="PC 收银台" icon="desktop" href="#pc-收银台">
+    面向桌面浏览器场景，可先查询可用支付方式，再创建 PC 收银台并打开支付页面。
+  </Card>
+</CardGroup>
+
+## 如何选择
+
+| 产品 | 典型场景 | 创建收银台接口 | 页面呈现方式 |
+| --- | --- | --- | --- |
+| H5 收银台 | 移动浏览器、App WebView | `POST /cardOrder/getRedirectUrl` | 当前页跳转或打开新页面 |
+| PC 收银台 | 桌面网站 | `POST /cardOrder/getPcRedirectUrl` | 新窗口或新标签页 |
+
+<Note>
+  两种收银台的 API 都应由商户服务端调用。`apiKey` 只能保存在服务端并参与签名计算，不能下发到浏览器或 App。
+</Note>
+
+## H5 收银台
+
+H5 收银台适合移动端网页和内嵌 WebView。商户提交订单信息后取得 `data.url`，再将消费者引导至该地址。
+
+### 接入流程
+
+<Steps>
+  <Step title="服务端创建订单">
+    生成唯一的商户订单号，准备金额、币种、商品信息、前端回跳地址 `callback` 和支付结果通知地址 `notifyUrl`。
+  </Step>
+  <Step title="获取 H5 收银台地址">
+    服务端签名并调用 [`POST /cardOrder/getRedirectUrl`](/api-reference/收银台/获取收银台地址)。线上支付场景将 `isOnline` 设置为 `true`。
+  </Step>
+  <Step title="打开收银台">
+    从响应的 `data.url` 取得托管页面地址，在当前页面跳转，或根据业务体验打开新页面。
+  </Step>
+  <Step title="确认支付结果">
+    验证支付结果通知的签名并幂等处理。若未及时收到通知，调用[支付查询接口](/api-reference/扫码交易/支付查询（扫码、刷卡）)主动确认。
+  </Step>
+</Steps>
+
+<CardGroup cols={2}>
+  <Card title="查看 H5 收银台接口" icon="book-open" href="/api-reference/收银台/获取收银台地址">
+    查看完整请求字段、必填项和响应结构。
+  </Card>
+  <Card title="调试签名请求" icon="terminal" href="/api-tester?operationId=getRedirectUrl">
+    使用接口示例生成签名请求头和 cURL。
+  </Card>
+</CardGroup>
+
+## PC 收银台
+
+PC 收银台适合桌面网站。商户可以先获取当前可用的支付方式，也可以直接创建 PC 收银台，让消费者在托管页面内选择并完成支付。
+
+### 接入流程
+
+<Steps>
+  <Step title="查询支付方式（可选）">
+    如果商户页面需要提前展示可用支付方式，服务端调用 [`POST /cardOrder/getTradeType`](/api-reference/收银台/查询支付方式)。若由收银台页面统一展示，可跳过此步骤。
+  </Step>
+  <Step title="获取 PC 收银台地址">
+    服务端签名并调用 [`POST /cardOrder/getPcRedirectUrl`](/api-reference/收银台/获取-PC-收银台地址)，提交订单、消费者信息以及业务类型。实物交易还需要提供物流和账单信息。
+  </Step>
+  <Step title="打开收银台">
+    从响应的 `data.url` 取得托管页面地址，在新窗口或新标签页打开，并保留原商户页面。
+  </Step>
+  <Step title="确认支付结果">
+    验证支付结果通知的签名并幂等处理。需要补偿或主动刷新状态时，调用[支付查询接口](/api-reference/扫码交易/支付查询（扫码、刷卡）)。
+  </Step>
+</Steps>
+
+<CardGroup cols={3}>
+  <Card title="查询支付方式" icon="list" href="/api-reference/收银台/查询支付方式">
+    获取商户当前可用的支付方式。
+  </Card>
+  <Card title="创建 PC 收银台" icon="desktop" href="/api-reference/收银台/获取-PC-收银台地址">
+    查看 PC 收银台请求字段和条件必填项。
+  </Card>
+  <Card title="调试 PC 请求" icon="terminal" href="/api-tester?operationId=getPcRedirectUrl">
+    生成签名请求头和 cURL。
+  </Card>
+</CardGroup>
+
+## 需要接入的能力
+
+| 能力 | H5 收银台 | PC 收银台 | 接入要求 |
+| --- | --- | --- | --- |
+| 获取收银台地址 | `getRedirectUrl` | `getPcRedirectUrl` | 必接 |
+| 查询支付方式 | — | `getTradeType` | 按页面体验选接 |
+| 支付结果通知 | `paymentNotification` | `paymentNotification` | 强烈建议，用于异步确认最终结果 |
+| 支付查询 | `queryOrder` | `queryOrder` | 建议接入，用于主动查询和通知补偿 |
+
+<Warning>
+  `callback` 仅用于消费者完成操作后的页面回跳，不能作为支付成功的判断依据。订单最终状态应以验签后的支付结果通知或支付查询结果为准。
+</Warning>

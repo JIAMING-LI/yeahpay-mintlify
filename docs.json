@@ -28,6 +28,17 @@
             ]
           },
           {
+            "tab": "产品介绍",
+            "groups": [
+              {
+                "group": "收银台产品",
+                "pages": [
+                  "product-description"
+                ]
+              }
+            ]
+          },
+          {
             "tab": "API文档",
             "openapi": {
               "source": "openapi.json",
@@ -48,6 +59,17 @@
                   "en/index",
                   "en/signature",
                   "en/api-tester"
+                ]
+              }
+            ]
+          },
+          {
+            "tab": "Product Description",
+            "groups": [
+              {
+                "group": "Checkout products",
+                "pages": [
+                  "en/product-description"
                 ]
               }
             ]

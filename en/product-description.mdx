@@ -1,0 +1,102 @@
+---
+title: "Product Description"
+description: "Choose and integrate the YeahPay H5 Checkout or PC Checkout"
+---
+
+YeahPay Checkout provides merchant-hosted payment entry through a YeahPay-managed payment page. Your server creates a checkout session and receives a redirect URL, the customer completes payment on YeahPay, and your system confirms the final result through an asynchronous notification or payment query.
+
+<CardGroup cols={2}>
+  <Card title="H5 Checkout" icon="mobile-screen" href="#h5-checkout">
+    Built for mobile browsers and in-app WebViews. Redirect the customer to the hosted checkout to complete payment.
+  </Card>
+  <Card title="PC Checkout" icon="desktop" href="#pc-checkout">
+    Built for desktop browsers. Optionally query available payment methods before opening the hosted checkout.
+  </Card>
+</CardGroup>
+
+## Choose a checkout
+
+| Product | Typical use case | Create-checkout API | Presentation |
+| --- | --- | --- | --- |
+| H5 Checkout | Mobile browser or in-app WebView | `POST /cardOrder/getRedirectUrl` | Redirect the current page or open a new page |
+| PC Checkout | Desktop website | `POST /cardOrder/getPcRedirectUrl` | Open a new window or browser tab |
+
+<Note>
+  Call both checkout APIs from your server. Keep the `apiKey` on the server for signature generation and never expose it to a browser or mobile app.
+</Note>
+
+## H5 Checkout
+
+H5 Checkout is designed for mobile web pages and embedded WebViews. Submit the order from your server, read `data.url` from the response, and send the customer to that URL.
+
+### Integration flow
+
+<Steps>
+  <Step title="Create the order on your server">
+    Generate a unique merchant order ID and prepare the amount, currency, goods, frontend return URL in `callback`, and payment notification URL in `notifyUrl`.
+  </Step>
+  <Step title="Get the H5 Checkout URL">
+    Sign and call [`POST /cardOrder/getRedirectUrl`](/en/api-reference/checkout/get-checkout-url) from your server. Set `isOnline` to `true` for an online transaction.
+  </Step>
+  <Step title="Open Checkout">
+    Read the hosted page URL from `data.url`, then redirect the current page or open it in a new page according to your customer experience.
+  </Step>
+  <Step title="Confirm the payment result">
+    Verify the payment notification signature and process notifications idempotently. If a notification is delayed, call the [payment query API](/en/api-reference/qr-code-transactions/payment-query-qr-code-and-card) to confirm the result.
+  </Step>
+</Steps>
+
+<CardGroup cols={2}>
+  <Card title="H5 Checkout API" icon="book-open" href="/en/api-reference/checkout/get-checkout-url">
+    Review the full request fields, required properties, and response schema.
+  </Card>
+  <Card title="Test a signed request" icon="terminal" href="/en/api-tester?operationId=getRedirectUrl">
+    Generate signed request headers and cURL from the operation example.
+  </Card>
+</CardGroup>
+
+## PC Checkout
+
+PC Checkout is designed for desktop websites. You can query the currently available payment methods before checkout, or create the PC Checkout directly and let the hosted page present the available options.
+
+### Integration flow
+
+<Steps>
+  <Step title="Query payment methods (optional)">
+    If your website needs to show available methods before checkout, call [`POST /cardOrder/getTradeType`](/en/api-reference/checkout/query-payment-methods) from your server. Skip this step when the hosted page will present the options.
+  </Step>
+  <Step title="Get the PC Checkout URL">
+    Sign and call [`POST /cardOrder/getPcRedirectUrl`](/en/api-reference/checkout/get-pc-checkout-url), including order data, consumer information, and the business type. Physical-goods transactions also require logistics and billing information.
+  </Step>
+  <Step title="Open Checkout">
+    Read the hosted page URL from `data.url` and open it in a new window or tab while retaining the merchant page.
+  </Step>
+  <Step title="Confirm the payment result">
+    Verify the payment notification signature and process notifications idempotently. Use the [payment query API](/en/api-reference/qr-code-transactions/payment-query-qr-code-and-card) for recovery or active status refresh.
+  </Step>
+</Steps>
+
+<CardGroup cols={3}>
+  <Card title="Query payment methods" icon="list" href="/en/api-reference/checkout/query-payment-methods">
+    Retrieve the payment methods currently available to the merchant.
+  </Card>
+  <Card title="Create PC Checkout" icon="desktop" href="/en/api-reference/checkout/get-pc-checkout-url">
+    Review request fields and conditionally required properties.
+  </Card>
+  <Card title="Test the PC request" icon="terminal" href="/en/api-tester?operationId=getPcRedirectUrl">
+    Generate signed request headers and cURL.
+  </Card>
+</CardGroup>
+
+## Integration requirements
+
+| Capability | H5 Checkout | PC Checkout | Requirement |
+| --- | --- | --- | --- |
+| Get a checkout URL | `getRedirectUrl` | `getPcRedirectUrl` | Required |
+| Query payment methods | — | `getTradeType` | Optional, based on your page experience |
+| Payment result notification | `paymentNotification` | `paymentNotification` | Strongly recommended for asynchronous final confirmation |
+| Payment query | `queryOrder` | `queryOrder` | Recommended for active queries and notification recovery |
+
+<Warning>
+  `callback` only returns the customer to your frontend after the payment flow. Do not treat that redirect as proof of payment. Determine the final order status from a verified payment notification or payment query response.
+</Warning>
