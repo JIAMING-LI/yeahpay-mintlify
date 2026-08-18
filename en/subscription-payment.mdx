@@ -1,0 +1,136 @@
+---
+title: "Subscription Payments"
+description: "Manage customers and subscription consents, then initiate subsequent payments"
+---
+
+Subscription Payments are designed for memberships, software services, content subscriptions, and other businesses that collect multiple payments. The customer completes the initial payment and grants authorization through H5 Checkout or PC Checkout. Once the consent is active, the merchant initiates subsequent payments under the agreed terms without sending the customer through Checkout again.
+
+<Note>
+  YeahPay provides customer, subscription consent, and subsequent payment capabilities. Your system manages subscription periods, plans, billing dates, retry policies, and service fulfillment.
+</Note>
+
+## Complete integration flow
+
+<Steps>
+  <Step title="Create a customer">
+    Call [`POST /consent-payment/customers/create`](/en/api-reference/subscription-payments/create-customer). Use a unique, immutable `merchantCustomerId` for the merchant and save the `customerId` returned in the response.
+  </Step>
+  <Step title="Create the initial-payment Checkout">
+    Choose [H5 Checkout](/en/api-reference/checkout/get-checkout-url) or [PC Checkout](/en/api-reference/checkout/get-pc-checkout-url) for the customer's device. Provide `isConsent=true`, `customerId`, `paymentInitiator=merchant`, and `paymentType=scheduled` to either API.
+  </Step>
+  <Step title="Complete the initial payment and obtain consentId">
+    After the customer completes the initial payment, YeahPay creates the subscription consent and returns `consentId` in the payment notification. Verify the signature and confirm payment success, then save `consentId` for consent management and subsequent payments.
+  </Step>
+  <Step title="Manage the subscription">
+    Use `consentId` to query the consent status. Cancel the consent when the customer stops the subscription, or reactivate it when the subscription resumes.
+  </Step>
+  <Step title="Initiate subsequent payments">
+    According to your billing schedule, initiate a subsequent payment with an active `consentId` and confirm the final result through the payment notification.
+  </Step>
+</Steps>
+
+## Initial-payment parameters
+
+The following parameters have the same meaning and requirements in H5 Checkout and PC Checkout:
+
+| Parameter | Value | Description |
+| --- | --- | --- |
+| `isConsent` | `true` | Marks the payment as an initial subscription authorization payment |
+| `customerId` | Returned by Create customer | Identifies the customer completing the initial payment and authorization |
+| `paymentInitiator` | `merchant` | Identifies the payment initiator; currently only merchant initiation is supported |
+| `paymentType` | `scheduled` | Identifies the payment type; currently only scheduled payments are supported |
+
+<Warning>
+  Create the customer before creating the initial-payment Checkout. The consent can be used for subsequent payments only after the initial payment succeeds and returns `consentId`; successfully creating a Checkout does not mean that the payment or consent succeeded.
+</Warning>
+
+## Customer management
+
+A customer identifies the consumer who completes the initial payment and grants permission for subsequent payments.
+
+- Generate `merchantCustomerId` in your system. It must be unique and immutable for the merchant.
+- Save the `customerId` returned by YeahPay and provide it when creating the initial-payment Checkout.
+- Update the customer when their name, email address, phone number, or address changes.
+- Query the customer by `customerId` or `merchantCustomerId`. One customer can have multiple subscription consents.
+
+<CardGroup cols={3}>
+  <Card title="Create customer" icon="user-plus" href="/en/api-reference/subscription-payments/create-customer">
+    Create a customer and obtain `customerId`.
+  </Card>
+  <Card title="Update customer" icon="user-pen" href="/en/api-reference/subscription-payments/update-customer">
+    Update customer contact or address details.
+  </Card>
+  <Card title="Query customer" icon="user-magnifying-glass" href="/en/api-reference/subscription-payments/query-customer">
+    Query details using the YeahPay or merchant-side customer identifier.
+  </Card>
+</CardGroup>
+
+## Payment notification and consentId
+
+Provide `notifyUrl` when creating the initial-payment Checkout. After the initial payment succeeds and the subscription consent is created, the payment notification returns `consentId` in addition to the standard payment fields.
+
+```json
+{
+  "status": "2",
+  "merchantId": "0004905629",
+  "thirdOrderId": "SUBSCRIPTION_INITIAL_001",
+  "leshuaOrderId": "YEAHPAY_ORDER_ID",
+  "consentId": "con_yk_2ee6fa94d3b8046c8cb4dc817dd28a3f"
+}
+```
+
+After receiving the notification:
+
+1. Verify the notification signature using the complete callback URL and raw request body.
+2. Check the payment status and process the merchant order idempotently.
+3. Save the relationship between `consentId`, your customer, the initial payment order, and the subscription in your system.
+4. Return plain text `success` after successful processing. If the notification is delayed, query the consent to recover `consentId`.
+
+<Card title="Payment result notification" icon="bell" href="/en/api-reference/payment-result-notification">
+  Review the notification fields, signature headers, and response requirements.
+</Card>
+
+## Subscription management
+
+`consentId` uniquely identifies a subscription consent. Store the relationship between the consent and your membership, plan, or service. Do not use a channel-side identifier as your business key.
+
+| Status | Meaning | Available actions |
+| --- | --- | --- |
+| `active` | The subscription consent is valid | Query, cancel, or initiate subsequent payments |
+| `cancelled` | The merchant or customer stopped the subscription | Query or reactivate |
+| `suspended` | YeahPay suspended the subscription | Query only; wait until the consent is restored |
+
+<CardGroup cols={3}>
+  <Card title="Query customer subscriptions" icon="list" href="/en/api-reference/subscription-payments/query-customer-consents">
+    List all subscription consents associated with a customer.
+  </Card>
+  <Card title="Query subscription" icon="magnifying-glass" href="/en/api-reference/subscription-payments/query-consent">
+    Query by `consentId`, `customerId`, or `merchantCustomerId`.
+  </Card>
+  <Card title="Change subscription status" icon="toggle-on" href="/en/api-reference/subscription-payments/cancel-consent">
+    Cancel a subscription or reactivate a cancelled subscription.
+  </Card>
+</CardGroup>
+
+## Subsequent payments
+
+Only an `active` subscription consent can be used for subsequent payments. Each subsequent payment is an independent transaction, and your system decides when and how much to charge.
+
+When calling [`POST /consent-payment/charges/create`](/en/api-reference/subscription-payments/initiate-subsequent-charge):
+
+- Provide an active `consentId`.
+- Generate a unique `merchantOrderId` for idempotency and reconciliation.
+- Express `amount` in the smallest currency unit and provide `currency` as three uppercase letters.
+- Optionally provide `notifyUrl` for this payment result and `description` for the payment details.
+- An accepted request is not proof of final payment success. Use the verified payment notification as the final result.
+
+Use [List charges](/en/api-reference/subscription-payments/list-charges) to retrieve the order ID, amount, currency, status, and payment time for historical payments under a consent.
+
+<CardGroup cols={2}>
+  <Card title="Initiate subsequent payment" icon="credit-card" href="/en/api-reference/subscription-payments/initiate-subsequent-charge">
+    Create a subsequent payment with an active consent.
+  </Card>
+  <Card title="Query payment records" icon="clock-rotate-left" href="/en/api-reference/subscription-payments/list-charges">
+    Retrieve historical payment records for a subscription.
+  </Card>
+</CardGroup>

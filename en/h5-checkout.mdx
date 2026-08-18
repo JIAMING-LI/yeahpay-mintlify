@@ -1,0 +1,40 @@
+---
+title: "H5 Checkout"
+description: "Integrate YeahPay-hosted Checkout in mobile browsers or in-app WebViews"
+---
+
+H5 Checkout is designed for mobile browsers and in-app WebViews. Your server creates a Checkout and receives `data.url`, then sends the customer to the YeahPay-hosted page to complete payment.
+
+## Integration flow
+
+<Steps>
+  <Step title="Create the order on your server">
+    Generate a unique merchant order ID and prepare the amount, currency, goods, frontend return URL in `callback`, and payment notification URL in `notifyUrl`.
+  </Step>
+  <Step title="Get the H5 Checkout URL">
+    Sign and call [`POST /cardOrder/getRedirectUrl`](/en/api-reference/checkout/get-checkout-url) from your server. `isOnline` defaults to `false`; set it to `true` for an online H5 Checkout.
+  </Step>
+  <Step title="Open Checkout">
+    Read the hosted page URL from `data.url`, then redirect the current page or open it in a new page according to your customer experience.
+  </Step>
+  <Step title="Confirm the payment result">
+    Verify the payment notification signature and process notifications idempotently. If a notification is delayed, call the [payment query API](/en/api-reference/qr-code-transactions/payment-query-qr-code-and-card) to confirm the result.
+  </Step>
+</Steps>
+
+<CardGroup cols={2}>
+  <Card title="H5 Checkout API" icon="book-open" href="/en/api-reference/checkout/get-checkout-url">
+    Review the complete request fields, the `isOnline` default, and the response schema.
+  </Card>
+  <Card title="Test a signed request" icon="terminal" href="/en/api-tester?operationId=getRedirectUrl">
+    Generate signed request headers and cURL from the operation example.
+  </Card>
+</CardGroup>
+
+<Note>
+  Call the API from your server. Keep the `apiKey` on the server for signature generation and never expose it to a browser or mobile app.
+</Note>
+
+<Warning>
+  `callback` only returns the customer to your frontend after the payment flow. Do not treat that redirect as proof of payment. Determine the final order status from a verified payment notification or payment query response.
+</Warning>

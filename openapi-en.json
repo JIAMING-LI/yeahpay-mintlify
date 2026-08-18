@@ -17,6 +17,10 @@
       "description": "Mobile and PC checkout"
     },
     {
+      "name": "Subscription payments",
+      "description": "Customer, consent, and subsequent charge management"
+    },
+    {
       "name": "Reversal and refund",
       "description": "Unified reversal or refund"
     },
@@ -236,6 +240,639 @@
           "500": {
             "description": "Server error"
           }
+        }
+      }
+    },
+    "/consent-payment/customers/create": {
+      "post": {
+        "tags": [
+          "Subscription payments"
+        ],
+        "summary": "Create customer",
+        "description": "Create a Subscription Payments customer. The response returns a customerId that is required when creating the initial-payment Checkout.",
+        "operationId": "createConsentCustomer",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/VersionHeader"
+          },
+          {
+            "$ref": "#/components/parameters/TimestampHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AlgorithmHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AppIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/NonceHeader"
+          },
+          {
+            "$ref": "#/components/parameters/SignatureHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptLanguageHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptTimezoneHeader"
+          },
+          {
+            "$ref": "#/components/parameters/CountryHeader"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateConsentCustomerRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Request successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateConsentCustomerResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request parameters"
+          },
+          "401": {
+            "description": "Signature verification or authentication failed"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        },
+        "x-mint": {
+          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=createConsentCustomer\">Generate the signature and cURL for this operation.</Card>"
+        }
+      }
+    },
+    "/consent-payment/customers/update": {
+      "post": {
+        "tags": [
+          "Subscription payments"
+        ],
+        "summary": "Update customer",
+        "description": "Locate a customer by customerId or merchantCustomerId and update at least one non-empty customer field.",
+        "operationId": "updateConsentCustomer",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/VersionHeader"
+          },
+          {
+            "$ref": "#/components/parameters/TimestampHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AlgorithmHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AppIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/NonceHeader"
+          },
+          {
+            "$ref": "#/components/parameters/SignatureHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptLanguageHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptTimezoneHeader"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateConsentCustomerRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Request successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConsentCustomerResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request parameters"
+          },
+          "401": {
+            "description": "Signature verification or authentication failed"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        },
+        "x-mint": {
+          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=updateConsentCustomer\">Generate the signature and cURL for this operation.</Card>"
+        }
+      }
+    },
+    "/consent-payment/customers/query": {
+      "post": {
+        "tags": [
+          "Subscription payments"
+        ],
+        "summary": "Query customer",
+        "description": "Query customer details by customerId or merchantCustomerId.",
+        "operationId": "queryConsentCustomer",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/VersionHeader"
+          },
+          {
+            "$ref": "#/components/parameters/TimestampHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AlgorithmHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AppIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/NonceHeader"
+          },
+          {
+            "$ref": "#/components/parameters/SignatureHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptLanguageHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptTimezoneHeader"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QueryConsentCustomerRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Request successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConsentCustomerResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request parameters"
+          },
+          "401": {
+            "description": "Signature verification or authentication failed"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        },
+        "x-mint": {
+          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=queryConsentCustomer\">Generate the signature and cURL for this operation.</Card>"
+        }
+      }
+    },
+    "/consent-payment/customers/consents": {
+      "post": {
+        "tags": [
+          "Subscription payments"
+        ],
+        "summary": "Query customer consents",
+        "description": "Query Subscription Payment consents associated with a customer, with pagination.",
+        "operationId": "queryCustomerConsents",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/VersionHeader"
+          },
+          {
+            "$ref": "#/components/parameters/TimestampHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AlgorithmHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AppIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/NonceHeader"
+          },
+          {
+            "$ref": "#/components/parameters/SignatureHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptLanguageHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptTimezoneHeader"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QueryCustomerConsentsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Request successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedConsentResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request parameters"
+          },
+          "401": {
+            "description": "Signature verification or authentication failed"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        },
+        "x-mint": {
+          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=queryCustomerConsents\">Generate the signature and cURL for this operation.</Card>"
+        }
+      }
+    },
+    "/consent-payment/consents/query": {
+      "post": {
+        "tags": [
+          "Subscription payments"
+        ],
+        "summary": "Query consent",
+        "description": "Query Subscription Payment consents by consentId, customerId, or merchantCustomerId.",
+        "operationId": "queryConsent",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/VersionHeader"
+          },
+          {
+            "$ref": "#/components/parameters/TimestampHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AlgorithmHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AppIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/NonceHeader"
+          },
+          {
+            "$ref": "#/components/parameters/SignatureHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptLanguageHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptTimezoneHeader"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QueryConsentRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Request successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConsentListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request parameters"
+          },
+          "401": {
+            "description": "Signature verification or authentication failed"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        },
+        "x-mint": {
+          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=queryConsent\">Generate the signature and cURL for this operation.</Card>"
+        }
+      }
+    },
+    "/consent-payment/consents/cancel": {
+      "post": {
+        "tags": [
+          "Subscription payments"
+        ],
+        "summary": "Cancel consent",
+        "description": "Cancel a Subscription Payment consent. Subsequent charges cannot be initiated after cancellation.",
+        "operationId": "cancelConsent",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/VersionHeader"
+          },
+          {
+            "$ref": "#/components/parameters/TimestampHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AlgorithmHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AppIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/NonceHeader"
+          },
+          {
+            "$ref": "#/components/parameters/SignatureHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptLanguageHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptTimezoneHeader"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConsentStateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Request successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConsentStateResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request parameters"
+          },
+          "401": {
+            "description": "Signature verification or authentication failed"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        },
+        "x-mint": {
+          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=cancelConsent\">Generate the signature and cURL for this operation.</Card>"
+        }
+      }
+    },
+    "/consent-payment/consents/activate": {
+      "post": {
+        "tags": [
+          "Subscription payments"
+        ],
+        "summary": "Reactivate consent",
+        "description": "Reactivate a Subscription Payment consent previously cancelled by the merchant.",
+        "operationId": "activateConsent",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/VersionHeader"
+          },
+          {
+            "$ref": "#/components/parameters/TimestampHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AlgorithmHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AppIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/NonceHeader"
+          },
+          {
+            "$ref": "#/components/parameters/SignatureHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptLanguageHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptTimezoneHeader"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConsentStateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Request successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConsentStateResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request parameters"
+          },
+          "401": {
+            "description": "Signature verification or authentication failed"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        },
+        "x-mint": {
+          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=activateConsent\">Generate the signature and cURL for this operation.</Card>"
+        }
+      }
+    },
+    "/consent-payment/charges/create": {
+      "post": {
+        "tags": [
+          "Subscription payments"
+        ],
+        "summary": "Initiate subsequent charge",
+        "description": "Initiate a merchant-side subsequent charge using an active Subscription Payment consent. The amount is in the smallest currency unit.",
+        "operationId": "createConsentCharge",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/VersionHeader"
+          },
+          {
+            "$ref": "#/components/parameters/TimestampHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AlgorithmHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AppIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/NonceHeader"
+          },
+          {
+            "$ref": "#/components/parameters/SignatureHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptLanguageHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptTimezoneHeader"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateConsentChargeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Request successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateConsentChargeResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request parameters"
+          },
+          "401": {
+            "description": "Signature verification or authentication failed"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        },
+        "x-mint": {
+          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=createConsentCharge\">Generate the signature and cURL for this operation.</Card>"
+        }
+      }
+    },
+    "/consent-payment/charges/list": {
+      "post": {
+        "tags": [
+          "Subscription payments"
+        ],
+        "summary": "List charges",
+        "description": "List subsequent charges for a consent, with pagination.",
+        "operationId": "listConsentCharges",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/VersionHeader"
+          },
+          {
+            "$ref": "#/components/parameters/TimestampHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AlgorithmHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AppIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/NonceHeader"
+          },
+          {
+            "$ref": "#/components/parameters/SignatureHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptLanguageHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptTimezoneHeader"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ListConsentChargesRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Request successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedConsentChargeResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request parameters"
+          },
+          "401": {
+            "description": "Signature verification or authentication failed"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        },
+        "x-mint": {
+          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=listConsentCharges\">Generate the signature and cURL for this operation.</Card>"
         }
       }
     },
@@ -858,9 +1495,781 @@
             "Asia/Shanghai"
           ]
         }
+      },
+      "CountryHeader": {
+        "name": "country",
+        "in": "header",
+        "required": false,
+        "description": "Country or region code",
+        "schema": {
+          "type": "string",
+          "maxLength": 2
+        }
       }
     },
     "schemas": {
+      "ConsentApiResponseBase": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": "Business result code. 0 indicates success.",
+            "example": 0
+          },
+          "message": {
+            "type": "string",
+            "description": "Result description"
+          },
+          "traceId": {
+            "type": "string",
+            "description": "Trace ID"
+          }
+        },
+        "required": [
+          "code",
+          "message"
+        ]
+      },
+      "ConsentCustomerAddress": {
+        "type": "object",
+        "properties": {
+          "countryCode": {
+            "type": "string",
+            "description": "Country or region code",
+            "maxLength": 2
+          },
+          "state": {
+            "type": "string",
+            "description": "State or province",
+            "maxLength": 128
+          },
+          "city": {
+            "type": "string",
+            "description": "City",
+            "maxLength": 128
+          },
+          "district": {
+            "type": "string",
+            "description": "Region",
+            "maxLength": 128
+          },
+          "postalCode": {
+            "type": "string",
+            "description": "Postal code",
+            "maxLength": 32
+          },
+          "street": {
+            "type": "string",
+            "description": "Street address",
+            "maxLength": 512
+          }
+        }
+      },
+      "CreateConsentCustomerRequest": {
+        "type": "object",
+        "properties": {
+          "merchantId": {
+            "type": "string",
+            "description": "Merchant ID",
+            "maxLength": 32
+          },
+          "merchantCustomerId": {
+            "type": "string",
+            "description": "Merchant-side customer identifier. It must be unique and immutable for the merchant.",
+            "maxLength": 128
+          },
+          "firstName": {
+            "type": "string",
+            "description": "Customer first name",
+            "maxLength": 128
+          },
+          "lastName": {
+            "type": "string",
+            "description": "Customer last name",
+            "maxLength": 128
+          },
+          "email": {
+            "type": "string",
+            "description": "Customer email address",
+            "format": "email",
+            "maxLength": 256
+          },
+          "phone": {
+            "type": "string",
+            "description": "Customer phone number",
+            "maxLength": 64
+          },
+          "address": {
+            "$ref": "#/components/schemas/ConsentCustomerAddress"
+          }
+        },
+        "required": [
+          "merchantId",
+          "merchantCustomerId",
+          "firstName",
+          "lastName",
+          "email"
+        ]
+      },
+      "UpdateConsentCustomerRequest": {
+        "type": "object",
+        "properties": {
+          "merchantId": {
+            "type": "string",
+            "description": "Merchant ID",
+            "maxLength": 32
+          },
+          "customerId": {
+            "type": "string",
+            "description": "Customer identifier. Provide either this field or merchantCustomerId.",
+            "maxLength": 64
+          },
+          "merchantCustomerId": {
+            "type": "string",
+            "description": "Merchant-side customer identifier. Provide either this field or customerId.",
+            "maxLength": 128
+          },
+          "firstName": {
+            "type": "string",
+            "description": "Customer first name",
+            "maxLength": 128
+          },
+          "lastName": {
+            "type": "string",
+            "description": "Customer last name",
+            "maxLength": 128
+          },
+          "email": {
+            "type": "string",
+            "description": "Customer email address",
+            "maxLength": 256
+          },
+          "phone": {
+            "type": "string",
+            "description": "Customer phone number",
+            "maxLength": 64
+          },
+          "address": {
+            "$ref": "#/components/schemas/ConsentCustomerAddress"
+          }
+        },
+        "required": [
+          "merchantId"
+        ],
+        "allOf": [
+          {
+            "anyOf": [
+              {
+                "required": [
+                  "customerId"
+                ]
+              },
+              {
+                "required": [
+                  "merchantCustomerId"
+                ]
+              }
+            ]
+          },
+          {
+            "anyOf": [
+              {
+                "required": [
+                  "firstName"
+                ]
+              },
+              {
+                "required": [
+                  "lastName"
+                ]
+              },
+              {
+                "required": [
+                  "email"
+                ]
+              },
+              {
+                "required": [
+                  "phone"
+                ]
+              },
+              {
+                "required": [
+                  "address"
+                ]
+              }
+            ]
+          }
+        ],
+        "description": "In addition to a customer lookup field, provide at least one non-empty field to update."
+      },
+      "QueryConsentCustomerRequest": {
+        "type": "object",
+        "properties": {
+          "merchantId": {
+            "type": "string",
+            "description": "Merchant ID",
+            "maxLength": 32
+          },
+          "customerId": {
+            "type": "string",
+            "description": "Customer identifier. Provide either this field or merchantCustomerId.",
+            "maxLength": 64
+          },
+          "merchantCustomerId": {
+            "type": "string",
+            "description": "Merchant-side customer identifier. Provide either this field or customerId.",
+            "maxLength": 128
+          }
+        },
+        "required": [
+          "merchantId"
+        ],
+        "anyOf": [
+          {
+            "required": [
+              "customerId"
+            ]
+          },
+          {
+            "required": [
+              "merchantCustomerId"
+            ]
+          }
+        ]
+      },
+      "ConsentCustomerData": {
+        "type": "object",
+        "properties": {
+          "customerId": {
+            "type": "string",
+            "description": "Customer identifier"
+          },
+          "merchantCustomerId": {
+            "type": "string",
+            "description": "Merchant-side customer identifier"
+          },
+          "firstName": {
+            "type": "string",
+            "description": "Customer first name"
+          },
+          "lastName": {
+            "type": "string",
+            "description": "Customer last name"
+          },
+          "email": {
+            "type": "string",
+            "description": "Customer email address"
+          },
+          "phone": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Customer phone number"
+          },
+          "address": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/ConsentCustomerAddress"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "Creation time",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "Update time",
+            "format": "date-time"
+          }
+        }
+      },
+      "CreateConsentCustomerData": {
+        "type": "object",
+        "properties": {
+          "customerId": {
+            "type": "string",
+            "description": "Customer identifier"
+          },
+          "merchantCustomerId": {
+            "type": "string",
+            "description": "Merchant-side customer identifier"
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "Creation time",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "customerId",
+          "merchantCustomerId"
+        ]
+      },
+      "CreateConsentCustomerResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ConsentApiResponseBase"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "$ref": "#/components/schemas/CreateConsentCustomerData"
+              }
+            }
+          }
+        ]
+      },
+      "ConsentCustomerResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ConsentApiResponseBase"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "$ref": "#/components/schemas/ConsentCustomerData"
+              }
+            }
+          }
+        ]
+      },
+      "QueryCustomerConsentsRequest": {
+        "type": "object",
+        "properties": {
+          "pageSize": {
+            "type": "integer",
+            "description": "Records per page",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "currentPage": {
+            "type": "integer",
+            "description": "Current page number",
+            "minimum": 1
+          },
+          "form": {
+            "type": "object",
+            "properties": {
+              "merchantId": {
+                "type": "string",
+                "description": "Merchant ID",
+                "maxLength": 32
+              },
+              "customerId": {
+                "type": "string",
+                "description": "Customer identifier",
+                "maxLength": 64
+              }
+            },
+            "required": [
+              "merchantId",
+              "customerId"
+            ]
+          }
+        },
+        "required": [
+          "pageSize",
+          "currentPage",
+          "form"
+        ]
+      },
+      "QueryConsentRequest": {
+        "type": "object",
+        "properties": {
+          "merchantId": {
+            "type": "string",
+            "description": "Merchant ID",
+            "maxLength": 32
+          },
+          "consentId": {
+            "type": "string",
+            "description": "Consent identifier",
+            "maxLength": 64
+          },
+          "customerId": {
+            "type": "string",
+            "description": "Customer identifier",
+            "maxLength": 64
+          },
+          "merchantCustomerId": {
+            "type": "string",
+            "description": "Merchant-side customer identifier",
+            "maxLength": 128
+          }
+        },
+        "required": [
+          "merchantId"
+        ],
+        "anyOf": [
+          {
+            "required": [
+              "consentId"
+            ]
+          },
+          {
+            "required": [
+              "customerId"
+            ]
+          },
+          {
+            "required": [
+              "merchantCustomerId"
+            ]
+          }
+        ]
+      },
+      "ConsentStateRequest": {
+        "type": "object",
+        "properties": {
+          "merchantId": {
+            "type": "string",
+            "description": "Merchant ID",
+            "maxLength": 32
+          },
+          "consentId": {
+            "type": "string",
+            "description": "Consent identifier",
+            "maxLength": 64
+          },
+          "reason": {
+            "type": "string",
+            "description": "Reason for the status change",
+            "maxLength": 512
+          }
+        },
+        "required": [
+          "merchantId",
+          "consentId",
+          "reason"
+        ]
+      },
+      "ConsentData": {
+        "type": "object",
+        "properties": {
+          "consentId": {
+            "type": "string",
+            "description": "Consent identifier"
+          },
+          "customerId": {
+            "type": "string",
+            "description": "Customer identifier"
+          },
+          "status": {
+            "type": "string",
+            "description": "Consent status",
+            "enum": [
+              "active",
+              "cancelled",
+              "suspended"
+            ]
+          },
+          "createTime": {
+            "type": "string",
+            "description": "Creation time",
+            "format": "date-time"
+          },
+          "updateTime": {
+            "type": "string",
+            "description": "Update time",
+            "format": "date-time"
+          }
+        }
+      },
+      "ConsentStateData": {
+        "type": "object",
+        "properties": {
+          "consentId": {
+            "type": "string",
+            "description": "Consent identifier"
+          },
+          "status": {
+            "type": "string",
+            "description": "Consent status",
+            "enum": [
+              "active",
+              "cancelled",
+              "suspended"
+            ]
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "Update time",
+            "format": "date-time"
+          }
+        }
+      },
+      "ConsentListResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ConsentApiResponseBase"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ConsentData"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "PagedConsentResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ConsentApiResponseBase"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "type": "object",
+                "properties": {
+                  "size": {
+                    "type": "integer",
+                    "description": "Records per page"
+                  },
+                  "current": {
+                    "type": "integer",
+                    "description": "Current page number"
+                  },
+                  "total": {
+                    "type": "integer",
+                    "description": "Total number of records"
+                  },
+                  "records": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/ConsentData"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "ConsentStateResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ConsentApiResponseBase"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "$ref": "#/components/schemas/ConsentStateData"
+              }
+            }
+          }
+        ]
+      },
+      "CreateConsentChargeRequest": {
+        "type": "object",
+        "properties": {
+          "merchantId": {
+            "type": "string",
+            "description": "Merchant ID",
+            "maxLength": 32
+          },
+          "consentId": {
+            "type": "string",
+            "description": "Consent identifier",
+            "maxLength": 64
+          },
+          "merchantOrderId": {
+            "type": "string",
+            "description": "Merchant order number",
+            "maxLength": 128
+          },
+          "amount": {
+            "type": "integer",
+            "description": "Charge amount in the smallest currency unit",
+            "format": "int64",
+            "minimum": 1
+          },
+          "currency": {
+            "type": "string",
+            "description": "Currency as three uppercase letters",
+            "pattern": "^[A-Z]{3}$"
+          },
+          "notifyUrl": {
+            "type": "string",
+            "description": "Payment result notification URL",
+            "format": "uri",
+            "maxLength": 1024
+          },
+          "description": {
+            "type": "string",
+            "description": "Charge description",
+            "maxLength": 512
+          }
+        },
+        "required": [
+          "merchantId",
+          "consentId",
+          "merchantOrderId",
+          "amount",
+          "currency"
+        ]
+      },
+      "ConsentChargeData": {
+        "type": "object",
+        "properties": {
+          "orderId": {
+            "type": "string",
+            "description": "YeahPay order number"
+          },
+          "merchantOrderId": {
+            "type": "string",
+            "description": "Merchant order number"
+          },
+          "amount": {
+            "type": "string",
+            "description": "Charge amount"
+          },
+          "currency": {
+            "type": "string",
+            "description": "Currency"
+          },
+          "status": {
+            "type": "string",
+            "description": "Charge status"
+          },
+          "paymentTime": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Payment time",
+            "format": "date-time"
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "Creation time",
+            "format": "date-time"
+          }
+        }
+      },
+      "CreateConsentChargeResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ConsentApiResponseBase"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "type": "object",
+                "properties": {
+                  "orderId": {
+                    "type": "string",
+                    "description": "YeahPay order number"
+                  },
+                  "merchantOrderId": {
+                    "type": "string",
+                    "description": "Merchant order number"
+                  },
+                  "consentId": {
+                    "type": "string",
+                    "description": "Consent identifier"
+                  },
+                  "status": {
+                    "type": "string",
+                    "description": "Charge status"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "ListConsentChargesRequest": {
+        "type": "object",
+        "properties": {
+          "pageSize": {
+            "type": "integer",
+            "description": "Records per page",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "currentPage": {
+            "type": "integer",
+            "description": "Current page number",
+            "minimum": 1
+          },
+          "form": {
+            "type": "object",
+            "properties": {
+              "merchantId": {
+                "type": "string",
+                "description": "Merchant ID",
+                "maxLength": 32
+              },
+              "consentId": {
+                "type": "string",
+                "description": "Consent identifier",
+                "maxLength": 64
+              }
+            },
+            "required": [
+              "merchantId",
+              "consentId"
+            ]
+          }
+        },
+        "required": [
+          "pageSize",
+          "currentPage",
+          "form"
+        ]
+      },
+      "PagedConsentChargeResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ConsentApiResponseBase"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "type": "object",
+                "properties": {
+                  "size": {
+                    "type": "integer",
+                    "description": "Records per page"
+                  },
+                  "current": {
+                    "type": "integer",
+                    "description": "Current page number"
+                  },
+                  "total": {
+                    "type": "integer",
+                    "description": "Total number of records"
+                  },
+                  "records": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/ConsentChargeData"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
       "UnifiedOrderRequest": {
         "type": "object",
         "properties": {
@@ -1945,7 +3354,28 @@
           },
           "isOnline": {
             "type": "boolean",
-            "description": "Whether this is an online transaction"
+            "description": "Whether this is an online H5 Checkout. Defaults to false; set it to true for an online H5 Checkout.",
+            "default": false
+          },
+          "isConsent": {
+            "type": "boolean",
+            "description": "Whether to create a Subscription Payment consent. When true, customerId, paymentInitiator, and paymentType are required.",
+            "default": false
+          },
+          "customerId": {
+            "type": "string",
+            "description": "Customer identifier returned by Create customer. Required when isConsent=true.",
+            "maxLength": 64
+          },
+          "paymentInitiator": {
+            "type": "string",
+            "description": "Payment initiator. Currently only merchant is supported. Required when isConsent=true.",
+            "const": "merchant"
+          },
+          "paymentType": {
+            "type": "string",
+            "description": "Payment type. Currently only scheduled is supported. Required when isConsent=true.",
+            "const": "scheduled"
           },
           "currency": {
             "type": "string",
@@ -2004,6 +3434,27 @@
           "timestamp",
           "callback",
           "lang"
+        ],
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "isConsent": {
+                  "const": true
+                }
+              },
+              "required": [
+                "isConsent"
+              ]
+            },
+            "then": {
+              "required": [
+                "customerId",
+                "paymentInitiator",
+                "paymentType"
+              ]
+            }
+          }
         ]
       },
       "PcCashierRedirectRequest": {
@@ -2082,6 +3533,26 @@
           "billInfo": {
             "type": "string",
             "description": "Billing information as a JSON string. Required for physical goods."
+          },
+          "isConsent": {
+            "type": "boolean",
+            "description": "Whether to create a Subscription Payment consent. When true, customerId, paymentInitiator, and paymentType are required.",
+            "default": false
+          },
+          "customerId": {
+            "type": "string",
+            "description": "Customer identifier returned by Create customer. Required when isConsent=true.",
+            "maxLength": 64
+          },
+          "paymentInitiator": {
+            "type": "string",
+            "description": "Payment initiator. Currently only merchant is supported. Required when isConsent=true.",
+            "const": "merchant"
+          },
+          "paymentType": {
+            "type": "string",
+            "description": "Payment type. Currently only scheduled is supported. Required when isConsent=true.",
+            "const": "scheduled"
           }
         },
         "required": [
@@ -2112,6 +3583,25 @@
               "required": [
                 "logisticsInfo",
                 "billInfo"
+              ]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "isConsent": {
+                  "const": true
+                }
+              },
+              "required": [
+                "isConsent"
+              ]
+            },
+            "then": {
+              "required": [
+                "customerId",
+                "paymentInitiator",
+                "paymentType"
               ]
             }
           }
@@ -2273,6 +3763,10 @@
           "leshuaOrderId": {
             "type": "string",
             "description": "YeahPay order number"
+          },
+          "consentId": {
+            "type": "string",
+            "description": "Subscription Payment consent identifier. Returned after the initial Subscription Payment succeeds and the consent is created; omitted for standard payments."
           },
           "merchantId": {
             "type": "string",

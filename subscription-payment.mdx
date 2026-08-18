@@ -1,0 +1,136 @@
+---
+title: "订阅支付"
+description: "管理客户与订阅授权，并由商户发起后续支付"
+---
+
+订阅支付适合会员续费、软件服务和内容订阅等需要多次收款的业务。消费者通过 H5 收银台或 PC 收银台完成首次支付并授权；授权生效后，商户按双方约定发起后续支付，消费者无需再次进入收银台。
+
+<Note>
+  YeahPay 提供客户、订阅授权和后续支付能力。订阅周期、套餐、计费日期、重试策略以及服务履约由商户系统管理。
+</Note>
+
+## 完整接入流程
+
+<Steps>
+  <Step title="创建客户">
+    调用 [`POST /consent-payment/customers/create`](/api-reference/订阅支付/创建客户)，使用商户侧唯一且不变的 `merchantCustomerId` 创建客户，并保存响应中的 `customerId`。
+  </Step>
+  <Step title="创建首次支付收银台">
+    根据终端选择 [H5 收银台](/api-reference/收银台/获取收银台地址)或 [PC 收银台](/api-reference/收银台/获取-PC-收银台地址)。两个接口都需要传入 `isConsent=true`、`customerId`、`paymentInitiator=merchant` 和 `paymentType=scheduled`。
+  </Step>
+  <Step title="完成首次支付并取得 consentId">
+    消费者完成首次支付后，YeahPay 创建订阅授权，并在支付结果通知中返回 `consentId`。商户验签并确认支付成功后，应保存 `consentId`，用于订阅管理和后续支付。
+  </Step>
+  <Step title="管理订阅">
+    使用 `consentId` 查询订阅状态；消费者停止订阅时取消授权，需要恢复时重新启用授权。
+  </Step>
+  <Step title="发起后续支付">
+    商户根据自己的计费计划，使用有效的 `consentId` 调用后续支付接口，并通过支付结果通知确认最终结果。
+  </Step>
+</Steps>
+
+## 首次支付参数
+
+以下参数在 H5 和 PC 收银台中的含义与要求一致：
+
+| 参数 | 值 | 说明 |
+| --- | --- | --- |
+| `isConsent` | `true` | 表示本次支付用于创建订阅授权 |
+| `customerId` | 创建客户接口返回值 | 标识完成首次支付与授权的客户 |
+| `paymentInitiator` | `merchant` | 支付发起方，目前仅支持商户发起 |
+| `paymentType` | `scheduled` | 支付类型，目前仅支持计划扣款 |
+
+<Warning>
+  必须先创建客户，再创建首次支付收银台。只有首次支付成功且返回 `consentId` 后，订阅授权才可用于后续支付；创建收银台成功不代表支付或授权成功。
+</Warning>
+
+## 客户管理
+
+客户用于识别完成首次支付并授予后续支付权限的消费者。
+
+- `merchantCustomerId` 由商户生成，在同一商户下必须唯一且保持不变。
+- 创建客户后保存 YeahPay 返回的 `customerId`，创建首次支付收银台时必须传入。
+- 客户姓名、邮箱、手机号或地址发生变化时，可以更新客户资料。
+- 可以使用 `customerId` 或 `merchantCustomerId` 查询客户；一个客户可以关联多个订阅授权。
+
+<CardGroup cols={3}>
+  <Card title="创建客户" icon="user-plus" href="/api-reference/订阅支付/创建客户">
+    创建客户并取得 `customerId`。
+  </Card>
+  <Card title="更新客户" icon="user-pen" href="/api-reference/订阅支付/更新客户">
+    更新客户联系方式或地址。
+  </Card>
+  <Card title="查询客户" icon="user-magnifying-glass" href="/api-reference/订阅支付/查询客户">
+    使用平台或商户侧客户标识查询资料。
+  </Card>
+</CardGroup>
+
+## 支付结果通知与 consentId
+
+创建首次支付收银台时传入 `notifyUrl`。首次支付成功并创建订阅授权后，支付结果通知会在普通支付字段之外返回 `consentId`。
+
+```json
+{
+  "status": "2",
+  "merchantId": "0004905629",
+  "thirdOrderId": "SUBSCRIPTION_INITIAL_001",
+  "leshuaOrderId": "YEAHPAY_ORDER_ID",
+  "consentId": "con_yk_2ee6fa94d3b8046c8cb4dc817dd28a3f"
+}
+```
+
+收到通知后：
+
+1. 使用完整回调地址和原始请求体验证通知签名。
+2. 检查支付状态并按商户订单号幂等处理。
+3. 保存 `consentId` 与商户客户、首次支付订单及订阅业务的关联关系。
+4. 成功接收后返回纯文本 `success`；若未及时收到通知，可通过订阅查询接口补偿获取 `consentId`。
+
+<Card title="查看支付结果通知" icon="bell" href="/api-reference/支付结果通知">
+  查看通知字段、签名请求头和响应要求。
+</Card>
+
+## 订阅管理
+
+订阅由 `consentId` 唯一标识。商户应保存订阅与自身会员、套餐或服务关系，不要使用渠道侧标识作为业务主键。
+
+| 状态 | 含义 | 可执行操作 |
+| --- | --- | --- |
+| `active` | 订阅授权有效 | 查询、取消、发起后续支付 |
+| `cancelled` | 商户或消费者已停止订阅 | 查询、重新启用 |
+| `suspended` | 平台暂停该订阅 | 仅查询；恢复后才能继续操作 |
+
+<CardGroup cols={3}>
+  <Card title="查询客户订阅" icon="list" href="/api-reference/订阅支付/查询客户授权">
+    分页查询客户关联的所有订阅。
+  </Card>
+  <Card title="查询订阅" icon="magnifying-glass" href="/api-reference/订阅支付/查询授权">
+    使用 `consentId`、`customerId` 或 `merchantCustomerId` 查询。
+  </Card>
+  <Card title="变更订阅状态" icon="toggle-on" href="/api-reference/订阅支付/取消授权">
+    取消订阅，或重新启用已取消的订阅。
+  </Card>
+</CardGroup>
+
+## 后续支付
+
+只有 `active` 状态的订阅可以发起后续支付。每次后续支付都是一笔独立交易，商户需要自行决定扣款时间与金额。
+
+调用 [`POST /consent-payment/charges/create`](/api-reference/订阅支付/发起后续扣款) 时：
+
+- 传入有效的 `consentId`。
+- 为每笔交易生成唯一的 `merchantOrderId`，用于幂等和对账。
+- `amount` 使用最小货币单位，`currency` 使用三个大写字母。
+- 可传入 `notifyUrl` 接收本次支付结果，`description` 用于记录支付说明。
+- 接口受理成功不等于支付最终成功，应以验签后的支付结果通知为准。
+
+需要查看历史记录时，调用[查询扣款列表](/api-reference/订阅支付/查询扣款列表)，按 `consentId` 分页查询订单号、金额、币种、状态和支付时间。
+
+<CardGroup cols={2}>
+  <Card title="发起后续支付" icon="credit-card" href="/api-reference/订阅支付/发起后续扣款">
+    使用有效订阅创建一笔后续支付。
+  </Card>
+  <Card title="查询支付记录" icon="clock-rotate-left" href="/api-reference/订阅支付/查询扣款列表">
+    查询指定订阅的历史支付记录。
+  </Card>
+</CardGroup>

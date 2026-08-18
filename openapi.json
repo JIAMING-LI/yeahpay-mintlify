@@ -17,6 +17,10 @@
       "description": "移动端和 PC 收银台"
     },
     {
+      "name": "订阅支付",
+      "description": "客户、授权和后续扣款管理"
+    },
+    {
       "name": "撤销-退款",
       "description": "统一撤销或退款"
     },
@@ -236,6 +240,639 @@
           "500": {
             "description": "服务端错误"
           }
+        }
+      }
+    },
+    "/consent-payment/customers/create": {
+      "post": {
+        "tags": [
+          "订阅支付"
+        ],
+        "summary": "创建客户",
+        "description": "创建订阅支付客户。成功后返回 customerId，创建首次订阅支付收银台时需要传入该标识。",
+        "operationId": "createConsentCustomer",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/VersionHeader"
+          },
+          {
+            "$ref": "#/components/parameters/TimestampHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AlgorithmHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AppIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/NonceHeader"
+          },
+          {
+            "$ref": "#/components/parameters/SignatureHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptLanguageHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptTimezoneHeader"
+          },
+          {
+            "$ref": "#/components/parameters/CountryHeader"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateConsentCustomerRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "请求成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateConsentCustomerResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "请求参数错误"
+          },
+          "401": {
+            "description": "签名验证失败或身份认证失败"
+          },
+          "500": {
+            "description": "服务端错误"
+          }
+        },
+        "x-mint": {
+          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=createConsentCustomer\">使用此接口参数生成请求签名和 cURL。</Card>"
+        }
+      }
+    },
+    "/consent-payment/customers/update": {
+      "post": {
+        "tags": [
+          "订阅支付"
+        ],
+        "summary": "更新客户",
+        "description": "通过 customerId 或 merchantCustomerId 定位客户，并更新至少一个非空客户字段。",
+        "operationId": "updateConsentCustomer",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/VersionHeader"
+          },
+          {
+            "$ref": "#/components/parameters/TimestampHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AlgorithmHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AppIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/NonceHeader"
+          },
+          {
+            "$ref": "#/components/parameters/SignatureHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptLanguageHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptTimezoneHeader"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateConsentCustomerRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "请求成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConsentCustomerResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "请求参数错误"
+          },
+          "401": {
+            "description": "签名验证失败或身份认证失败"
+          },
+          "500": {
+            "description": "服务端错误"
+          }
+        },
+        "x-mint": {
+          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=updateConsentCustomer\">使用此接口参数生成请求签名和 cURL。</Card>"
+        }
+      }
+    },
+    "/consent-payment/customers/query": {
+      "post": {
+        "tags": [
+          "订阅支付"
+        ],
+        "summary": "查询客户",
+        "description": "通过 customerId 或 merchantCustomerId 查询客户资料。",
+        "operationId": "queryConsentCustomer",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/VersionHeader"
+          },
+          {
+            "$ref": "#/components/parameters/TimestampHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AlgorithmHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AppIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/NonceHeader"
+          },
+          {
+            "$ref": "#/components/parameters/SignatureHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptLanguageHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptTimezoneHeader"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QueryConsentCustomerRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "请求成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConsentCustomerResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "请求参数错误"
+          },
+          "401": {
+            "description": "签名验证失败或身份认证失败"
+          },
+          "500": {
+            "description": "服务端错误"
+          }
+        },
+        "x-mint": {
+          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=queryConsentCustomer\">使用此接口参数生成请求签名和 cURL。</Card>"
+        }
+      }
+    },
+    "/consent-payment/customers/consents": {
+      "post": {
+        "tags": [
+          "订阅支付"
+        ],
+        "summary": "查询客户授权",
+        "description": "分页查询指定客户关联的订阅支付授权。",
+        "operationId": "queryCustomerConsents",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/VersionHeader"
+          },
+          {
+            "$ref": "#/components/parameters/TimestampHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AlgorithmHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AppIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/NonceHeader"
+          },
+          {
+            "$ref": "#/components/parameters/SignatureHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptLanguageHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptTimezoneHeader"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QueryCustomerConsentsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "请求成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedConsentResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "请求参数错误"
+          },
+          "401": {
+            "description": "签名验证失败或身份认证失败"
+          },
+          "500": {
+            "description": "服务端错误"
+          }
+        },
+        "x-mint": {
+          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=queryCustomerConsents\">使用此接口参数生成请求签名和 cURL。</Card>"
+        }
+      }
+    },
+    "/consent-payment/consents/query": {
+      "post": {
+        "tags": [
+          "订阅支付"
+        ],
+        "summary": "查询授权",
+        "description": "通过 consentId、customerId 或 merchantCustomerId 查询订阅支付授权。",
+        "operationId": "queryConsent",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/VersionHeader"
+          },
+          {
+            "$ref": "#/components/parameters/TimestampHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AlgorithmHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AppIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/NonceHeader"
+          },
+          {
+            "$ref": "#/components/parameters/SignatureHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptLanguageHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptTimezoneHeader"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QueryConsentRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "请求成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConsentListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "请求参数错误"
+          },
+          "401": {
+            "description": "签名验证失败或身份认证失败"
+          },
+          "500": {
+            "description": "服务端错误"
+          }
+        },
+        "x-mint": {
+          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=queryConsent\">使用此接口参数生成请求签名和 cURL。</Card>"
+        }
+      }
+    },
+    "/consent-payment/consents/cancel": {
+      "post": {
+        "tags": [
+          "订阅支付"
+        ],
+        "summary": "取消授权",
+        "description": "取消指定订阅支付授权。取消后不能继续发起后续扣款。",
+        "operationId": "cancelConsent",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/VersionHeader"
+          },
+          {
+            "$ref": "#/components/parameters/TimestampHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AlgorithmHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AppIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/NonceHeader"
+          },
+          {
+            "$ref": "#/components/parameters/SignatureHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptLanguageHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptTimezoneHeader"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConsentStateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "请求成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConsentStateResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "请求参数错误"
+          },
+          "401": {
+            "description": "签名验证失败或身份认证失败"
+          },
+          "500": {
+            "description": "服务端错误"
+          }
+        },
+        "x-mint": {
+          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=cancelConsent\">使用此接口参数生成请求签名和 cURL。</Card>"
+        }
+      }
+    },
+    "/consent-payment/consents/activate": {
+      "post": {
+        "tags": [
+          "订阅支付"
+        ],
+        "summary": "重新启用授权",
+        "description": "重新启用已由商户取消的订阅支付授权。",
+        "operationId": "activateConsent",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/VersionHeader"
+          },
+          {
+            "$ref": "#/components/parameters/TimestampHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AlgorithmHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AppIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/NonceHeader"
+          },
+          {
+            "$ref": "#/components/parameters/SignatureHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptLanguageHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptTimezoneHeader"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConsentStateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "请求成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConsentStateResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "请求参数错误"
+          },
+          "401": {
+            "description": "签名验证失败或身份认证失败"
+          },
+          "500": {
+            "description": "服务端错误"
+          }
+        },
+        "x-mint": {
+          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=activateConsent\">使用此接口参数生成请求签名和 cURL。</Card>"
+        }
+      }
+    },
+    "/consent-payment/charges/create": {
+      "post": {
+        "tags": [
+          "订阅支付"
+        ],
+        "summary": "发起后续扣款",
+        "description": "使用有效的订阅支付授权发起一笔商户侧后续扣款。金额单位为最小货币单位。",
+        "operationId": "createConsentCharge",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/VersionHeader"
+          },
+          {
+            "$ref": "#/components/parameters/TimestampHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AlgorithmHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AppIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/NonceHeader"
+          },
+          {
+            "$ref": "#/components/parameters/SignatureHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptLanguageHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptTimezoneHeader"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateConsentChargeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "请求成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateConsentChargeResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "请求参数错误"
+          },
+          "401": {
+            "description": "签名验证失败或身份认证失败"
+          },
+          "500": {
+            "description": "服务端错误"
+          }
+        },
+        "x-mint": {
+          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=createConsentCharge\">使用此接口参数生成请求签名和 cURL。</Card>"
+        }
+      }
+    },
+    "/consent-payment/charges/list": {
+      "post": {
+        "tags": [
+          "订阅支付"
+        ],
+        "summary": "查询扣款列表",
+        "description": "分页查询指定授权的后续扣款记录。",
+        "operationId": "listConsentCharges",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/VersionHeader"
+          },
+          {
+            "$ref": "#/components/parameters/TimestampHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AlgorithmHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AppIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/NonceHeader"
+          },
+          {
+            "$ref": "#/components/parameters/SignatureHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptLanguageHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptTimezoneHeader"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ListConsentChargesRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "请求成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedConsentChargeResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "请求参数错误"
+          },
+          "401": {
+            "description": "签名验证失败或身份认证失败"
+          },
+          "500": {
+            "description": "服务端错误"
+          }
+        },
+        "x-mint": {
+          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=listConsentCharges\">使用此接口参数生成请求签名和 cURL。</Card>"
         }
       }
     },
@@ -858,9 +1495,781 @@
             "Asia/Shanghai"
           ]
         }
+      },
+      "CountryHeader": {
+        "name": "country",
+        "in": "header",
+        "required": false,
+        "description": "国家或地区代码",
+        "schema": {
+          "type": "string",
+          "maxLength": 2
+        }
       }
     },
     "schemas": {
+      "ConsentApiResponseBase": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": "业务结果码，0 表示请求成功",
+            "example": 0
+          },
+          "message": {
+            "type": "string",
+            "description": "结果描述"
+          },
+          "traceId": {
+            "type": "string",
+            "description": "链路追踪 ID"
+          }
+        },
+        "required": [
+          "code",
+          "message"
+        ]
+      },
+      "ConsentCustomerAddress": {
+        "type": "object",
+        "properties": {
+          "countryCode": {
+            "type": "string",
+            "description": "国家或地区代码",
+            "maxLength": 2
+          },
+          "state": {
+            "type": "string",
+            "description": "州或省",
+            "maxLength": 128
+          },
+          "city": {
+            "type": "string",
+            "description": "城市",
+            "maxLength": 128
+          },
+          "district": {
+            "type": "string",
+            "description": "地区",
+            "maxLength": 128
+          },
+          "postalCode": {
+            "type": "string",
+            "description": "邮政编码",
+            "maxLength": 32
+          },
+          "street": {
+            "type": "string",
+            "description": "街道地址",
+            "maxLength": 512
+          }
+        }
+      },
+      "CreateConsentCustomerRequest": {
+        "type": "object",
+        "properties": {
+          "merchantId": {
+            "type": "string",
+            "description": "商户号",
+            "maxLength": 32
+          },
+          "merchantCustomerId": {
+            "type": "string",
+            "description": "商户侧客户标识。必须在当前商户下唯一且保持不变",
+            "maxLength": 128
+          },
+          "firstName": {
+            "type": "string",
+            "description": "客户名字",
+            "maxLength": 128
+          },
+          "lastName": {
+            "type": "string",
+            "description": "客户姓氏",
+            "maxLength": 128
+          },
+          "email": {
+            "type": "string",
+            "description": "客户邮箱",
+            "format": "email",
+            "maxLength": 256
+          },
+          "phone": {
+            "type": "string",
+            "description": "客户手机号",
+            "maxLength": 64
+          },
+          "address": {
+            "$ref": "#/components/schemas/ConsentCustomerAddress"
+          }
+        },
+        "required": [
+          "merchantId",
+          "merchantCustomerId",
+          "firstName",
+          "lastName",
+          "email"
+        ]
+      },
+      "UpdateConsentCustomerRequest": {
+        "type": "object",
+        "properties": {
+          "merchantId": {
+            "type": "string",
+            "description": "商户号",
+            "maxLength": 32
+          },
+          "customerId": {
+            "type": "string",
+            "description": "客户标识。与 merchantCustomerId 至少填写一个",
+            "maxLength": 64
+          },
+          "merchantCustomerId": {
+            "type": "string",
+            "description": "商户侧客户标识。与 customerId 至少填写一个",
+            "maxLength": 128
+          },
+          "firstName": {
+            "type": "string",
+            "description": "客户名字",
+            "maxLength": 128
+          },
+          "lastName": {
+            "type": "string",
+            "description": "客户姓氏",
+            "maxLength": 128
+          },
+          "email": {
+            "type": "string",
+            "description": "客户邮箱",
+            "maxLength": 256
+          },
+          "phone": {
+            "type": "string",
+            "description": "客户手机号",
+            "maxLength": 64
+          },
+          "address": {
+            "$ref": "#/components/schemas/ConsentCustomerAddress"
+          }
+        },
+        "required": [
+          "merchantId"
+        ],
+        "allOf": [
+          {
+            "anyOf": [
+              {
+                "required": [
+                  "customerId"
+                ]
+              },
+              {
+                "required": [
+                  "merchantCustomerId"
+                ]
+              }
+            ]
+          },
+          {
+            "anyOf": [
+              {
+                "required": [
+                  "firstName"
+                ]
+              },
+              {
+                "required": [
+                  "lastName"
+                ]
+              },
+              {
+                "required": [
+                  "email"
+                ]
+              },
+              {
+                "required": [
+                  "phone"
+                ]
+              },
+              {
+                "required": [
+                  "address"
+                ]
+              }
+            ]
+          }
+        ],
+        "description": "除客户定位字段外，至少提供一个非空更新字段。"
+      },
+      "QueryConsentCustomerRequest": {
+        "type": "object",
+        "properties": {
+          "merchantId": {
+            "type": "string",
+            "description": "商户号",
+            "maxLength": 32
+          },
+          "customerId": {
+            "type": "string",
+            "description": "客户标识。与 merchantCustomerId 至少填写一个",
+            "maxLength": 64
+          },
+          "merchantCustomerId": {
+            "type": "string",
+            "description": "商户侧客户标识。与 customerId 至少填写一个",
+            "maxLength": 128
+          }
+        },
+        "required": [
+          "merchantId"
+        ],
+        "anyOf": [
+          {
+            "required": [
+              "customerId"
+            ]
+          },
+          {
+            "required": [
+              "merchantCustomerId"
+            ]
+          }
+        ]
+      },
+      "ConsentCustomerData": {
+        "type": "object",
+        "properties": {
+          "customerId": {
+            "type": "string",
+            "description": "客户标识"
+          },
+          "merchantCustomerId": {
+            "type": "string",
+            "description": "商户侧客户标识"
+          },
+          "firstName": {
+            "type": "string",
+            "description": "客户名字"
+          },
+          "lastName": {
+            "type": "string",
+            "description": "客户姓氏"
+          },
+          "email": {
+            "type": "string",
+            "description": "客户邮箱"
+          },
+          "phone": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "客户手机号"
+          },
+          "address": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/ConsentCustomerAddress"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "创建时间",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "更新时间",
+            "format": "date-time"
+          }
+        }
+      },
+      "CreateConsentCustomerData": {
+        "type": "object",
+        "properties": {
+          "customerId": {
+            "type": "string",
+            "description": "客户标识"
+          },
+          "merchantCustomerId": {
+            "type": "string",
+            "description": "商户侧客户标识"
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "创建时间",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "customerId",
+          "merchantCustomerId"
+        ]
+      },
+      "CreateConsentCustomerResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ConsentApiResponseBase"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "$ref": "#/components/schemas/CreateConsentCustomerData"
+              }
+            }
+          }
+        ]
+      },
+      "ConsentCustomerResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ConsentApiResponseBase"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "$ref": "#/components/schemas/ConsentCustomerData"
+              }
+            }
+          }
+        ]
+      },
+      "QueryCustomerConsentsRequest": {
+        "type": "object",
+        "properties": {
+          "pageSize": {
+            "type": "integer",
+            "description": "每页记录数",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "currentPage": {
+            "type": "integer",
+            "description": "当前页码",
+            "minimum": 1
+          },
+          "form": {
+            "type": "object",
+            "properties": {
+              "merchantId": {
+                "type": "string",
+                "description": "商户号",
+                "maxLength": 32
+              },
+              "customerId": {
+                "type": "string",
+                "description": "客户标识",
+                "maxLength": 64
+              }
+            },
+            "required": [
+              "merchantId",
+              "customerId"
+            ]
+          }
+        },
+        "required": [
+          "pageSize",
+          "currentPage",
+          "form"
+        ]
+      },
+      "QueryConsentRequest": {
+        "type": "object",
+        "properties": {
+          "merchantId": {
+            "type": "string",
+            "description": "商户号",
+            "maxLength": 32
+          },
+          "consentId": {
+            "type": "string",
+            "description": "授权标识",
+            "maxLength": 64
+          },
+          "customerId": {
+            "type": "string",
+            "description": "客户标识",
+            "maxLength": 64
+          },
+          "merchantCustomerId": {
+            "type": "string",
+            "description": "商户侧客户标识",
+            "maxLength": 128
+          }
+        },
+        "required": [
+          "merchantId"
+        ],
+        "anyOf": [
+          {
+            "required": [
+              "consentId"
+            ]
+          },
+          {
+            "required": [
+              "customerId"
+            ]
+          },
+          {
+            "required": [
+              "merchantCustomerId"
+            ]
+          }
+        ]
+      },
+      "ConsentStateRequest": {
+        "type": "object",
+        "properties": {
+          "merchantId": {
+            "type": "string",
+            "description": "商户号",
+            "maxLength": 32
+          },
+          "consentId": {
+            "type": "string",
+            "description": "授权标识",
+            "maxLength": 64
+          },
+          "reason": {
+            "type": "string",
+            "description": "状态变更原因",
+            "maxLength": 512
+          }
+        },
+        "required": [
+          "merchantId",
+          "consentId",
+          "reason"
+        ]
+      },
+      "ConsentData": {
+        "type": "object",
+        "properties": {
+          "consentId": {
+            "type": "string",
+            "description": "授权标识"
+          },
+          "customerId": {
+            "type": "string",
+            "description": "客户标识"
+          },
+          "status": {
+            "type": "string",
+            "description": "授权状态",
+            "enum": [
+              "active",
+              "cancelled",
+              "suspended"
+            ]
+          },
+          "createTime": {
+            "type": "string",
+            "description": "创建时间",
+            "format": "date-time"
+          },
+          "updateTime": {
+            "type": "string",
+            "description": "更新时间",
+            "format": "date-time"
+          }
+        }
+      },
+      "ConsentStateData": {
+        "type": "object",
+        "properties": {
+          "consentId": {
+            "type": "string",
+            "description": "授权标识"
+          },
+          "status": {
+            "type": "string",
+            "description": "授权状态",
+            "enum": [
+              "active",
+              "cancelled",
+              "suspended"
+            ]
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "更新时间",
+            "format": "date-time"
+          }
+        }
+      },
+      "ConsentListResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ConsentApiResponseBase"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ConsentData"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "PagedConsentResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ConsentApiResponseBase"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "type": "object",
+                "properties": {
+                  "size": {
+                    "type": "integer",
+                    "description": "每页记录数"
+                  },
+                  "current": {
+                    "type": "integer",
+                    "description": "当前页码"
+                  },
+                  "total": {
+                    "type": "integer",
+                    "description": "总记录数"
+                  },
+                  "records": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/ConsentData"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "ConsentStateResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ConsentApiResponseBase"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "$ref": "#/components/schemas/ConsentStateData"
+              }
+            }
+          }
+        ]
+      },
+      "CreateConsentChargeRequest": {
+        "type": "object",
+        "properties": {
+          "merchantId": {
+            "type": "string",
+            "description": "商户号",
+            "maxLength": 32
+          },
+          "consentId": {
+            "type": "string",
+            "description": "授权标识",
+            "maxLength": 64
+          },
+          "merchantOrderId": {
+            "type": "string",
+            "description": "商户订单号",
+            "maxLength": 128
+          },
+          "amount": {
+            "type": "integer",
+            "description": "扣款金额，单位为最小货币单位",
+            "format": "int64",
+            "minimum": 1
+          },
+          "currency": {
+            "type": "string",
+            "description": "币种，使用三个大写字母",
+            "pattern": "^[A-Z]{3}$"
+          },
+          "notifyUrl": {
+            "type": "string",
+            "description": "支付结果通知地址",
+            "format": "uri",
+            "maxLength": 1024
+          },
+          "description": {
+            "type": "string",
+            "description": "扣款描述",
+            "maxLength": 512
+          }
+        },
+        "required": [
+          "merchantId",
+          "consentId",
+          "merchantOrderId",
+          "amount",
+          "currency"
+        ]
+      },
+      "ConsentChargeData": {
+        "type": "object",
+        "properties": {
+          "orderId": {
+            "type": "string",
+            "description": "YeahPay 订单号"
+          },
+          "merchantOrderId": {
+            "type": "string",
+            "description": "商户订单号"
+          },
+          "amount": {
+            "type": "string",
+            "description": "扣款金额"
+          },
+          "currency": {
+            "type": "string",
+            "description": "币种"
+          },
+          "status": {
+            "type": "string",
+            "description": "扣款状态"
+          },
+          "paymentTime": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "支付时间",
+            "format": "date-time"
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "创建时间",
+            "format": "date-time"
+          }
+        }
+      },
+      "CreateConsentChargeResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ConsentApiResponseBase"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "type": "object",
+                "properties": {
+                  "orderId": {
+                    "type": "string",
+                    "description": "YeahPay 订单号"
+                  },
+                  "merchantOrderId": {
+                    "type": "string",
+                    "description": "商户订单号"
+                  },
+                  "consentId": {
+                    "type": "string",
+                    "description": "授权标识"
+                  },
+                  "status": {
+                    "type": "string",
+                    "description": "扣款状态"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "ListConsentChargesRequest": {
+        "type": "object",
+        "properties": {
+          "pageSize": {
+            "type": "integer",
+            "description": "每页记录数",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "currentPage": {
+            "type": "integer",
+            "description": "当前页码",
+            "minimum": 1
+          },
+          "form": {
+            "type": "object",
+            "properties": {
+              "merchantId": {
+                "type": "string",
+                "description": "商户号",
+                "maxLength": 32
+              },
+              "consentId": {
+                "type": "string",
+                "description": "授权标识",
+                "maxLength": 64
+              }
+            },
+            "required": [
+              "merchantId",
+              "consentId"
+            ]
+          }
+        },
+        "required": [
+          "pageSize",
+          "currentPage",
+          "form"
+        ]
+      },
+      "PagedConsentChargeResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ConsentApiResponseBase"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "type": "object",
+                "properties": {
+                  "size": {
+                    "type": "integer",
+                    "description": "每页记录数"
+                  },
+                  "current": {
+                    "type": "integer",
+                    "description": "当前页码"
+                  },
+                  "total": {
+                    "type": "integer",
+                    "description": "总记录数"
+                  },
+                  "records": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/ConsentChargeData"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
       "UnifiedOrderRequest": {
         "type": "object",
         "properties": {
@@ -1945,7 +3354,28 @@
           },
           "isOnline": {
             "type": "boolean",
-            "description": "是否线上交易"
+            "description": "是否为线上 H5 收银台。默认为 false；线上 H5 收银台设置为 true",
+            "default": false
+          },
+          "isConsent": {
+            "type": "boolean",
+            "description": "是否创建订阅支付授权。设置为 true 时，customerId、paymentInitiator 和 paymentType 必填",
+            "default": false
+          },
+          "customerId": {
+            "type": "string",
+            "description": "客户标识。创建客户接口返回；isConsent=true 时必填",
+            "maxLength": 64
+          },
+          "paymentInitiator": {
+            "type": "string",
+            "description": "支付发起方。当前仅支持 merchant；isConsent=true 时必填",
+            "const": "merchant"
+          },
+          "paymentType": {
+            "type": "string",
+            "description": "支付类型。当前仅支持 scheduled；isConsent=true 时必填",
+            "const": "scheduled"
           },
           "currency": {
             "type": "string",
@@ -2004,6 +3434,27 @@
           "timestamp",
           "callback",
           "lang"
+        ],
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "isConsent": {
+                  "const": true
+                }
+              },
+              "required": [
+                "isConsent"
+              ]
+            },
+            "then": {
+              "required": [
+                "customerId",
+                "paymentInitiator",
+                "paymentType"
+              ]
+            }
+          }
         ]
       },
       "PcCashierRedirectRequest": {
@@ -2082,6 +3533,26 @@
           "billInfo": {
             "type": "string",
             "description": "账单信息，JSON 字符串；实物交易必填"
+          },
+          "isConsent": {
+            "type": "boolean",
+            "description": "是否创建订阅支付授权。设置为 true 时，customerId、paymentInitiator 和 paymentType 必填",
+            "default": false
+          },
+          "customerId": {
+            "type": "string",
+            "description": "客户标识。创建客户接口返回；isConsent=true 时必填",
+            "maxLength": 64
+          },
+          "paymentInitiator": {
+            "type": "string",
+            "description": "支付发起方。当前仅支持 merchant；isConsent=true 时必填",
+            "const": "merchant"
+          },
+          "paymentType": {
+            "type": "string",
+            "description": "支付类型。当前仅支持 scheduled；isConsent=true 时必填",
+            "const": "scheduled"
           }
         },
         "required": [
@@ -2112,6 +3583,25 @@
               "required": [
                 "logisticsInfo",
                 "billInfo"
+              ]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "isConsent": {
+                  "const": true
+                }
+              },
+              "required": [
+                "isConsent"
+              ]
+            },
+            "then": {
+              "required": [
+                "customerId",
+                "paymentInitiator",
+                "paymentType"
               ]
             }
           }
@@ -2273,6 +3763,10 @@
           "leshuaOrderId": {
             "type": "string",
             "description": "YeahPay 订单号"
+          },
+          "consentId": {
+            "type": "string",
+            "description": "订阅支付授权标识。首次订阅支付成功并创建授权后返回；普通支付不返回"
           },
           "merchantId": {
             "type": "string",

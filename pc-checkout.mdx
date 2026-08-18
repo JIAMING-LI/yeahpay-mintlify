@@ -1,0 +1,43 @@
+---
+title: "PC 收银台"
+description: "在桌面网站中接入 YeahPay 托管收银台"
+---
+
+PC 收银台适合桌面网站。商户可以先查询当前可用的支付方式，也可以直接创建 PC 收银台，让消费者在托管页面内选择并完成支付。
+
+## 接入流程
+
+<Steps>
+  <Step title="查询支付方式（可选）">
+    如果商户页面需要提前展示可用支付方式，服务端调用 [`POST /cardOrder/getTradeType`](/api-reference/收银台/查询支付方式)。若由收银台页面统一展示，可跳过此步骤。
+  </Step>
+  <Step title="获取 PC 收银台地址">
+    服务端签名并调用 [`POST /cardOrder/getPcRedirectUrl`](/api-reference/收银台/获取-PC-收银台地址)，提交订单、消费者信息以及业务类型。实物交易还需要提供物流和账单信息。
+  </Step>
+  <Step title="打开收银台">
+    从响应的 `data.url` 取得托管页面地址，在新窗口或新标签页打开，并保留原商户页面。
+  </Step>
+  <Step title="确认支付结果">
+    验证支付结果通知的签名并幂等处理。需要补偿或主动刷新状态时，调用[支付查询接口](/api-reference/扫码交易/支付查询（扫码、刷卡）)。
+  </Step>
+</Steps>
+
+<CardGroup cols={3}>
+  <Card title="查询支付方式" icon="list" href="/api-reference/收银台/查询支付方式">
+    获取商户当前可用的支付方式。
+  </Card>
+  <Card title="创建 PC 收银台" icon="desktop" href="/api-reference/收银台/获取-PC-收银台地址">
+    查看 PC 收银台请求字段和条件必填项。
+  </Card>
+  <Card title="调试 PC 请求" icon="terminal" href="/api-tester?operationId=getPcRedirectUrl">
+    生成签名请求头和 cURL。
+  </Card>
+</CardGroup>
+
+<Note>
+  API 应由商户服务端调用。`apiKey` 只能保存在服务端并参与签名计算，不能下发到浏览器或 App。
+</Note>
+
+<Warning>
+  `callback` 仅用于消费者完成操作后的页面回跳，不能作为支付成功的判断依据。订单最终状态应以验签后的支付结果通知或支付查询结果为准。
+</Warning>

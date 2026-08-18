@@ -103,7 +103,7 @@ export const SignedApiPlayground = ({ locale = "en" }) => {
     },
   }
   // BEGIN AUTO-GENERATED OPENAPI OPERATIONS
-  // Source fingerprint: 7790fcd159b478e9
+  // Source fingerprint: 0a5ab0796437aab1
   const operationDefinitions = [
     {
       "operationId": "getRedirectUrl",
@@ -116,6 +116,10 @@ export const SignedApiPlayground = ({ locale = "en" }) => {
         "orderId": "ORDER_TIMESTAMP",
         "merchantReferenceNumber": "SAMPLE_MERCHANT_REFERENCE_NUMBER",
         "isOnline": false,
+        "isConsent": false,
+        "customerId": "SAMPLE_CUSTOMER_ID",
+        "paymentInitiator": "merchant",
+        "paymentType": "scheduled",
         "currency": "SGD",
         "amount": "100",
         "goodsList": "[]",
@@ -162,7 +166,153 @@ export const SignedApiPlayground = ({ locale = "en" }) => {
         "countdown": "SAMPLE_COUNTDOWN",
         "target": "SAMPLE_TARGET",
         "logisticsInfo": "SAMPLE_LOGISTICS_INFO",
-        "billInfo": "SAMPLE_BILL_INFO"
+        "billInfo": "SAMPLE_BILL_INFO",
+        "isConsent": false,
+        "customerId": "SAMPLE_CUSTOMER_ID",
+        "paymentInitiator": "merchant",
+        "paymentType": "scheduled"
+      }
+    },
+    {
+      "operationId": "createConsentCustomer",
+      "method": "POST",
+      "path": "/consent-payment/customers/create",
+      "summaryZh": "创建客户",
+      "summaryEn": "Create customer",
+      "sampleBody": {
+        "merchantId": "SAMPLE_MERCHANT_ID",
+        "merchantCustomerId": "SAMPLE_MERCHANT_CUSTOMER_ID",
+        "firstName": "SAMPLE_FIRST_NAME",
+        "lastName": "SAMPLE_LAST_NAME",
+        "email": "SAMPLE_EMAIL",
+        "phone": "SAMPLE_PHONE",
+        "address": {
+          "countryCode": "SAMPLE_COUNTRY_CODE",
+          "state": "SAMPLE_STATE",
+          "city": "SAMPLE_CITY",
+          "district": "SAMPLE_DISTRICT",
+          "postalCode": "SAMPLE_POSTAL_CODE",
+          "street": "SAMPLE_STREET"
+        }
+      }
+    },
+    {
+      "operationId": "updateConsentCustomer",
+      "method": "POST",
+      "path": "/consent-payment/customers/update",
+      "summaryZh": "更新客户",
+      "summaryEn": "Update customer",
+      "sampleBody": {
+        "merchantId": "SAMPLE_MERCHANT_ID",
+        "customerId": "SAMPLE_CUSTOMER_ID",
+        "merchantCustomerId": "SAMPLE_MERCHANT_CUSTOMER_ID",
+        "firstName": "SAMPLE_FIRST_NAME",
+        "lastName": "SAMPLE_LAST_NAME",
+        "email": "SAMPLE_EMAIL",
+        "phone": "SAMPLE_PHONE",
+        "address": {
+          "countryCode": "SAMPLE_COUNTRY_CODE",
+          "state": "SAMPLE_STATE",
+          "city": "SAMPLE_CITY",
+          "district": "SAMPLE_DISTRICT",
+          "postalCode": "SAMPLE_POSTAL_CODE",
+          "street": "SAMPLE_STREET"
+        }
+      }
+    },
+    {
+      "operationId": "queryConsentCustomer",
+      "method": "POST",
+      "path": "/consent-payment/customers/query",
+      "summaryZh": "查询客户",
+      "summaryEn": "Query customer",
+      "sampleBody": {
+        "merchantId": "SAMPLE_MERCHANT_ID",
+        "customerId": "SAMPLE_CUSTOMER_ID",
+        "merchantCustomerId": "SAMPLE_MERCHANT_CUSTOMER_ID"
+      }
+    },
+    {
+      "operationId": "queryCustomerConsents",
+      "method": "POST",
+      "path": "/consent-payment/customers/consents",
+      "summaryZh": "查询客户授权",
+      "summaryEn": "Query customer consents",
+      "sampleBody": {
+        "pageSize": 100,
+        "currentPage": 100,
+        "form": {
+          "merchantId": "SAMPLE_MERCHANT_ID",
+          "customerId": "SAMPLE_CUSTOMER_ID"
+        }
+      }
+    },
+    {
+      "operationId": "queryConsent",
+      "method": "POST",
+      "path": "/consent-payment/consents/query",
+      "summaryZh": "查询授权",
+      "summaryEn": "Query consent",
+      "sampleBody": {
+        "merchantId": "SAMPLE_MERCHANT_ID",
+        "consentId": "SAMPLE_CONSENT_ID",
+        "customerId": "SAMPLE_CUSTOMER_ID",
+        "merchantCustomerId": "SAMPLE_MERCHANT_CUSTOMER_ID"
+      }
+    },
+    {
+      "operationId": "cancelConsent",
+      "method": "POST",
+      "path": "/consent-payment/consents/cancel",
+      "summaryZh": "取消授权",
+      "summaryEn": "Cancel consent",
+      "sampleBody": {
+        "merchantId": "SAMPLE_MERCHANT_ID",
+        "consentId": "SAMPLE_CONSENT_ID",
+        "reason": "SAMPLE_REASON"
+      }
+    },
+    {
+      "operationId": "activateConsent",
+      "method": "POST",
+      "path": "/consent-payment/consents/activate",
+      "summaryZh": "重新启用授权",
+      "summaryEn": "Reactivate consent",
+      "sampleBody": {
+        "merchantId": "SAMPLE_MERCHANT_ID",
+        "consentId": "SAMPLE_CONSENT_ID",
+        "reason": "SAMPLE_REASON"
+      }
+    },
+    {
+      "operationId": "createConsentCharge",
+      "method": "POST",
+      "path": "/consent-payment/charges/create",
+      "summaryZh": "发起后续扣款",
+      "summaryEn": "Initiate subsequent charge",
+      "sampleBody": {
+        "merchantId": "SAMPLE_MERCHANT_ID",
+        "consentId": "SAMPLE_CONSENT_ID",
+        "merchantOrderId": "ORDER_TIMESTAMP",
+        "amount": 100,
+        "currency": "SGD",
+        "notifyUrl": "https://merchant.example.com/yeahpay/callback",
+        "description": "127.0.0.1"
+      }
+    },
+    {
+      "operationId": "listConsentCharges",
+      "method": "POST",
+      "path": "/consent-payment/charges/list",
+      "summaryZh": "查询扣款列表",
+      "summaryEn": "List charges",
+      "sampleBody": {
+        "pageSize": 100,
+        "currentPage": 100,
+        "form": {
+          "merchantId": "SAMPLE_MERCHANT_ID",
+          "consentId": "SAMPLE_CONSENT_ID"
+        }
       }
     },
     {

@@ -1,0 +1,43 @@
+---
+title: "PC Checkout"
+description: "Integrate YeahPay-hosted Checkout in desktop websites"
+---
+
+PC Checkout is designed for desktop websites. You can query the currently available payment methods before Checkout, or let the hosted page present the available options.
+
+## Integration flow
+
+<Steps>
+  <Step title="Query payment methods (optional)">
+    If your website needs to show available methods before Checkout, call [`POST /cardOrder/getTradeType`](/en/api-reference/checkout/query-payment-methods) from your server. Skip this step when the hosted page will present the options.
+  </Step>
+  <Step title="Get the PC Checkout URL">
+    Sign and call [`POST /cardOrder/getPcRedirectUrl`](/en/api-reference/checkout/get-pc-checkout-url), including order data, consumer information, and the business type. Physical-goods transactions also require logistics and billing information.
+  </Step>
+  <Step title="Open Checkout">
+    Read the hosted page URL from `data.url` and open it in a new window or tab while retaining the merchant page.
+  </Step>
+  <Step title="Confirm the payment result">
+    Verify the payment notification signature and process notifications idempotently. Use the [payment query API](/en/api-reference/qr-code-transactions/payment-query-qr-code-and-card) for recovery or active status refresh.
+  </Step>
+</Steps>
+
+<CardGroup cols={3}>
+  <Card title="Query payment methods" icon="list" href="/en/api-reference/checkout/query-payment-methods">
+    Retrieve the payment methods currently available to the merchant.
+  </Card>
+  <Card title="Create PC Checkout" icon="desktop" href="/en/api-reference/checkout/get-pc-checkout-url">
+    Review request fields and conditionally required properties.
+  </Card>
+  <Card title="Test the PC request" icon="terminal" href="/en/api-tester?operationId=getPcRedirectUrl">
+    Generate signed request headers and cURL.
+  </Card>
+</CardGroup>
+
+<Note>
+  Call the API from your server. Keep the `apiKey` on the server for signature generation and never expose it to a browser or mobile app.
+</Note>
+
+<Warning>
+  `callback` only returns the customer to your frontend after the payment flow. Do not treat that redirect as proof of payment. Determine the final order status from a verified payment notification or payment query response.
+</Warning>

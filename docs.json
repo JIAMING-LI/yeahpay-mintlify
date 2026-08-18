@@ -31,9 +31,11 @@
             "tab": "产品介绍",
             "groups": [
               {
-                "group": "收银台产品",
+                "group": "支付产品",
                 "pages": [
-                  "product-description"
+                  "h5-checkout",
+                  "pc-checkout",
+                  "subscription-payment"
                 ]
               }
             ]
@@ -67,9 +69,11 @@
             "tab": "Product Description",
             "groups": [
               {
-                "group": "Checkout products",
+                "group": "Payment products",
                 "pages": [
-                  "en/product-description"
+                  "en/h5-checkout",
+                  "en/pc-checkout",
+                  "en/subscription-payment"
                 ]
               }
             ]
