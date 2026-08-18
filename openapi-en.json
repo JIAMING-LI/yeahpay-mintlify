@@ -27,6 +27,10 @@
     {
       "name": "QR code transactions",
       "description": "Merchant-presented QR, customer-presented QR, query, close, and refund query operations"
+    },
+    {
+      "name": "Online Pre-Authorization Card Transactions",
+      "description": "Online pre-authorization card transaction APIs, including pre-authorization completion, cancellation, and settlement"
     }
   ],
   "security": [
@@ -1274,6 +1278,286 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/QueryRefundResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request parameters"
+          },
+          "401": {
+            "description": "Signature verification or authentication failed"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/cardOrder/preAuthCompleteOnline": {
+      "post": {
+        "tags": [
+          "Online Pre-Authorization Card Transactions"
+        ],
+        "summary": "Complete Pre-Authorization",
+        "description": "Pre-authorization completion API (open-api service)",
+        "operationId": "preAuthCompleteOnline",
+        "x-mint": {
+          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=preAuthCompleteOnline\">Generate the signature and cURL for this operation.</Card>"
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/VersionHeader"
+          },
+          {
+            "$ref": "#/components/parameters/TimestampHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AlgorithmHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AppIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/NonceHeader"
+          },
+          {
+            "$ref": "#/components/parameters/SignatureHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptLanguageHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptTimezoneHeader"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PreAuthCompleteRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Request successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PreAuthCompleteResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request parameters"
+          },
+          "401": {
+            "description": "Signature verification or authentication failed"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/cardOrder/preAuthCompleteCancelOnline": {
+      "post": {
+        "tags": [
+          "Online Pre-Authorization Card Transactions"
+        ],
+        "summary": "Cancel Pre-Authorization Completion",
+        "description": "Pre-authorization completion cancellation API (open-api service)",
+        "operationId": "preAuthCompleteCancelOnline",
+        "x-mint": {
+          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=preAuthCompleteCancelOnline\">Generate the signature and cURL for this operation.</Card>"
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/VersionHeader"
+          },
+          {
+            "$ref": "#/components/parameters/TimestampHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AlgorithmHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AppIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/NonceHeader"
+          },
+          {
+            "$ref": "#/components/parameters/SignatureHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptLanguageHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptTimezoneHeader"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PreAuthCompleteCancelRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Request successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PreAuthCompleteCancelResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request parameters"
+          },
+          "401": {
+            "description": "Signature verification or authentication failed"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/cardOrder/batchSettleOnline": {
+      "post": {
+        "tags": [
+          "Online Pre-Authorization Card Transactions"
+        ],
+        "summary": "Batch Settlement",
+        "description": "Batch settlement API (open-api service)",
+        "operationId": "batchSettleOnline",
+        "x-mint": {
+          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=batchSettleOnline\">Generate the signature and cURL for this operation.</Card>"
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/VersionHeader"
+          },
+          {
+            "$ref": "#/components/parameters/TimestampHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AlgorithmHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AppIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/NonceHeader"
+          },
+          {
+            "$ref": "#/components/parameters/SignatureHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptLanguageHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptTimezoneHeader"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BatchSettleRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Request successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BatchSettleResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request parameters"
+          },
+          "401": {
+            "description": "Signature verification or authentication failed"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/cardOrder/settleQuery": {
+      "post": {
+        "tags": [
+          "Online Pre-Authorization Card Transactions"
+        ],
+        "summary": "Settlement Query",
+        "description": "Settlement query API (open-api service)",
+        "operationId": "settleQuery",
+        "x-mint": {
+          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=settleQuery\">Generate the signature and cURL for this operation.</Card>"
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/VersionHeader"
+          },
+          {
+            "$ref": "#/components/parameters/TimestampHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AlgorithmHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AppIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/NonceHeader"
+          },
+          {
+            "$ref": "#/components/parameters/SignatureHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptLanguageHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptTimezoneHeader"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SettleQueryRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Request successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SettleQueryResponse"
                 }
               }
             }
@@ -3422,6 +3706,14 @@
           "target": {
             "type": "string",
             "description": "Page target"
+          },
+          "preAuth": {
+            "type": "string",
+            "description": "Pre-authorization flag: 1-pre-authorization, 2-standard",
+            "enum": [
+              "1",
+              "2"
+            ]
           }
         },
         "required": [
@@ -3553,6 +3845,14 @@
             "type": "string",
             "description": "Payment type. Currently only scheduled is supported. Required when isConsent=true.",
             "const": "scheduled"
+          },
+          "preAuth": {
+            "type": "string",
+            "description": "Pre-authorization flag: 1-pre-authorization, 2-standard",
+            "enum": [
+              "1",
+              "2"
+            ]
           }
         },
         "required": [
@@ -3899,6 +4199,224 @@
           "settlementRefundAmount",
           "merchantRefundId"
         ]
+      },
+      "PreAuthCompleteRequest": {
+        "type": "object",
+        "properties": {
+          "orderId": {
+            "type": "string",
+            "description": "YeahPay transaction order number returned from the transaction"
+          },
+          "merchantId": {
+            "type": "string",
+            "description": "Merchant ID"
+          },
+          "amount": {
+            "type": "string",
+            "description": "Transaction amount in cents"
+          },
+          "currency": {
+            "type": "string",
+            "description": "Transaction currency in English, e.g. HKD"
+          },
+          "language": {
+            "type": "string",
+            "description": "Language: Traditional Chinese: zh-TW, English: en"
+          }
+        },
+        "required": [
+          "orderId",
+          "merchantId",
+          "amount",
+          "currency"
+        ]
+      },
+      "PreAuthCompleteResponse": {
+        "type": "object",
+        "properties": {
+          "error_code": {
+            "type": "string",
+            "description": "Error code: 0-success, non-zero-failure"
+          },
+          "error_msg": {
+            "type": "string",
+            "description": "Error message"
+          },
+          "error_tip": {
+            "type": "string",
+            "description": "Error hint"
+          },
+          "order_id": {
+            "type": "string",
+            "description": "YeahPay transaction order number"
+          },
+          "pay_time": {
+            "type": "string",
+            "description": "Transaction time, example: 2024-03-25 09:31:16"
+          },
+          "status": {
+            "type": "integer",
+            "description": "Order status: 1-failed, 2-success"
+          }
+        }
+      },
+      "PreAuthCompleteCancelRequest": {
+        "type": "object",
+        "properties": {
+          "orderId": {
+            "type": "string",
+            "description": "YeahPay transaction order number returned from the transaction"
+          },
+          "merchantId": {
+            "type": "string",
+            "description": "Merchant ID"
+          },
+          "amount": {
+            "type": "string",
+            "description": "Transaction amount in cents"
+          },
+          "currency": {
+            "type": "string",
+            "description": "Transaction currency in English, e.g. HKD"
+          },
+          "language": {
+            "type": "string",
+            "description": "Language: Traditional Chinese: zh-TW, English: en"
+          }
+        },
+        "required": [
+          "orderId",
+          "merchantId",
+          "amount",
+          "currency"
+        ]
+      },
+      "PreAuthCompleteCancelResponse": {
+        "type": "object",
+        "properties": {
+          "error_code": {
+            "type": "string",
+            "description": "Error code: 0-success, non-zero-failure"
+          },
+          "error_msg": {
+            "type": "string",
+            "description": "Error message"
+          },
+          "error_tip": {
+            "type": "string",
+            "description": "Error hint"
+          },
+          "order_id": {
+            "type": "string",
+            "description": "YeahPay transaction order number"
+          },
+          "pay_time": {
+            "type": "string",
+            "description": "Transaction time, example: 2024-03-25 09:31:16"
+          },
+          "status": {
+            "type": "integer",
+            "description": "Order status: 1-failed, 2-success"
+          }
+        }
+      },
+      "BatchSettleRequest": {
+        "type": "object",
+        "properties": {
+          "merchantId": {
+            "type": "string",
+            "description": "Merchant ID"
+          },
+          "language": {
+            "type": "string",
+            "description": "Language: Traditional Chinese: zh-TW, English: en"
+          }
+        },
+        "required": [
+          "merchantId"
+        ]
+      },
+      "BatchSettleResponse": {
+        "type": "object",
+        "properties": {
+          "error_code": {
+            "type": "string",
+            "description": "Error code: 0-success, non-zero-failure"
+          },
+          "error_msg": {
+            "type": "string",
+            "description": "Error message"
+          },
+          "error_tip": {
+            "type": "string",
+            "description": "Error hint"
+          },
+          "settle_id_list": {
+            "type": "string",
+            "description": "Settlement batch number, multiple numbers separated by commas"
+          }
+        }
+      },
+      "SettleQueryRequest": {
+        "type": "object",
+        "properties": {
+          "batchSettleId": {
+            "type": "string",
+            "description": "Settlement batch number"
+          },
+          "merchantId": {
+            "type": "string",
+            "description": "Merchant ID"
+          },
+          "language": {
+            "type": "string",
+            "description": "Language: Traditional Chinese: zh-TW, English: en"
+          }
+        },
+        "required": [
+          "merchantId"
+        ]
+      },
+      "SettleQueryResponse": {
+        "type": "object",
+        "properties": {
+          "error_code": {
+            "type": "string",
+            "description": "Error code: 0-success, non-zero-failure"
+          },
+          "error_msg": {
+            "type": "string",
+            "description": "Error message"
+          },
+          "error_tip": {
+            "type": "string",
+            "description": "Error hint"
+          },
+          "batch_settle_id": {
+            "type": "string",
+            "description": "Settlement batch number"
+          },
+          "order_num": {
+            "type": "integer",
+            "description": "Order count"
+          },
+          "total_amount": {
+            "type": "integer",
+            "description": "Total amount in cents"
+          },
+          "status": {
+            "type": "integer",
+            "description": "Batch settlement status: 1-processing, 2-completed, 3-closed"
+          },
+          "settle_start_time": {
+            "type": "string",
+            "description": "Settlement start time"
+          },
+          "settle_end_time": {
+            "type": "string",
+            "description": "Settlement end time"
+          }
+        }
       }
     }
   },
