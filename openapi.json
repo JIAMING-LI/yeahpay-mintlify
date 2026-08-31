@@ -27,6 +27,10 @@
     {
       "name": "扫码交易",
       "description": "主扫、被扫、查询、关闭和退款查询"
+    },
+    {
+      "name": "线上预授权刷卡交易",
+      "description": "线上预授权刷卡交易接口，包括预授权完成、预授权完成撤销及结算请款"
     }
   ],
   "security": [
@@ -1274,6 +1278,286 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/QueryRefundResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "请求参数错误"
+          },
+          "401": {
+            "description": "签名验证失败或身份认证失败"
+          },
+          "500": {
+            "description": "服务端错误"
+          }
+        }
+      }
+    },
+    "/cardOrder/preAuthCompleteOnline": {
+      "post": {
+        "tags": [
+          "线上预授权刷卡交易"
+        ],
+        "summary": "预授权完成",
+        "description": "预授权完成接口（open-api服务）",
+        "operationId": "preAuthCompleteOnline",
+        "x-mint": {
+          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=preAuthCompleteOnline\">使用此接口参数生成请求签名和 cURL。</Card>"
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/VersionHeader"
+          },
+          {
+            "$ref": "#/components/parameters/TimestampHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AlgorithmHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AppIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/NonceHeader"
+          },
+          {
+            "$ref": "#/components/parameters/SignatureHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptLanguageHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptTimezoneHeader"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PreAuthCompleteRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "请求成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PreAuthCompleteResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "请求参数错误"
+          },
+          "401": {
+            "description": "签名验证失败或身份认证失败"
+          },
+          "500": {
+            "description": "服务端错误"
+          }
+        }
+      }
+    },
+    "/cardOrder/preAuthCompleteCancelOnline": {
+      "post": {
+        "tags": [
+          "线上预授权刷卡交易"
+        ],
+        "summary": "预授权完成撤销",
+        "description": "预授权完成撤销接口（open-api服务）",
+        "operationId": "preAuthCompleteCancelOnline",
+        "x-mint": {
+          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=preAuthCompleteCancelOnline\">使用此接口参数生成请求签名和 cURL。</Card>"
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/VersionHeader"
+          },
+          {
+            "$ref": "#/components/parameters/TimestampHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AlgorithmHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AppIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/NonceHeader"
+          },
+          {
+            "$ref": "#/components/parameters/SignatureHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptLanguageHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptTimezoneHeader"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PreAuthCompleteCancelRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "请求成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PreAuthCompleteCancelResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "请求参数错误"
+          },
+          "401": {
+            "description": "签名验证失败或身份认证失败"
+          },
+          "500": {
+            "description": "服务端错误"
+          }
+        }
+      }
+    },
+    "/cardOrder/batchSettleOnline": {
+      "post": {
+        "tags": [
+          "线上预授权刷卡交易"
+        ],
+        "summary": "结算请款",
+        "description": "结算请款接口（open-api服务）",
+        "operationId": "batchSettleOnline",
+        "x-mint": {
+          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=batchSettleOnline\">使用此接口参数生成请求签名和 cURL。</Card>"
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/VersionHeader"
+          },
+          {
+            "$ref": "#/components/parameters/TimestampHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AlgorithmHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AppIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/NonceHeader"
+          },
+          {
+            "$ref": "#/components/parameters/SignatureHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptLanguageHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptTimezoneHeader"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BatchSettleRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "请求成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BatchSettleResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "请求参数错误"
+          },
+          "401": {
+            "description": "签名验证失败或身份认证失败"
+          },
+          "500": {
+            "description": "服务端错误"
+          }
+        }
+      }
+    },
+    "/cardOrder/settleQuery": {
+      "post": {
+        "tags": [
+          "线上预授权刷卡交易"
+        ],
+        "summary": "请款查询",
+        "description": "请款查询接口（open-api服务）",
+        "operationId": "settleQuery",
+        "x-mint": {
+          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=settleQuery\">使用此接口参数生成请求签名和 cURL。</Card>"
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/VersionHeader"
+          },
+          {
+            "$ref": "#/components/parameters/TimestampHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AlgorithmHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AppIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/NonceHeader"
+          },
+          {
+            "$ref": "#/components/parameters/SignatureHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptLanguageHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptTimezoneHeader"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SettleQueryRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "请求成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SettleQueryResponse"
                 }
               }
             }
@@ -3422,6 +3706,14 @@
           "target": {
             "type": "string",
             "description": "页面打开目标"
+          },
+          "preAuth": {
+            "type": "string",
+            "description": "预授权标识，1-预授权 2-非预授权",
+            "enum": [
+              "1",
+              "2"
+            ]
           }
         },
         "required": [
@@ -3553,6 +3845,14 @@
             "type": "string",
             "description": "支付类型。当前仅支持 scheduled；isConsent=true 时必填",
             "const": "scheduled"
+          },
+          "preAuth": {
+            "type": "string",
+            "description": "预授权标识，1-预授权 2-非预授权",
+            "enum": [
+              "1",
+              "2"
+            ]
           }
         },
         "required": [
@@ -3899,6 +4199,224 @@
           "settlementRefundAmount",
           "merchantRefundId"
         ]
+      },
+      "PreAuthCompleteRequest": {
+        "type": "object",
+        "properties": {
+          "orderId": {
+            "type": "string",
+            "description": "乐刷交易单号，交易返回的订单号"
+          },
+          "merchantId": {
+            "type": "string",
+            "description": "商户编号"
+          },
+          "amount": {
+            "type": "string",
+            "description": "交易金额，单位：分"
+          },
+          "currency": {
+            "type": "string",
+            "description": "交易币种，英文，如：HKD-港币"
+          },
+          "language": {
+            "type": "string",
+            "description": "使用语言：繁体:zh-TW，英文:en"
+          }
+        },
+        "required": [
+          "orderId",
+          "merchantId",
+          "amount",
+          "currency"
+        ]
+      },
+      "PreAuthCompleteResponse": {
+        "type": "object",
+        "properties": {
+          "error_code": {
+            "type": "string",
+            "description": "错误码：0-成功，非0-失败"
+          },
+          "error_msg": {
+            "type": "string",
+            "description": "错误信息"
+          },
+          "error_tip": {
+            "type": "string",
+            "description": "错误提示"
+          },
+          "order_id": {
+            "type": "string",
+            "description": "乐刷交易单号"
+          },
+          "pay_time": {
+            "type": "string",
+            "description": "交易时间，示例：2024-03-25 09:31:16"
+          },
+          "status": {
+            "type": "integer",
+            "description": "订单状态：1-失败，2-成功"
+          }
+        }
+      },
+      "PreAuthCompleteCancelRequest": {
+        "type": "object",
+        "properties": {
+          "orderId": {
+            "type": "string",
+            "description": "乐刷交易单号，交易返回的订单号"
+          },
+          "merchantId": {
+            "type": "string",
+            "description": "商户编号"
+          },
+          "amount": {
+            "type": "string",
+            "description": "交易金额，单位：分"
+          },
+          "currency": {
+            "type": "string",
+            "description": "交易币种，英文，如：HKD-港币"
+          },
+          "language": {
+            "type": "string",
+            "description": "使用语言：繁体:zh-TW，英文:en"
+          }
+        },
+        "required": [
+          "orderId",
+          "merchantId",
+          "amount",
+          "currency"
+        ]
+      },
+      "PreAuthCompleteCancelResponse": {
+        "type": "object",
+        "properties": {
+          "error_code": {
+            "type": "string",
+            "description": "错误码：0-成功，非0-失败"
+          },
+          "error_msg": {
+            "type": "string",
+            "description": "错误信息"
+          },
+          "error_tip": {
+            "type": "string",
+            "description": "错误提示"
+          },
+          "order_id": {
+            "type": "string",
+            "description": "乐刷交易单号"
+          },
+          "pay_time": {
+            "type": "string",
+            "description": "交易时间，示例：2024-03-25 09:31:16"
+          },
+          "status": {
+            "type": "integer",
+            "description": "订单状态：1-失败，2-成功"
+          }
+        }
+      },
+      "BatchSettleRequest": {
+        "type": "object",
+        "properties": {
+          "merchantId": {
+            "type": "string",
+            "description": "商户编号"
+          },
+          "language": {
+            "type": "string",
+            "description": "使用语言：繁体:zh-TW，英文:en"
+          }
+        },
+        "required": [
+          "merchantId"
+        ]
+      },
+      "BatchSettleResponse": {
+        "type": "object",
+        "properties": {
+          "error_code": {
+            "type": "string",
+            "description": "错误码：0-成功，非0-失败"
+          },
+          "error_msg": {
+            "type": "string",
+            "description": "错误信息"
+          },
+          "error_tip": {
+            "type": "string",
+            "description": "错误提示"
+          },
+          "settle_id_list": {
+            "type": "string",
+            "description": "结算批次号，多个批次号用\",\"隔开"
+          }
+        }
+      },
+      "SettleQueryRequest": {
+        "type": "object",
+        "properties": {
+          "batchSettleId": {
+            "type": "string",
+            "description": "结算批次号"
+          },
+          "merchantId": {
+            "type": "string",
+            "description": "商户编号"
+          },
+          "language": {
+            "type": "string",
+            "description": "使用语言：繁体:zh-TW，英文:en"
+          }
+        },
+        "required": [
+          "merchantId"
+        ]
+      },
+      "SettleQueryResponse": {
+        "type": "object",
+        "properties": {
+          "error_code": {
+            "type": "string",
+            "description": "错误码：0-成功，非0-失败"
+          },
+          "error_msg": {
+            "type": "string",
+            "description": "错误信息"
+          },
+          "error_tip": {
+            "type": "string",
+            "description": "错误提示"
+          },
+          "batch_settle_id": {
+            "type": "string",
+            "description": "结算批次号"
+          },
+          "order_num": {
+            "type": "integer",
+            "description": "订单数量"
+          },
+          "total_amount": {
+            "type": "integer",
+            "description": "总金额，单位：分"
+          },
+          "status": {
+            "type": "integer",
+            "description": "批请款状态：1-处理中，2-完成，3-关闭"
+          },
+          "settle_start_time": {
+            "type": "string",
+            "description": "结算起始时间"
+          },
+          "settle_end_time": {
+            "type": "string",
+            "description": "结算终止时间"
+          }
+        }
       }
     }
   },

@@ -103,7 +103,7 @@ export const SignedApiPlayground = ({ locale = "en" }) => {
     },
   }
   // BEGIN AUTO-GENERATED OPENAPI OPERATIONS
-  // Source fingerprint: 0a5ab0796437aab1
+  // Source fingerprint: f0fab89912424ac7
   const operationDefinitions = [
     {
       "operationId": "getRedirectUrl",
@@ -130,7 +130,8 @@ export const SignedApiPlayground = ({ locale = "en" }) => {
         "payWay": "SAMPLE_PAY_WAY",
         "limitPay": "SAMPLE_LIMIT_PAY",
         "countdown": "SAMPLE_COUNTDOWN",
-        "target": "SAMPLE_TARGET"
+        "target": "SAMPLE_TARGET",
+        "preAuth": "1"
       }
     },
     {
@@ -170,7 +171,8 @@ export const SignedApiPlayground = ({ locale = "en" }) => {
         "isConsent": false,
         "customerId": "SAMPLE_CUSTOMER_ID",
         "paymentInitiator": "merchant",
-        "paymentType": "scheduled"
+        "paymentType": "scheduled",
+        "preAuth": "1"
       }
     },
     {
@@ -418,6 +420,57 @@ export const SignedApiPlayground = ({ locale = "en" }) => {
         "merchantRefundId": "REFUND_TIMESTAMP",
         "thirdOrderId": "ORDER_TIMESTAMP",
         "leshuaOrderId": "ORDER_TIMESTAMP"
+      }
+    },
+    {
+      "operationId": "preAuthCompleteOnline",
+      "method": "POST",
+      "path": "/cardOrder/preAuthCompleteOnline",
+      "summaryZh": "预授权完成",
+      "summaryEn": "Complete Pre-Authorization",
+      "sampleBody": {
+        "orderId": "ORDER_TIMESTAMP",
+        "merchantId": "SAMPLE_MERCHANT_ID",
+        "amount": "100",
+        "currency": "SGD",
+        "language": "SAMPLE_LANGUAGE"
+      }
+    },
+    {
+      "operationId": "preAuthCompleteCancelOnline",
+      "method": "POST",
+      "path": "/cardOrder/preAuthCompleteCancelOnline",
+      "summaryZh": "预授权完成撤销",
+      "summaryEn": "Cancel Pre-Authorization Completion",
+      "sampleBody": {
+        "orderId": "ORDER_TIMESTAMP",
+        "merchantId": "SAMPLE_MERCHANT_ID",
+        "amount": "100",
+        "currency": "SGD",
+        "language": "SAMPLE_LANGUAGE"
+      }
+    },
+    {
+      "operationId": "batchSettleOnline",
+      "method": "POST",
+      "path": "/cardOrder/batchSettleOnline",
+      "summaryZh": "结算请款",
+      "summaryEn": "Batch Settlement",
+      "sampleBody": {
+        "merchantId": "SAMPLE_MERCHANT_ID",
+        "language": "SAMPLE_LANGUAGE"
+      }
+    },
+    {
+      "operationId": "settleQuery",
+      "method": "POST",
+      "path": "/cardOrder/settleQuery",
+      "summaryZh": "请款查询",
+      "summaryEn": "Settlement Query",
+      "sampleBody": {
+        "batchSettleId": "SAMPLE_BATCH_SETTLE_ID",
+        "merchantId": "SAMPLE_MERCHANT_ID",
+        "language": "SAMPLE_LANGUAGE"
       }
     }
   ]
