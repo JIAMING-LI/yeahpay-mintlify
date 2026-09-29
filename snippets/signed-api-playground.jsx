@@ -103,7 +103,7 @@ export const SignedApiPlayground = ({ locale = "en" }) => {
     },
   }
   // BEGIN AUTO-GENERATED OPENAPI OPERATIONS
-  // Source fingerprint: f0fab89912424ac7
+  // Source fingerprint: 821d723df7af265c
   const operationDefinitions = [
     {
       "operationId": "getRedirectUrl",
@@ -123,15 +123,16 @@ export const SignedApiPlayground = ({ locale = "en" }) => {
         "currency": "SGD",
         "amount": "100",
         "goodsList": "[]",
-        "timestamp": "TIMESTAMP",
         "callback": "https://merchant.example.com/yeahpay/callback",
         "lang": "zh-CN",
         "notifyUrl": "https://merchant.example.com/yeahpay/callback",
         "payWay": "SAMPLE_PAY_WAY",
         "limitPay": "SAMPLE_LIMIT_PAY",
-        "countdown": "SAMPLE_COUNTDOWN",
+        "countdown": 5,
         "target": "SAMPLE_TARGET",
-        "preAuth": "1"
+        "preAuth": "1",
+        "mobile": "SAMPLE_MOBILE",
+        "eMail": "SAMPLE_E_MAIL"
       }
     },
     {
@@ -141,7 +142,8 @@ export const SignedApiPlayground = ({ locale = "en" }) => {
       "summaryZh": "查询支付方式",
       "summaryEn": "Query payment methods",
       "sampleBody": {
-        "merchantId": "SAMPLE_MERCHANT_ID"
+        "merchantId": "SAMPLE_MERCHANT_ID",
+        "currency": "SGD"
       }
     },
     {
@@ -164,7 +166,7 @@ export const SignedApiPlayground = ({ locale = "en" }) => {
         "notifyUrl": "https://merchant.example.com/yeahpay/callback",
         "payWay": "SAMPLE_PAY_WAY",
         "limitPay": "SAMPLE_LIMIT_PAY",
-        "countdown": "SAMPLE_COUNTDOWN",
+        "countdown": 5,
         "target": "SAMPLE_TARGET",
         "logisticsInfo": "SAMPLE_LOGISTICS_INFO",
         "billInfo": "SAMPLE_BILL_INFO",
@@ -172,7 +174,12 @@ export const SignedApiPlayground = ({ locale = "en" }) => {
         "customerId": "SAMPLE_CUSTOMER_ID",
         "paymentInitiator": "merchant",
         "paymentType": "scheduled",
-        "preAuth": "1"
+        "preAuth": "1",
+        "merchantReferenceNumber": "SAMPLE_MERCHANT_REFERENCE_NUMBER",
+        "mobile": "SAMPLE_MOBILE",
+        "eMail": "SAMPLE_E_MAIL",
+        "orderExpiration": "300",
+        "isOnline": false
       }
     },
     {
@@ -333,7 +340,8 @@ export const SignedApiPlayground = ({ locale = "en" }) => {
         "merchantRefundId": "REFUND_TIMESTAMP",
         "terminalId": "SAMPLE_TERMINAL_ID",
         "oriThirdOrderId": "ORDER_TIMESTAMP",
-        "thirdOrderId": "ORDER_TIMESTAMP"
+        "thirdOrderId": "ORDER_TIMESTAMP",
+        "language": "SAMPLE_LANGUAGE"
       }
     },
     {
@@ -362,7 +370,11 @@ export const SignedApiPlayground = ({ locale = "en" }) => {
         "region": "SAMPLE_REGION",
         "phoneType": "SAMPLE_PHONE_TYPE",
         "jumpUrl": "https://merchant.example.com/yeahpay/callback",
-        "notifyUrl": "https://merchant.example.com/yeahpay/callback"
+        "notifyUrl": "https://merchant.example.com/yeahpay/callback",
+        "subject": "SAMPLE_SUBJECT",
+        "sellerId": "SAMPLE_SELLER_ID",
+        "orderGmtCreate": "SAMPLE_ORDER_GMT_CREATE",
+        "orderValidTime": "SAMPLE_ORDER_VALID_TIME"
       }
     },
     {
@@ -389,7 +401,6 @@ export const SignedApiPlayground = ({ locale = "en" }) => {
         "amount": 100,
         "currency": "SGD",
         "authCode": "SAMPLE_AUTH_CODE",
-        "appid": "SAMPLE_APPID",
         "clientIp": "127.0.0.1",
         "body": "SAMPLE_BODY",
         "attach": "SAMPLE_ATTACH",
@@ -407,6 +418,22 @@ export const SignedApiPlayground = ({ locale = "en" }) => {
         "merchantId": "SAMPLE_MERCHANT_ID",
         "thirdOrderId": "ORDER_TIMESTAMP",
         "leshuaOrderId": "ORDER_TIMESTAMP"
+      }
+    },
+    {
+      "operationId": "unifiedRefund",
+      "method": "POST",
+      "path": "/order/unifiedRefund",
+      "summaryZh": "统一退款",
+      "summaryEn": "Unified refund",
+      "sampleBody": {
+        "merchantId": "SAMPLE_MERCHANT_ID",
+        "thirdOrderId": "ORDER_TIMESTAMP",
+        "leshuaOrderId": "ORDER_TIMESTAMP",
+        "merchantRefundId": "REFUND_TIMESTAMP",
+        "refundAmount": 100,
+        "posNo": "SAMPLE_POS_NO",
+        "notifyUrl": "https://merchant.example.com/yeahpay/callback"
       }
     },
     {

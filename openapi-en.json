@@ -1225,6 +1225,75 @@
         }
       }
     },
+    "/order/unifiedRefund": {
+      "post": {
+        "tags": [
+          "QR code transactions"
+        ],
+        "summary": "Unified refund",
+        "operationId": "unifiedRefund",
+        "x-mint": {
+          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=unifiedRefund\">Generate the signature and cURL for this operation.</Card>"
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/VersionHeader"
+          },
+          {
+            "$ref": "#/components/parameters/TimestampHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AlgorithmHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AppIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/NonceHeader"
+          },
+          {
+            "$ref": "#/components/parameters/SignatureHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptLanguageHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptTimezoneHeader"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UnifiedRefundRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Request successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnifiedRefundResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request parameters"
+          },
+          "401": {
+            "description": "Signature verification or authentication failed"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
     "/order/queryRefund": {
       "post": {
         "tags": [
@@ -2672,6 +2741,22 @@
             "type": "string",
             "description": "Payment result notification URL",
             "format": "uri"
+          },
+          "subject": {
+            "type": "string",
+            "description": "Transaction description, used by some payment methods"
+          },
+          "sellerId": {
+            "type": "string",
+            "description": "Seller identifier, used by some Alipay scenarios"
+          },
+          "orderGmtCreate": {
+            "type": "string",
+            "description": "Order creation time in Beijing time, format yyyy-MM-dd HH:mm:ss"
+          },
+          "orderValidTime": {
+            "type": "string",
+            "description": "Order validity period in seconds; used with orderGmtCreate"
           }
         },
         "required": [
@@ -3029,10 +3114,6 @@
             "type": "string",
             "description": "Customer payment code"
           },
-          "appid": {
-            "type": "string",
-            "description": "Application ID. The field name is retained from the source document."
-          },
           "clientIp": {
             "type": "string",
             "description": "Client IP address"
@@ -3287,6 +3368,114 @@
           "code"
         ]
       },
+      "UnifiedRefundRequest": {
+        "type": "object",
+        "properties": {
+          "merchantId": {
+            "type": "string",
+            "description": "Merchant ID",
+            "minLength": 1
+          },
+          "thirdOrderId": {
+            "type": "string",
+            "description": "Merchant order number"
+          },
+          "leshuaOrderId": {
+            "type": "string",
+            "description": "Original YeahPay order number"
+          },
+          "merchantRefundId": {
+            "type": "string",
+            "description": "Merchant refund number",
+            "minLength": 1
+          },
+          "refundAmount": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Refund amount"
+          },
+          "posNo": {
+            "type": "string",
+            "description": "POS number"
+          },
+          "notifyUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "Refund result notification URL"
+          }
+        },
+        "required": [
+          "merchantId",
+          "merchantRefundId",
+          "refundAmount"
+        ]
+      },
+      "UnifiedRefundResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": "Business result code. 0 indicates success."
+          },
+          "message": {
+            "type": "string",
+            "description": "Result description"
+          },
+          "traceId": {
+            "type": "string",
+            "description": "Trace ID"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "attach": {
+                "type": "string",
+                "description": "Additional data"
+              },
+              "thirdOrderId": {
+                "type": "string",
+                "description": "Merchant order number"
+              },
+              "merchantId": {
+                "type": "string",
+                "description": "Merchant ID"
+              },
+              "leshuaOrderId": {
+                "type": "string",
+                "description": "YeahPay order number"
+              },
+              "merchantRefundId": {
+                "type": "string",
+                "description": "Merchant refund number"
+              },
+              "leshuaRefundId": {
+                "type": "string",
+                "description": "YeahPay refund number"
+              },
+              "costTime": {
+                "type": "string",
+                "description": "Processing duration"
+              },
+              "status": {
+                "type": "string",
+                "description": "Order status"
+              },
+              "orderBalance": {
+                "type": "string",
+                "description": "Order balance"
+              },
+              "refundAmount": {
+                "type": "string",
+                "description": "Refund amount"
+              }
+            }
+          }
+        },
+        "required": [
+          "code",
+          "message"
+        ]
+      },
       "QueryRefundRequest": {
         "type": "object",
         "properties": {
@@ -3296,33 +3485,53 @@
           },
           "merchantRefundId": {
             "type": "string",
-            "description": "Merchant refund number"
+            "description": "Merchant refund number; provide at least one of the three order identifiers"
           },
           "thirdOrderId": {
             "type": "string",
-            "description": "Merchant order number. Provide either this field or leshuaOrderId."
+            "description": "Merchant order number; provide at least one of the three order identifiers"
           },
           "leshuaOrderId": {
             "type": "string",
-            "description": "YeahPay order number. Provide either this field or thirdOrderId."
+            "description": "YeahPay order number; provide at least one of the three order identifiers"
           }
         },
         "required": [
-          "merchantId",
-          "merchantRefundId"
+          "merchantId"
         ],
         "anyOf": [
           {
             "required": [
               "thirdOrderId"
-            ]
+            ],
+            "properties": {
+              "thirdOrderId": {
+                "minLength": 1
+              }
+            }
           },
           {
             "required": [
               "leshuaOrderId"
-            ]
+            ],
+            "properties": {
+              "leshuaOrderId": {
+                "minLength": 1
+              }
+            }
+          },
+          {
+            "required": [
+              "merchantRefundId"
+            ],
+            "properties": {
+              "merchantRefundId": {
+                "minLength": 1
+              }
+            }
           }
-        ]
+        ],
+        "description": "Provide at least one of thirdOrderId, leshuaOrderId, or merchantRefundId"
       },
       "QueryRefundResponse": {
         "type": "object",
@@ -3440,7 +3649,7 @@
         "properties": {
           "sceneType": {
             "type": "integer",
-            "description": "Scenario type: 1 refund, 2 reversal",
+            "description": "Scenario type: 1 online checkout, 2 offline POS; the system determines whether to refund or reverse based on the order state",
             "enum": [
               1,
               2
@@ -3484,6 +3693,10 @@
           "thirdOrderId": {
             "type": "string",
             "description": "Merchant order number. Required when sceneType is 2."
+          },
+          "language": {
+            "type": "string",
+            "description": "Request language for the pre-authorization reversal branch: Traditional Chinese zh-TW or English en"
           }
         },
         "required": [
@@ -3634,7 +3847,7 @@
           },
           "merchantReferenceNumber": {
             "type": "string",
-            "description": "Merchant reference number"
+            "description": "Optional merchant reference number"
           },
           "isOnline": {
             "type": "boolean",
@@ -3671,11 +3884,7 @@
           },
           "goodsList": {
             "type": "string",
-            "description": "Product list as a JSON string"
-          },
-          "timestamp": {
-            "type": "string",
-            "description": "Request timestamp"
+            "description": "Product list as a JSON string; not required when generating the checkout URL"
           },
           "callback": {
             "type": "string",
@@ -3700,8 +3909,10 @@
             "description": "Restricted payment methods"
           },
           "countdown": {
-            "type": "string",
-            "description": "Checkout countdown"
+            "type": "integer",
+            "format": "int64",
+            "description": "Checkout countdown",
+            "default": 5
           },
           "target": {
             "type": "string",
@@ -3714,16 +3925,21 @@
               "1",
               "2"
             ]
+          },
+          "mobile": {
+            "type": "string",
+            "description": "Customer phone number"
+          },
+          "eMail": {
+            "type": "string",
+            "description": "Customer email address"
           }
         },
         "required": [
           "merchantId",
           "orderId",
-          "merchantReferenceNumber",
           "currency",
           "amount",
-          "goodsList",
-          "timestamp",
           "callback",
           "lang"
         ],
@@ -3778,7 +3994,7 @@
           },
           "goodsList": {
             "type": "string",
-            "description": "Product list as a JSON string"
+            "description": "Product list as a JSON string; not required when generating the checkout URL"
           },
           "timestamp": {
             "type": "string",
@@ -3811,8 +4027,10 @@
             "description": "Restricted payment methods"
           },
           "countdown": {
-            "type": "string",
-            "description": "Checkout countdown"
+            "type": "integer",
+            "format": "int64",
+            "description": "Checkout countdown",
+            "default": 5
           },
           "target": {
             "type": "string",
@@ -3853,6 +4071,28 @@
               "1",
               "2"
             ]
+          },
+          "merchantReferenceNumber": {
+            "type": "string",
+            "description": "Optional merchant reference number"
+          },
+          "mobile": {
+            "type": "string",
+            "description": "Customer phone number"
+          },
+          "eMail": {
+            "type": "string",
+            "description": "Customer email address"
+          },
+          "orderExpiration": {
+            "type": "string",
+            "description": "Order expiration time in seconds; defaults to 300",
+            "default": "300"
+          },
+          "isOnline": {
+            "type": "boolean",
+            "description": "Whether to use the online card transaction scenario. Defaults to false; when true, card payments use the ONLINE scenario",
+            "default": false
           }
         },
         "required": [
@@ -3861,11 +4101,9 @@
           "busiType",
           "currency",
           "amount",
-          "goodsList",
           "timestamp",
           "callback",
-          "lang",
-          "consumerInfo"
+          "lang"
         ],
         "allOf": [
           {
@@ -3881,8 +4119,26 @@
             },
             "then": {
               "required": [
+                "consumerInfo",
                 "logisticsInfo",
                 "billInfo"
+              ]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "busiType": {
+                  "const": "VIRTUAL"
+                }
+              },
+              "required": [
+                "busiType"
+              ]
+            },
+            "then": {
+              "required": [
+                "consumerInfo"
               ]
             }
           },
@@ -3959,6 +4215,10 @@
           "merchantId": {
             "type": "string",
             "description": "Merchant ID"
+          },
+          "currency": {
+            "type": "string",
+            "description": "Currency"
           }
         },
         "required": [

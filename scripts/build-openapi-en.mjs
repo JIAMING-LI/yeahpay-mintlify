@@ -3,6 +3,23 @@ import { readFile, writeFile } from "node:fs/promises";
 const source = JSON.parse(await readFile(new URL("../openapi.json", import.meta.url), "utf8"));
 
 const translations = new Map(Object.entries({
+  "统一退款": "Unified refund",
+  "交易描述，部分支付方式使用": "Transaction description, used by some payment methods",
+  "卖家标识，部分支付宝场景使用": "Seller identifier, used by some Alipay scenarios",
+  "订单创建时间，北京时间，格式 yyyy-MM-dd HH:mm:ss": "Order creation time in Beijing time, format yyyy-MM-dd HH:mm:ss",
+  "订单有效时间，单位为秒；与 orderGmtCreate 配合使用": "Order validity period in seconds; used with orderGmtCreate",
+  "退款结果通知地址": "Refund result notification URL",
+  "订单余额": "Order balance",
+  "商户退款单号；三个订单标识至少填写一个": "Merchant refund number; provide at least one of the three order identifiers",
+  "商户订单号；三个订单标识至少填写一个": "Merchant order number; provide at least one of the three order identifiers",
+  "YeahPay 订单号；三个订单标识至少填写一个": "YeahPay order number; provide at least one of the three order identifiers",
+  "thirdOrderId、leshuaOrderId、merchantRefundId 至少填写一个": "Provide at least one of thirdOrderId, leshuaOrderId, or merchantRefundId",
+  "商户参考号，可选": "Optional merchant reference number",
+  "商品列表，JSON 字符串；生成收银台地址时不强制校验": "Product list as a JSON string; not required when generating the checkout URL",
+  "订单过期时间，单位为秒；默认 300": "Order expiration time in seconds; defaults to 300",
+  "场景类型：1 线上收银台，2 线下 POS；系统根据订单状态决定退款或撤销": "Scenario type: 1 online checkout, 2 offline POS; the system determines whether to refund or reverse based on the order state",
+  "预授权撤销分支的请求语言：繁体 zh-TW、英文 en": "Request language for the pre-authorization reversal branch: Traditional Chinese zh-TW or English en",
+  "是否按线上卡交易场景处理。默认为 false；设置为 true 时按 ONLINE 场景发起卡支付": "Whether to use the online card transaction scenario. Defaults to false; when true, card payments use the ONLINE scenario",
   "MPP 信息": "MPP information",
   "POS 编号": "POS number",
   "SHA-512 签名。签名原文为 `URL\\nappId\\ntimestamp\\nversion\\nnonce\\n原始请求体\\nAPI key`。": "SHA-512 signature. The signing text is `URL\\nappId\\ntimestamp\\nversion\\nnonce\\nraw request body\\nAPI key`.",
