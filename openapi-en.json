@@ -13,8 +13,8 @@
   ],
   "tags": [
     {
-      "name": "Checkout",
-      "description": "Mobile and PC checkout"
+      "name": "payment-checkout",
+      "description": "Unified Checkout: create a PaymentIntent and return the hosted Checkout URL"
     },
     {
       "name": "Subscription payments",
@@ -40,13 +40,21 @@
     }
   ],
   "paths": {
-    "/cardOrder/getRedirectUrl": {
+    "/openapi/v2/getRedirectUrl": {
       "post": {
         "tags": [
-          "Checkout"
+          "payment-checkout"
         ],
-        "summary": "Get checkout URL",
+        "summary": "Get Unified Checkout URL",
+        "description": "Create a PaymentIntent and return the Unified Checkout URL. Each call creates a new PaymentIntent. The merchant must have an approved Checkout access domain configured.",
         "operationId": "getRedirectUrl",
+        "servers": [
+          {
+            "url": "https://t-acquire-business.lepass.cn/gwp/checkout",
+            "description": "Test environment",
+            "x-environment": "test"
+          }
+        ],
         "x-mint": {
           "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=getRedirectUrl\">Generate the signature and cURL for this operation.</Card>"
         },
@@ -81,7 +89,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CashierRedirectRequest"
+                "$ref": "#/components/schemas/CheckoutRedirectRequest"
               }
             }
           }
@@ -92,145 +100,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CashierRedirectResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request parameters"
-          },
-          "401": {
-            "description": "Signature verification or authentication failed"
-          },
-          "500": {
-            "description": "Server error"
-          }
-        }
-      }
-    },
-    "/cardOrder/getTradeType": {
-      "post": {
-        "tags": [
-          "Checkout"
-        ],
-        "summary": "Query payment methods",
-        "operationId": "getTradeType",
-        "x-mint": {
-          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=getTradeType\">Generate the signature and cURL for this operation.</Card>"
-        },
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/VersionHeader"
-          },
-          {
-            "$ref": "#/components/parameters/TimestampHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AlgorithmHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AppIdHeader"
-          },
-          {
-            "$ref": "#/components/parameters/NonceHeader"
-          },
-          {
-            "$ref": "#/components/parameters/SignatureHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AcceptLanguageHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AcceptTimezoneHeader"
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/TradeTypeRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Request successful",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TradeTypeResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request parameters"
-          },
-          "401": {
-            "description": "Signature verification or authentication failed"
-          },
-          "500": {
-            "description": "Server error"
-          }
-        }
-      }
-    },
-    "/cardOrder/getPcRedirectUrl": {
-      "post": {
-        "tags": [
-          "Checkout"
-        ],
-        "summary": "Get PC checkout URL",
-        "operationId": "getPcRedirectUrl",
-        "x-mint": {
-          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=getPcRedirectUrl\">Generate the signature and cURL for this operation.</Card>"
-        },
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/VersionHeader"
-          },
-          {
-            "$ref": "#/components/parameters/TimestampHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AlgorithmHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AppIdHeader"
-          },
-          {
-            "$ref": "#/components/parameters/NonceHeader"
-          },
-          {
-            "$ref": "#/components/parameters/SignatureHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AcceptLanguageHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AcceptTimezoneHeader"
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/PcCashierRedirectRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Request successful",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CashierRedirectResponse"
+                  "$ref": "#/components/schemas/CheckoutRedirectResponse"
                 }
               }
             }
@@ -3834,473 +3704,6 @@
           "code"
         ]
       },
-      "CashierRedirectRequest": {
-        "type": "object",
-        "properties": {
-          "merchantId": {
-            "type": "string",
-            "description": "Merchant ID"
-          },
-          "orderId": {
-            "type": "string",
-            "description": "Merchant order number"
-          },
-          "merchantReferenceNumber": {
-            "type": "string",
-            "description": "Optional merchant reference number"
-          },
-          "isOnline": {
-            "type": "boolean",
-            "description": "Whether this is an online H5 Checkout. Defaults to false; set it to true for an online H5 Checkout.",
-            "default": false
-          },
-          "isConsent": {
-            "type": "boolean",
-            "description": "Whether to create a Subscription Payment consent. When true, customerId, paymentInitiator, and paymentType are required.",
-            "default": false
-          },
-          "customerId": {
-            "type": "string",
-            "description": "Customer identifier returned by Create customer. Required when isConsent=true.",
-            "maxLength": 64
-          },
-          "paymentInitiator": {
-            "type": "string",
-            "description": "Payment initiator. Currently only merchant is supported. Required when isConsent=true.",
-            "const": "merchant"
-          },
-          "paymentType": {
-            "type": "string",
-            "description": "Payment type. Currently only scheduled is supported. Required when isConsent=true.",
-            "const": "scheduled"
-          },
-          "currency": {
-            "type": "string",
-            "description": "Currency"
-          },
-          "amount": {
-            "type": "string",
-            "description": "Order amount"
-          },
-          "goodsList": {
-            "type": "string",
-            "description": "Product list as a JSON string; not required when generating the checkout URL"
-          },
-          "callback": {
-            "type": "string",
-            "description": "Frontend redirect URL after payment",
-            "format": "uri"
-          },
-          "lang": {
-            "type": "string",
-            "description": "Page language"
-          },
-          "notifyUrl": {
-            "type": "string",
-            "description": "Payment result notification URL",
-            "format": "uri"
-          },
-          "payWay": {
-            "type": "string",
-            "description": "Payment method"
-          },
-          "limitPay": {
-            "type": "string",
-            "description": "Restricted payment methods"
-          },
-          "countdown": {
-            "type": "integer",
-            "format": "int64",
-            "description": "Checkout countdown",
-            "default": 5
-          },
-          "target": {
-            "type": "string",
-            "description": "Page target"
-          },
-          "preAuth": {
-            "type": "string",
-            "description": "Pre-authorization flag: 1-pre-authorization, 2-standard",
-            "enum": [
-              "1",
-              "2"
-            ]
-          },
-          "mobile": {
-            "type": "string",
-            "description": "Customer phone number"
-          },
-          "eMail": {
-            "type": "string",
-            "description": "Customer email address"
-          }
-        },
-        "required": [
-          "merchantId",
-          "orderId",
-          "currency",
-          "amount",
-          "callback",
-          "lang"
-        ],
-        "allOf": [
-          {
-            "if": {
-              "properties": {
-                "isConsent": {
-                  "const": true
-                }
-              },
-              "required": [
-                "isConsent"
-              ]
-            },
-            "then": {
-              "required": [
-                "customerId",
-                "paymentInitiator",
-                "paymentType"
-              ]
-            }
-          }
-        ]
-      },
-      "PcCashierRedirectRequest": {
-        "type": "object",
-        "properties": {
-          "merchantId": {
-            "type": "string",
-            "description": "Merchant ID"
-          },
-          "orderId": {
-            "type": "string",
-            "description": "Merchant order number"
-          },
-          "busiType": {
-            "type": "string",
-            "description": "Business type",
-            "enum": [
-              "PHYSICAL",
-              "VIRTUAL"
-            ]
-          },
-          "currency": {
-            "type": "string",
-            "description": "Currency"
-          },
-          "amount": {
-            "type": "string",
-            "description": "Order amount"
-          },
-          "goodsList": {
-            "type": "string",
-            "description": "Product list as a JSON string; not required when generating the checkout URL"
-          },
-          "timestamp": {
-            "type": "string",
-            "description": "Request timestamp"
-          },
-          "callback": {
-            "type": "string",
-            "description": "Frontend redirect URL after payment",
-            "format": "uri"
-          },
-          "lang": {
-            "type": "string",
-            "description": "Page language"
-          },
-          "consumerInfo": {
-            "type": "string",
-            "description": "Consumer information as a JSON string"
-          },
-          "notifyUrl": {
-            "type": "string",
-            "description": "Payment result notification URL",
-            "format": "uri"
-          },
-          "payWay": {
-            "type": "string",
-            "description": "Payment method"
-          },
-          "limitPay": {
-            "type": "string",
-            "description": "Restricted payment methods"
-          },
-          "countdown": {
-            "type": "integer",
-            "format": "int64",
-            "description": "Checkout countdown",
-            "default": 5
-          },
-          "target": {
-            "type": "string",
-            "description": "Page target"
-          },
-          "logisticsInfo": {
-            "type": "string",
-            "description": "Logistics information as a JSON string. Required for physical goods."
-          },
-          "billInfo": {
-            "type": "string",
-            "description": "Billing information as a JSON string. Required for physical goods."
-          },
-          "isConsent": {
-            "type": "boolean",
-            "description": "Whether to create a Subscription Payment consent. When true, customerId, paymentInitiator, and paymentType are required.",
-            "default": false
-          },
-          "customerId": {
-            "type": "string",
-            "description": "Customer identifier returned by Create customer. Required when isConsent=true.",
-            "maxLength": 64
-          },
-          "paymentInitiator": {
-            "type": "string",
-            "description": "Payment initiator. Currently only merchant is supported. Required when isConsent=true.",
-            "const": "merchant"
-          },
-          "paymentType": {
-            "type": "string",
-            "description": "Payment type. Currently only scheduled is supported. Required when isConsent=true.",
-            "const": "scheduled"
-          },
-          "preAuth": {
-            "type": "string",
-            "description": "Pre-authorization flag: 1-pre-authorization, 2-standard",
-            "enum": [
-              "1",
-              "2"
-            ]
-          },
-          "merchantReferenceNumber": {
-            "type": "string",
-            "description": "Optional merchant reference number"
-          },
-          "mobile": {
-            "type": "string",
-            "description": "Customer phone number"
-          },
-          "eMail": {
-            "type": "string",
-            "description": "Customer email address"
-          },
-          "orderExpiration": {
-            "type": "string",
-            "description": "Order expiration time in seconds; defaults to 300",
-            "default": "300"
-          },
-          "isOnline": {
-            "type": "boolean",
-            "description": "Whether to use the online card transaction scenario. Defaults to false; when true, card payments use the ONLINE scenario",
-            "default": false
-          }
-        },
-        "required": [
-          "merchantId",
-          "orderId",
-          "busiType",
-          "currency",
-          "amount",
-          "timestamp",
-          "callback",
-          "lang"
-        ],
-        "allOf": [
-          {
-            "if": {
-              "properties": {
-                "busiType": {
-                  "const": "PHYSICAL"
-                }
-              },
-              "required": [
-                "busiType"
-              ]
-            },
-            "then": {
-              "required": [
-                "consumerInfo",
-                "logisticsInfo",
-                "billInfo"
-              ]
-            }
-          },
-          {
-            "if": {
-              "properties": {
-                "busiType": {
-                  "const": "VIRTUAL"
-                }
-              },
-              "required": [
-                "busiType"
-              ]
-            },
-            "then": {
-              "required": [
-                "consumerInfo"
-              ]
-            }
-          },
-          {
-            "if": {
-              "properties": {
-                "isConsent": {
-                  "const": true
-                }
-              },
-              "required": [
-                "isConsent"
-              ]
-            },
-            "then": {
-              "required": [
-                "customerId",
-                "paymentInitiator",
-                "paymentType"
-              ]
-            }
-          }
-        ]
-      },
-      "CashierRedirectResponse": {
-        "type": "object",
-        "properties": {
-          "code": {
-            "oneOf": [
-              {
-                "type": "string",
-                "examples": [
-                  "200"
-                ]
-              },
-              {
-                "type": "integer",
-                "examples": [
-                  0
-                ]
-              }
-            ],
-            "description": "Business result code. Standard transaction examples return a string, while checkout examples return the number 0, so both formats are supported."
-          },
-          "message": {
-            "type": "string",
-            "description": "Result description"
-          },
-          "traceId": {
-            "type": "string",
-            "description": "Trace ID"
-          },
-          "data": {
-            "type": "object",
-            "properties": {
-              "url": {
-                "type": "string",
-                "description": "Checkout URL",
-                "format": "uri"
-              }
-            },
-            "required": [
-              "url"
-            ]
-          }
-        },
-        "required": [
-          "code"
-        ]
-      },
-      "TradeTypeRequest": {
-        "type": "object",
-        "properties": {
-          "merchantId": {
-            "type": "string",
-            "description": "Merchant ID"
-          },
-          "currency": {
-            "type": "string",
-            "description": "Currency"
-          }
-        },
-        "required": [
-          "merchantId"
-        ]
-      },
-      "TradeType": {
-        "type": "object",
-        "properties": {
-          "tradeCode": {
-            "type": "string",
-            "description": "Payment method code"
-          },
-          "tradeName": {
-            "type": "string",
-            "description": "Payment method name"
-          },
-          "parentTradeCode": {
-            "type": "string",
-            "description": "Parent payment method code"
-          },
-          "level": {
-            "type": "integer",
-            "description": "Level",
-            "enum": [
-              1,
-              2
-            ]
-          },
-          "subTradeType": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/TradeType"
-            },
-            "description": "Sub payment method"
-          }
-        },
-        "required": [
-          "tradeCode",
-          "tradeName",
-          "level"
-        ]
-      },
-      "TradeTypeResponse": {
-        "type": "object",
-        "properties": {
-          "code": {
-            "oneOf": [
-              {
-                "type": "string",
-                "examples": [
-                  "200"
-                ]
-              },
-              {
-                "type": "integer",
-                "examples": [
-                  0
-                ]
-              }
-            ],
-            "description": "Business result code. Standard transaction examples return a string, while checkout examples return the number 0, so both formats are supported."
-          },
-          "message": {
-            "type": "string",
-            "description": "Result description"
-          },
-          "traceId": {
-            "type": "string",
-            "description": "Trace ID"
-          },
-          "data": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/TradeType"
-            }
-          }
-        },
-        "required": [
-          "code"
-        ]
-      },
       "PaymentNotification": {
         "type": "object",
         "properties": {
@@ -4675,6 +4078,412 @@
           "settle_end_time": {
             "type": "string",
             "description": "Settlement end time"
+          }
+        }
+      },
+      "CheckoutProductInfo": {
+        "type": "object",
+        "description": "Product information",
+        "properties": {
+          "productName": {
+            "type": "string",
+            "description": "Product name",
+            "maxLength": 256
+          },
+          "quantity": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1,
+            "description": "Product quantity, a positive integer"
+          },
+          "unitPrice": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "maximum": 2147483647,
+            "description": "Unit price in the smallest currency unit. Must be a JSON integer."
+          },
+          "description": {
+            "type": "string",
+            "description": "Product description"
+          },
+          "productImage": {
+            "type": "string",
+            "description": "Product image URL"
+          }
+        },
+        "required": [
+          "productName",
+          "quantity",
+          "unitPrice"
+        ]
+      },
+      "CheckoutConsumerInfo": {
+        "type": "object",
+        "description": "Consumer information",
+        "properties": {
+          "customerId": {
+            "type": "string",
+            "description": "Customer identifier returned by Create customer. Required when checkoutMode=CONSENT_INITIAL.",
+            "maxLength": 64
+          },
+          "firstName": {
+            "type": "string",
+            "description": "Consumer first name",
+            "maxLength": 64
+          },
+          "lastName": {
+            "type": "string",
+            "description": "Consumer last name",
+            "maxLength": 64
+          },
+          "email": {
+            "type": "string",
+            "description": "Consumer email address",
+            "maxLength": 128
+          }
+        },
+        "required": [
+          "firstName",
+          "lastName",
+          "email"
+        ]
+      },
+      "CheckoutShippingInfo": {
+        "type": "object",
+        "description": "Shipping information. When provided, firstName, lastName, country, city, and streetAddress are required.",
+        "properties": {
+          "firstName": {
+            "type": "string",
+            "description": "Recipient first name",
+            "maxLength": 64
+          },
+          "lastName": {
+            "type": "string",
+            "description": "Recipient last name",
+            "maxLength": 64
+          },
+          "country": {
+            "type": "string",
+            "description": "Country or region as an ISO 3166-1 alpha-2 code",
+            "pattern": "^[A-Za-z]{2}$"
+          },
+          "state": {
+            "type": "string",
+            "description": "State or province",
+            "maxLength": 64
+          },
+          "city": {
+            "type": "string",
+            "description": "City",
+            "maxLength": 64
+          },
+          "district": {
+            "type": "string",
+            "description": "District",
+            "maxLength": 64
+          },
+          "streetAddress": {
+            "type": "string",
+            "description": "Street address",
+            "maxLength": 256
+          },
+          "postalCode": {
+            "type": "string",
+            "description": "Postal code",
+            "maxLength": 32
+          }
+        },
+        "required": [
+          "firstName",
+          "lastName",
+          "country",
+          "city",
+          "streetAddress"
+        ]
+      },
+      "CheckoutBillingInfo": {
+        "type": "object",
+        "description": "Billing information. When provided, billingFirstName, billingLastName, billingEmail, country, city, and streetAddress are required.",
+        "properties": {
+          "billingFirstName": {
+            "type": "string",
+            "description": "Billing contact first name",
+            "maxLength": 64
+          },
+          "billingLastName": {
+            "type": "string",
+            "description": "Billing contact last name",
+            "maxLength": 64
+          },
+          "billingEmail": {
+            "type": "string",
+            "description": "Billing contact email address",
+            "maxLength": 128
+          },
+          "country": {
+            "type": "string",
+            "description": "Country or region as an ISO 3166-1 alpha-2 code",
+            "pattern": "^[A-Za-z]{2}$"
+          },
+          "state": {
+            "type": "string",
+            "description": "State or province",
+            "maxLength": 64
+          },
+          "city": {
+            "type": "string",
+            "description": "City",
+            "maxLength": 64
+          },
+          "district": {
+            "type": "string",
+            "description": "District",
+            "maxLength": 64
+          },
+          "streetAddress": {
+            "type": "string",
+            "description": "Street address",
+            "maxLength": 256
+          },
+          "postalCode": {
+            "type": "string",
+            "description": "Postal code",
+            "maxLength": 32
+          }
+        },
+        "required": [
+          "billingFirstName",
+          "billingLastName",
+          "billingEmail",
+          "country",
+          "city",
+          "streetAddress"
+        ]
+      },
+      "CheckoutPaymentConsent": {
+        "type": "object",
+        "description": "Subscription Payment consent information. Allowed and required only when checkoutMode=CONSENT_INITIAL.",
+        "properties": {
+          "paymentInitiator": {
+            "type": "string",
+            "description": "Payment initiator. Currently only MERCHANT is supported.",
+            "enum": [
+              "MERCHANT"
+            ]
+          },
+          "paymentType": {
+            "type": "string",
+            "description": "Payment type: scheduled for scheduled charges, unscheduled for unscheduled charges",
+            "enum": [
+              "scheduled",
+              "unscheduled"
+            ]
+          }
+        },
+        "required": [
+          "paymentInitiator",
+          "paymentType"
+        ]
+      },
+      "CheckoutRedirectRequest": {
+        "type": "object",
+        "properties": {
+          "merchantId": {
+            "type": "string",
+            "description": "Merchant ID",
+            "maxLength": 32
+          },
+          "orderId": {
+            "type": "string",
+            "description": "Merchant order number",
+            "maxLength": 64
+          },
+          "amount": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "maximum": 2147483647,
+            "description": "Order amount in the smallest currency unit. Must be a JSON integer. This field determines the amount actually charged."
+          },
+          "currency": {
+            "type": "string",
+            "description": "Currency as three uppercase letters. Must be a payment currency enabled for the merchant."
+          },
+          "checkoutMode": {
+            "type": "string",
+            "description": "Checkout mode. Omit for a standard payment. PRE_AUTH creates a pre-authorization and requires the merchant to have pre-authorization permission. CONSENT_INITIAL is the initial payment of a Subscription Payment.",
+            "enum": [
+              "PRE_AUTH",
+              "CONSENT_INITIAL"
+            ]
+          },
+          "productType": {
+            "type": "string",
+            "description": "Product type: PHYSICAL for physical goods, VIRTUAL for virtual goods",
+            "enum": [
+              "PHYSICAL",
+              "VIRTUAL"
+            ]
+          },
+          "productList": {
+            "type": "array",
+            "description": "Optional product list, up to 10 products by default. Used only for display on the Checkout page.",
+            "items": {
+              "$ref": "#/components/schemas/CheckoutProductInfo"
+            }
+          },
+          "consumerInfo": {
+            "$ref": "#/components/schemas/CheckoutConsumerInfo"
+          },
+          "shippingInfo": {
+            "$ref": "#/components/schemas/CheckoutShippingInfo"
+          },
+          "billingInfo": {
+            "$ref": "#/components/schemas/CheckoutBillingInfo"
+          },
+          "locale": {
+            "type": "string",
+            "description": "Checkout page language. When omitted, it is determined by the merchant's region: zh-HK for Hong Kong merchants, en-US otherwise.",
+            "enum": [
+              "zh-CN",
+              "zh-HK",
+              "en-US"
+            ]
+          },
+          "paymentConsent": {
+            "$ref": "#/components/schemas/CheckoutPaymentConsent"
+          },
+          "callbackUrl": {
+            "type": "string",
+            "description": "Front-end return URL after payment. Must be an http or https URL.",
+            "format": "uri",
+            "maxLength": 1024
+          },
+          "notificationUrl": {
+            "type": "string",
+            "description": "Payment result notification URL. Must be an http or https URL.",
+            "format": "uri",
+            "maxLength": 1024
+          },
+          "metadata": {
+            "type": "string",
+            "description": "Merchant-defined data",
+            "maxLength": 512
+          },
+          "merchantLogo": {
+            "type": "string",
+            "description": "Merchant logo URL shown on the Checkout page. Must be an https URL.",
+            "format": "uri"
+          }
+        },
+        "required": [
+          "merchantId",
+          "orderId",
+          "amount",
+          "currency",
+          "productType",
+          "consumerInfo",
+          "callbackUrl",
+          "notificationUrl"
+        ],
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "checkoutMode": {
+                  "const": "CONSENT_INITIAL"
+                }
+              },
+              "required": [
+                "checkoutMode"
+              ]
+            },
+            "then": {
+              "required": [
+                "paymentConsent"
+              ],
+              "properties": {
+                "consumerInfo": {
+                  "required": [
+                    "customerId"
+                  ]
+                }
+              }
+            }
+          }
+        ],
+        "example": {
+          "merchantId": "SAMPLE_MERCHANT_ID",
+          "orderId": "ORDER_TIMESTAMP",
+          "amount": 1000,
+          "currency": "SGD",
+          "productType": "VIRTUAL",
+          "productList": [
+            {
+              "productName": "Monthly plan",
+              "quantity": 1,
+              "unitPrice": 1000
+            }
+          ],
+          "consumerInfo": {
+            "firstName": "Tan",
+            "lastName": "Mei",
+            "email": "buyer@example.com"
+          },
+          "locale": "en-US",
+          "callbackUrl": "https://merchant.example.com/yeahpay/callback",
+          "notificationUrl": "https://merchant.example.com/yeahpay/notify"
+        }
+      },
+      "CheckoutRedirectResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Business result code. 200 indicates success.",
+            "examples": [
+              200
+            ]
+          },
+          "message": {
+            "type": "string",
+            "description": "Result description"
+          },
+          "traceId": {
+            "type": "string",
+            "description": "Trace ID"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "checkoutUrl": {
+                "type": "string",
+                "description": "Checkout URL, valid for 2 hours by default",
+                "format": "uri"
+              },
+              "paymentIntentId": {
+                "type": "string",
+                "description": "PaymentIntent identifier"
+              }
+            },
+            "required": [
+              "checkoutUrl",
+              "paymentIntentId"
+            ]
+          }
+        },
+        "required": [
+          "code"
+        ],
+        "example": {
+          "code": 200,
+          "message": "Success",
+          "traceId": "SAMPLE_TRACE_ID",
+          "data": {
+            "checkoutUrl": "https://checkout.example.com/cashier?token=SAMPLE_TOKEN",
+            "paymentIntentId": "SAMPLE_PAYMENT_INTENT_ID"
           }
         }
       }

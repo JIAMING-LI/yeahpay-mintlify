@@ -13,8 +13,8 @@
   ],
   "tags": [
     {
-      "name": "收银台",
-      "description": "移动端和 PC 收银台"
+      "name": "payment-checkout",
+      "description": "统一收银台：创建支付意图（PaymentIntent）并返回托管收银台地址"
     },
     {
       "name": "订阅支付",
@@ -40,13 +40,21 @@
     }
   ],
   "paths": {
-    "/cardOrder/getRedirectUrl": {
+    "/openapi/v2/getRedirectUrl": {
       "post": {
         "tags": [
-          "收银台"
+          "payment-checkout"
         ],
-        "summary": "获取收银台地址",
+        "summary": "获取统一收银台地址",
+        "description": "创建支付意图（PaymentIntent）并返回统一收银台地址。每次调用都会创建新的支付意图；商户需已配置审核通过的收银台访问域名。",
         "operationId": "getRedirectUrl",
+        "servers": [
+          {
+            "url": "https://t-acquire-business.lepass.cn/gwp/checkout",
+            "description": "测试环境",
+            "x-environment": "test"
+          }
+        ],
         "x-mint": {
           "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=getRedirectUrl\">使用此接口参数生成请求签名和 cURL。</Card>"
         },
@@ -81,7 +89,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CashierRedirectRequest"
+                "$ref": "#/components/schemas/CheckoutRedirectRequest"
               }
             }
           }
@@ -92,145 +100,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CashierRedirectResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "请求参数错误"
-          },
-          "401": {
-            "description": "签名验证失败或身份认证失败"
-          },
-          "500": {
-            "description": "服务端错误"
-          }
-        }
-      }
-    },
-    "/cardOrder/getTradeType": {
-      "post": {
-        "tags": [
-          "收银台"
-        ],
-        "summary": "查询支付方式",
-        "operationId": "getTradeType",
-        "x-mint": {
-          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=getTradeType\">使用此接口参数生成请求签名和 cURL。</Card>"
-        },
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/VersionHeader"
-          },
-          {
-            "$ref": "#/components/parameters/TimestampHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AlgorithmHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AppIdHeader"
-          },
-          {
-            "$ref": "#/components/parameters/NonceHeader"
-          },
-          {
-            "$ref": "#/components/parameters/SignatureHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AcceptLanguageHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AcceptTimezoneHeader"
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/TradeTypeRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "请求成功",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TradeTypeResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "请求参数错误"
-          },
-          "401": {
-            "description": "签名验证失败或身份认证失败"
-          },
-          "500": {
-            "description": "服务端错误"
-          }
-        }
-      }
-    },
-    "/cardOrder/getPcRedirectUrl": {
-      "post": {
-        "tags": [
-          "收银台"
-        ],
-        "summary": "获取 PC 收银台地址",
-        "operationId": "getPcRedirectUrl",
-        "x-mint": {
-          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=getPcRedirectUrl\">使用此接口参数生成请求签名和 cURL。</Card>"
-        },
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/VersionHeader"
-          },
-          {
-            "$ref": "#/components/parameters/TimestampHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AlgorithmHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AppIdHeader"
-          },
-          {
-            "$ref": "#/components/parameters/NonceHeader"
-          },
-          {
-            "$ref": "#/components/parameters/SignatureHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AcceptLanguageHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AcceptTimezoneHeader"
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/PcCashierRedirectRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "请求成功",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CashierRedirectResponse"
+                  "$ref": "#/components/schemas/CheckoutRedirectResponse"
                 }
               }
             }
@@ -3834,473 +3704,6 @@
           "code"
         ]
       },
-      "CashierRedirectRequest": {
-        "type": "object",
-        "properties": {
-          "merchantId": {
-            "type": "string",
-            "description": "商户号"
-          },
-          "orderId": {
-            "type": "string",
-            "description": "商户订单号"
-          },
-          "merchantReferenceNumber": {
-            "type": "string",
-            "description": "商户参考号，可选"
-          },
-          "isOnline": {
-            "type": "boolean",
-            "description": "是否为线上 H5 收银台。默认为 false；线上 H5 收银台设置为 true",
-            "default": false
-          },
-          "isConsent": {
-            "type": "boolean",
-            "description": "是否创建订阅支付授权。设置为 true 时，customerId、paymentInitiator 和 paymentType 必填",
-            "default": false
-          },
-          "customerId": {
-            "type": "string",
-            "description": "客户标识。创建客户接口返回；isConsent=true 时必填",
-            "maxLength": 64
-          },
-          "paymentInitiator": {
-            "type": "string",
-            "description": "支付发起方。当前仅支持 merchant；isConsent=true 时必填",
-            "const": "merchant"
-          },
-          "paymentType": {
-            "type": "string",
-            "description": "支付类型。当前仅支持 scheduled；isConsent=true 时必填",
-            "const": "scheduled"
-          },
-          "currency": {
-            "type": "string",
-            "description": "币种"
-          },
-          "amount": {
-            "type": "string",
-            "description": "订单金额"
-          },
-          "goodsList": {
-            "type": "string",
-            "description": "商品列表，JSON 字符串；生成收银台地址时不强制校验"
-          },
-          "callback": {
-            "type": "string",
-            "description": "支付完成后的前端回跳地址",
-            "format": "uri"
-          },
-          "lang": {
-            "type": "string",
-            "description": "页面语言"
-          },
-          "notifyUrl": {
-            "type": "string",
-            "description": "支付结果通知地址",
-            "format": "uri"
-          },
-          "payWay": {
-            "type": "string",
-            "description": "支付方式"
-          },
-          "limitPay": {
-            "type": "string",
-            "description": "限制支付方式"
-          },
-          "countdown": {
-            "type": "integer",
-            "format": "int64",
-            "description": "收银台倒计时",
-            "default": 5
-          },
-          "target": {
-            "type": "string",
-            "description": "页面打开目标"
-          },
-          "preAuth": {
-            "type": "string",
-            "description": "预授权标识，1-预授权 2-非预授权",
-            "enum": [
-              "1",
-              "2"
-            ]
-          },
-          "mobile": {
-            "type": "string",
-            "description": "客户手机号"
-          },
-          "eMail": {
-            "type": "string",
-            "description": "客户邮箱"
-          }
-        },
-        "required": [
-          "merchantId",
-          "orderId",
-          "currency",
-          "amount",
-          "callback",
-          "lang"
-        ],
-        "allOf": [
-          {
-            "if": {
-              "properties": {
-                "isConsent": {
-                  "const": true
-                }
-              },
-              "required": [
-                "isConsent"
-              ]
-            },
-            "then": {
-              "required": [
-                "customerId",
-                "paymentInitiator",
-                "paymentType"
-              ]
-            }
-          }
-        ]
-      },
-      "PcCashierRedirectRequest": {
-        "type": "object",
-        "properties": {
-          "merchantId": {
-            "type": "string",
-            "description": "商户号"
-          },
-          "orderId": {
-            "type": "string",
-            "description": "商户订单号"
-          },
-          "busiType": {
-            "type": "string",
-            "description": "业务类型",
-            "enum": [
-              "PHYSICAL",
-              "VIRTUAL"
-            ]
-          },
-          "currency": {
-            "type": "string",
-            "description": "币种"
-          },
-          "amount": {
-            "type": "string",
-            "description": "订单金额"
-          },
-          "goodsList": {
-            "type": "string",
-            "description": "商品列表，JSON 字符串；生成收银台地址时不强制校验"
-          },
-          "timestamp": {
-            "type": "string",
-            "description": "请求时间戳"
-          },
-          "callback": {
-            "type": "string",
-            "description": "支付完成后的前端回跳地址",
-            "format": "uri"
-          },
-          "lang": {
-            "type": "string",
-            "description": "页面语言"
-          },
-          "consumerInfo": {
-            "type": "string",
-            "description": "消费者信息，JSON 字符串"
-          },
-          "notifyUrl": {
-            "type": "string",
-            "description": "支付结果通知地址",
-            "format": "uri"
-          },
-          "payWay": {
-            "type": "string",
-            "description": "支付方式"
-          },
-          "limitPay": {
-            "type": "string",
-            "description": "限制支付方式"
-          },
-          "countdown": {
-            "type": "integer",
-            "format": "int64",
-            "description": "收银台倒计时",
-            "default": 5
-          },
-          "target": {
-            "type": "string",
-            "description": "页面打开目标"
-          },
-          "logisticsInfo": {
-            "type": "string",
-            "description": "物流信息，JSON 字符串；实物交易必填"
-          },
-          "billInfo": {
-            "type": "string",
-            "description": "账单信息，JSON 字符串；实物交易必填"
-          },
-          "isConsent": {
-            "type": "boolean",
-            "description": "是否创建订阅支付授权。设置为 true 时，customerId、paymentInitiator 和 paymentType 必填",
-            "default": false
-          },
-          "customerId": {
-            "type": "string",
-            "description": "客户标识。创建客户接口返回；isConsent=true 时必填",
-            "maxLength": 64
-          },
-          "paymentInitiator": {
-            "type": "string",
-            "description": "支付发起方。当前仅支持 merchant；isConsent=true 时必填",
-            "const": "merchant"
-          },
-          "paymentType": {
-            "type": "string",
-            "description": "支付类型。当前仅支持 scheduled；isConsent=true 时必填",
-            "const": "scheduled"
-          },
-          "preAuth": {
-            "type": "string",
-            "description": "预授权标识，1-预授权 2-非预授权",
-            "enum": [
-              "1",
-              "2"
-            ]
-          },
-          "merchantReferenceNumber": {
-            "type": "string",
-            "description": "商户参考号，可选"
-          },
-          "mobile": {
-            "type": "string",
-            "description": "客户手机号"
-          },
-          "eMail": {
-            "type": "string",
-            "description": "客户邮箱"
-          },
-          "orderExpiration": {
-            "type": "string",
-            "description": "订单过期时间，单位为秒；默认 300",
-            "default": "300"
-          },
-          "isOnline": {
-            "type": "boolean",
-            "description": "是否按线上卡交易场景处理。默认为 false；设置为 true 时按 ONLINE 场景发起卡支付",
-            "default": false
-          }
-        },
-        "required": [
-          "merchantId",
-          "orderId",
-          "busiType",
-          "currency",
-          "amount",
-          "timestamp",
-          "callback",
-          "lang"
-        ],
-        "allOf": [
-          {
-            "if": {
-              "properties": {
-                "busiType": {
-                  "const": "PHYSICAL"
-                }
-              },
-              "required": [
-                "busiType"
-              ]
-            },
-            "then": {
-              "required": [
-                "consumerInfo",
-                "logisticsInfo",
-                "billInfo"
-              ]
-            }
-          },
-          {
-            "if": {
-              "properties": {
-                "busiType": {
-                  "const": "VIRTUAL"
-                }
-              },
-              "required": [
-                "busiType"
-              ]
-            },
-            "then": {
-              "required": [
-                "consumerInfo"
-              ]
-            }
-          },
-          {
-            "if": {
-              "properties": {
-                "isConsent": {
-                  "const": true
-                }
-              },
-              "required": [
-                "isConsent"
-              ]
-            },
-            "then": {
-              "required": [
-                "customerId",
-                "paymentInitiator",
-                "paymentType"
-              ]
-            }
-          }
-        ]
-      },
-      "CashierRedirectResponse": {
-        "type": "object",
-        "properties": {
-          "code": {
-            "oneOf": [
-              {
-                "type": "string",
-                "examples": [
-                  "200"
-                ]
-              },
-              {
-                "type": "integer",
-                "examples": [
-                  0
-                ]
-              }
-            ],
-            "description": "业务结果码。普通交易示例以字符串返回；收银台示例以数字 0 返回，因此兼容两种来源格式。"
-          },
-          "message": {
-            "type": "string",
-            "description": "结果描述"
-          },
-          "traceId": {
-            "type": "string",
-            "description": "链路追踪 ID"
-          },
-          "data": {
-            "type": "object",
-            "properties": {
-              "url": {
-                "type": "string",
-                "description": "收银台地址",
-                "format": "uri"
-              }
-            },
-            "required": [
-              "url"
-            ]
-          }
-        },
-        "required": [
-          "code"
-        ]
-      },
-      "TradeTypeRequest": {
-        "type": "object",
-        "properties": {
-          "merchantId": {
-            "type": "string",
-            "description": "商户号"
-          },
-          "currency": {
-            "type": "string",
-            "description": "币种"
-          }
-        },
-        "required": [
-          "merchantId"
-        ]
-      },
-      "TradeType": {
-        "type": "object",
-        "properties": {
-          "tradeCode": {
-            "type": "string",
-            "description": "支付方式代码"
-          },
-          "tradeName": {
-            "type": "string",
-            "description": "支付方式名称"
-          },
-          "parentTradeCode": {
-            "type": "string",
-            "description": "父级支付方式代码"
-          },
-          "level": {
-            "type": "integer",
-            "description": "层级",
-            "enum": [
-              1,
-              2
-            ]
-          },
-          "subTradeType": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/TradeType"
-            },
-            "description": "子支付方式"
-          }
-        },
-        "required": [
-          "tradeCode",
-          "tradeName",
-          "level"
-        ]
-      },
-      "TradeTypeResponse": {
-        "type": "object",
-        "properties": {
-          "code": {
-            "oneOf": [
-              {
-                "type": "string",
-                "examples": [
-                  "200"
-                ]
-              },
-              {
-                "type": "integer",
-                "examples": [
-                  0
-                ]
-              }
-            ],
-            "description": "业务结果码。普通交易示例以字符串返回；收银台示例以数字 0 返回，因此兼容两种来源格式。"
-          },
-          "message": {
-            "type": "string",
-            "description": "结果描述"
-          },
-          "traceId": {
-            "type": "string",
-            "description": "链路追踪 ID"
-          },
-          "data": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/TradeType"
-            }
-          }
-        },
-        "required": [
-          "code"
-        ]
-      },
       "PaymentNotification": {
         "type": "object",
         "properties": {
@@ -4675,6 +4078,412 @@
           "settle_end_time": {
             "type": "string",
             "description": "结算终止时间"
+          }
+        }
+      },
+      "CheckoutProductInfo": {
+        "type": "object",
+        "description": "商品信息",
+        "properties": {
+          "productName": {
+            "type": "string",
+            "description": "商品名称",
+            "maxLength": 256
+          },
+          "quantity": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1,
+            "description": "商品数量，正整数"
+          },
+          "unitPrice": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "maximum": 2147483647,
+            "description": "商品单价，单位为最小货币单位，必须为 JSON 整数"
+          },
+          "description": {
+            "type": "string",
+            "description": "商品描述"
+          },
+          "productImage": {
+            "type": "string",
+            "description": "商品图片地址"
+          }
+        },
+        "required": [
+          "productName",
+          "quantity",
+          "unitPrice"
+        ]
+      },
+      "CheckoutConsumerInfo": {
+        "type": "object",
+        "description": "消费者信息",
+        "properties": {
+          "customerId": {
+            "type": "string",
+            "description": "客户标识。创建客户接口返回；checkoutMode=CONSENT_INITIAL 时必填",
+            "maxLength": 64
+          },
+          "firstName": {
+            "type": "string",
+            "description": "消费者名字",
+            "maxLength": 64
+          },
+          "lastName": {
+            "type": "string",
+            "description": "消费者姓氏",
+            "maxLength": 64
+          },
+          "email": {
+            "type": "string",
+            "description": "消费者邮箱",
+            "maxLength": 128
+          }
+        },
+        "required": [
+          "firstName",
+          "lastName",
+          "email"
+        ]
+      },
+      "CheckoutShippingInfo": {
+        "type": "object",
+        "description": "收货信息。传入时 firstName、lastName、country、city 和 streetAddress 必填",
+        "properties": {
+          "firstName": {
+            "type": "string",
+            "description": "收货人名字",
+            "maxLength": 64
+          },
+          "lastName": {
+            "type": "string",
+            "description": "收货人姓氏",
+            "maxLength": 64
+          },
+          "country": {
+            "type": "string",
+            "description": "国家或地区，ISO 3166-1 两位字母代码",
+            "pattern": "^[A-Za-z]{2}$"
+          },
+          "state": {
+            "type": "string",
+            "description": "州或省",
+            "maxLength": 64
+          },
+          "city": {
+            "type": "string",
+            "description": "城市",
+            "maxLength": 64
+          },
+          "district": {
+            "type": "string",
+            "description": "区县",
+            "maxLength": 64
+          },
+          "streetAddress": {
+            "type": "string",
+            "description": "街道地址",
+            "maxLength": 256
+          },
+          "postalCode": {
+            "type": "string",
+            "description": "邮政编码",
+            "maxLength": 32
+          }
+        },
+        "required": [
+          "firstName",
+          "lastName",
+          "country",
+          "city",
+          "streetAddress"
+        ]
+      },
+      "CheckoutBillingInfo": {
+        "type": "object",
+        "description": "账单信息。传入时 billingFirstName、billingLastName、billingEmail、country、city 和 streetAddress 必填",
+        "properties": {
+          "billingFirstName": {
+            "type": "string",
+            "description": "账单联系人名字",
+            "maxLength": 64
+          },
+          "billingLastName": {
+            "type": "string",
+            "description": "账单联系人姓氏",
+            "maxLength": 64
+          },
+          "billingEmail": {
+            "type": "string",
+            "description": "账单联系人邮箱",
+            "maxLength": 128
+          },
+          "country": {
+            "type": "string",
+            "description": "国家或地区，ISO 3166-1 两位字母代码",
+            "pattern": "^[A-Za-z]{2}$"
+          },
+          "state": {
+            "type": "string",
+            "description": "州或省",
+            "maxLength": 64
+          },
+          "city": {
+            "type": "string",
+            "description": "城市",
+            "maxLength": 64
+          },
+          "district": {
+            "type": "string",
+            "description": "区县",
+            "maxLength": 64
+          },
+          "streetAddress": {
+            "type": "string",
+            "description": "街道地址",
+            "maxLength": 256
+          },
+          "postalCode": {
+            "type": "string",
+            "description": "邮政编码",
+            "maxLength": 32
+          }
+        },
+        "required": [
+          "billingFirstName",
+          "billingLastName",
+          "billingEmail",
+          "country",
+          "city",
+          "streetAddress"
+        ]
+      },
+      "CheckoutPaymentConsent": {
+        "type": "object",
+        "description": "订阅支付授权信息。仅 checkoutMode=CONSENT_INITIAL 时允许且必须传入",
+        "properties": {
+          "paymentInitiator": {
+            "type": "string",
+            "description": "支付发起方。当前仅支持 MERCHANT",
+            "enum": [
+              "MERCHANT"
+            ]
+          },
+          "paymentType": {
+            "type": "string",
+            "description": "支付类型：scheduled 计划扣款，unscheduled 非计划扣款",
+            "enum": [
+              "scheduled",
+              "unscheduled"
+            ]
+          }
+        },
+        "required": [
+          "paymentInitiator",
+          "paymentType"
+        ]
+      },
+      "CheckoutRedirectRequest": {
+        "type": "object",
+        "properties": {
+          "merchantId": {
+            "type": "string",
+            "description": "商户号",
+            "maxLength": 32
+          },
+          "orderId": {
+            "type": "string",
+            "description": "商户订单号",
+            "maxLength": 64
+          },
+          "amount": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "maximum": 2147483647,
+            "description": "订单金额，单位为最小货币单位，必须为 JSON 整数。实际支付金额以此字段为准"
+          },
+          "currency": {
+            "type": "string",
+            "description": "币种，使用三个大写字母；必须是商户已开通的支付币种"
+          },
+          "checkoutMode": {
+            "type": "string",
+            "description": "收银台模式。不传为普通支付；PRE_AUTH 为预授权，需商户已开通预授权权限；CONSENT_INITIAL 为订阅支付首期支付",
+            "enum": [
+              "PRE_AUTH",
+              "CONSENT_INITIAL"
+            ]
+          },
+          "productType": {
+            "type": "string",
+            "description": "商品类型：PHYSICAL 实物，VIRTUAL 虚拟",
+            "enum": [
+              "PHYSICAL",
+              "VIRTUAL"
+            ]
+          },
+          "productList": {
+            "type": "array",
+            "description": "商品列表，可选；默认最多 10 个商品，仅用于收银台展示",
+            "items": {
+              "$ref": "#/components/schemas/CheckoutProductInfo"
+            }
+          },
+          "consumerInfo": {
+            "$ref": "#/components/schemas/CheckoutConsumerInfo"
+          },
+          "shippingInfo": {
+            "$ref": "#/components/schemas/CheckoutShippingInfo"
+          },
+          "billingInfo": {
+            "$ref": "#/components/schemas/CheckoutBillingInfo"
+          },
+          "locale": {
+            "type": "string",
+            "description": "收银台页面语言。不传时根据商户所在地区确定：香港商户为 zh-HK，其他为 en-US",
+            "enum": [
+              "zh-CN",
+              "zh-HK",
+              "en-US"
+            ]
+          },
+          "paymentConsent": {
+            "$ref": "#/components/schemas/CheckoutPaymentConsent"
+          },
+          "callbackUrl": {
+            "type": "string",
+            "description": "支付完成后的前端回跳地址，必须为 http 或 https 地址",
+            "format": "uri",
+            "maxLength": 1024
+          },
+          "notificationUrl": {
+            "type": "string",
+            "description": "支付结果通知地址，必须为 http 或 https 地址",
+            "format": "uri",
+            "maxLength": 1024
+          },
+          "metadata": {
+            "type": "string",
+            "description": "商户自定义数据",
+            "maxLength": 512
+          },
+          "merchantLogo": {
+            "type": "string",
+            "description": "收银台展示的商户 Logo 地址，必须为 https 地址",
+            "format": "uri"
+          }
+        },
+        "required": [
+          "merchantId",
+          "orderId",
+          "amount",
+          "currency",
+          "productType",
+          "consumerInfo",
+          "callbackUrl",
+          "notificationUrl"
+        ],
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "checkoutMode": {
+                  "const": "CONSENT_INITIAL"
+                }
+              },
+              "required": [
+                "checkoutMode"
+              ]
+            },
+            "then": {
+              "required": [
+                "paymentConsent"
+              ],
+              "properties": {
+                "consumerInfo": {
+                  "required": [
+                    "customerId"
+                  ]
+                }
+              }
+            }
+          }
+        ],
+        "example": {
+          "merchantId": "SAMPLE_MERCHANT_ID",
+          "orderId": "ORDER_TIMESTAMP",
+          "amount": 1000,
+          "currency": "SGD",
+          "productType": "VIRTUAL",
+          "productList": [
+            {
+              "productName": "Monthly plan",
+              "quantity": 1,
+              "unitPrice": 1000
+            }
+          ],
+          "consumerInfo": {
+            "firstName": "Tan",
+            "lastName": "Mei",
+            "email": "buyer@example.com"
+          },
+          "locale": "en-US",
+          "callbackUrl": "https://merchant.example.com/yeahpay/callback",
+          "notificationUrl": "https://merchant.example.com/yeahpay/notify"
+        }
+      },
+      "CheckoutRedirectResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int64",
+            "description": "业务结果码，200 表示请求成功",
+            "examples": [
+              200
+            ]
+          },
+          "message": {
+            "type": "string",
+            "description": "结果描述"
+          },
+          "traceId": {
+            "type": "string",
+            "description": "链路追踪 ID"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "checkoutUrl": {
+                "type": "string",
+                "description": "收银台地址，有效期默认 2 小时",
+                "format": "uri"
+              },
+              "paymentIntentId": {
+                "type": "string",
+                "description": "支付意图（PaymentIntent）标识"
+              }
+            },
+            "required": [
+              "checkoutUrl",
+              "paymentIntentId"
+            ]
+          }
+        },
+        "required": [
+          "code"
+        ],
+        "example": {
+          "code": 200,
+          "message": "操作成功",
+          "traceId": "SAMPLE_TRACE_ID",
+          "data": {
+            "checkoutUrl": "https://checkout.example.com/cashier?token=SAMPLE_TOKEN",
+            "paymentIntentId": "SAMPLE_PAYMENT_INTENT_ID"
           }
         }
       }

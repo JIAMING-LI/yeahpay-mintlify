@@ -33,8 +33,7 @@
               {
                 "group": "支付产品",
                 "pages": [
-                  "h5-checkout",
-                  "pc-checkout",
+                  "unified-checkout",
                   "subscription-payment"
                 ]
               }
@@ -71,8 +70,7 @@
               {
                 "group": "Payment products",
                 "pages": [
-                  "en/h5-checkout",
-                  "en/pc-checkout",
+                  "en/unified-checkout",
                   "en/subscription-payment"
                 ]
               }
@@ -124,5 +122,23 @@
       "github": "https://github.com/mintlify",
       "linkedin": "https://linkedin.com/company/mintlify"
     }
-  }
+  },
+  "redirects": [
+    {
+      "source": "/h5-checkout",
+      "destination": "/unified-checkout"
+    },
+    {
+      "source": "/pc-checkout",
+      "destination": "/unified-checkout"
+    },
+    {
+      "source": "/en/h5-checkout",
+      "destination": "/en/unified-checkout"
+    },
+    {
+      "source": "/en/pc-checkout",
+      "destination": "/en/unified-checkout"
+    }
+  ]
 }
