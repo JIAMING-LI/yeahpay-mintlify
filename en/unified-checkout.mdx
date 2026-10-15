@@ -1,0 +1,40 @@
+---
+title: "Unified Checkout"
+description: "Integrate YeahPay-hosted Checkout in mobile browsers, in-app WebViews, or desktop websites"
+---
+
+Unified Checkout works in mobile browsers, in-app WebViews, and desktop websites. Your server creates a Checkout and receives `data.checkoutUrl`, then sends the customer to the YeahPay-hosted page to complete payment.
+
+## Integration flow
+
+<Steps>
+  <Step title="Create the order on your server">
+    Generate a unique merchant order ID and prepare the amount (an integer in the smallest currency unit), currency, product type, consumer information, frontend return URL in `callbackUrl`, and payment notification URL in `notificationUrl`. For physical goods, you can also provide `shippingInfo` and `billingInfo`.
+  </Step>
+  <Step title="Get the Unified Checkout URL">
+    Sign and call [`POST /openapi/v2/getRedirectUrl`](/en/api-reference/payment-checkout/get-unified-checkout-url) from your server. Set `checkoutMode=PRE_AUTH` for a pre-authorization, or `checkoutMode=CONSENT_INITIAL` for the initial payment of a Subscription Payment.
+  </Step>
+  <Step title="Open Checkout">
+    Read the hosted page URL from `data.checkoutUrl` and save `data.paymentIntentId`. On mobile, redirect the current page. On desktop websites, you can open it in a new window or tab while retaining the merchant page.
+  </Step>
+  <Step title="Confirm the payment result">
+    Verify the payment notification signature and process notifications idempotently. If a notification is delayed, call the [payment query API](/en/api-reference/qr-code-transactions/payment-query-qr-code-and-card) to confirm the result.
+  </Step>
+</Steps>
+
+<CardGroup cols={2}>
+  <Card title="Unified Checkout API" icon="book-open" href="/en/api-reference/payment-checkout/get-unified-checkout-url">
+    Review the complete request fields, conditional requirements, and the response schema.
+  </Card>
+  <Card title="Test a signed request" icon="terminal" href="/en/api-tester?operationId=getRedirectUrl">
+    Generate signed request headers and cURL from the operation example.
+  </Card>
+</CardGroup>
+
+<Note>
+  Call the API from your server. Keep the `apiKey` on the server for signature generation and never expose it to a browser or mobile app.
+</Note>
+
+<Warning>
+  `callbackUrl` only returns the customer to your frontend after the payment flow. Do not treat that redirect as proof of payment. Determine the final order status from a verified payment notification or payment query response.
+</Warning>

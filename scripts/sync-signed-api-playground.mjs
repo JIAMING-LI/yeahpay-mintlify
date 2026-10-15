@@ -121,7 +121,7 @@ const definitions = operationEntries(zhSpec).map(({ path, method, operation }) =
   const requestSchema = operation.requestBody?.content?.["application/json"]?.schema ?? {
     type: "object",
   };
-  return {
+  const definition = {
     operationId: operation.operationId,
     method: method.toUpperCase(),
     path,
@@ -129,6 +129,18 @@ const definitions = operationEntries(zhSpec).map(({ path, method, operation }) =
     summaryEn: enOperation.summary ?? enOperation.operationId,
     sampleBody: sampleValue(zhSpec, requestSchema, "body"),
   };
+  // 接口级 servers 通过 x-environment 映射到签名调试台的环境，覆盖全局 baseUrl
+  if (Array.isArray(operation.servers) && operation.servers.length > 0) {
+    definition.baseUrls = Object.fromEntries(
+      operation.servers.map((server) => {
+        if (!server["x-environment"]) {
+          throw new Error(`Server ${server.url} of ${operation.operationId} is missing x-environment`);
+        }
+        return [server["x-environment"], server.url];
+      })
+    );
+  }
+  return definition;
 });
 
 const fingerprint = createHash("sha256")

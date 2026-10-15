@@ -3,7 +3,7 @@ title: "订阅支付"
 description: "管理客户与订阅授权，并由商户发起后续支付"
 ---
 
-订阅支付适合会员续费、软件服务和内容订阅等需要多次收款的业务。消费者通过 H5 收银台或 PC 收银台完成首次支付并授权；授权生效后，商户按双方约定发起后续支付，消费者无需再次进入收银台。
+订阅支付适合会员续费、软件服务和内容订阅等需要多次收款的业务。消费者通过统一收银台完成首次支付并授权；授权生效后，商户按双方约定发起后续支付，消费者无需再次进入收银台。
 
 <Note>
   YeahPay 提供客户、订阅授权和后续支付能力。订阅周期、套餐、计费日期、重试策略以及服务履约由商户系统管理。
@@ -16,7 +16,7 @@ description: "管理客户与订阅授权，并由商户发起后续支付"
     调用 [`POST /consent-payment/customers/create`](/api-reference/订阅支付/创建客户)，使用商户侧唯一且不变的 `merchantCustomerId` 创建客户，并保存响应中的 `customerId`。
   </Step>
   <Step title="创建首次支付收银台">
-    根据终端选择 [H5 收银台](/api-reference/收银台/获取收银台地址)或 [PC 收银台](/api-reference/收银台/获取-PC-收银台地址)。两个接口都需要传入 `isConsent=true`、`customerId`、`paymentInitiator=merchant` 和 `paymentType=scheduled`。
+    调用[获取统一收银台地址](/api-reference/payment-checkout/获取统一收银台地址)接口，传入 `checkoutMode=CONSENT_INITIAL`、`consumerInfo.customerId` 和 `paymentConsent`，参数要求见下表。
   </Step>
   <Step title="完成首次支付并取得 consentId">
     消费者完成首次支付后，YeahPay 创建订阅授权，并在支付结果通知中返回 `consentId`。商户验签并确认支付成功后，应保存 `consentId`，用于订阅管理和后续支付。
@@ -31,14 +31,14 @@ description: "管理客户与订阅授权，并由商户发起后续支付"
 
 ## 首次支付参数
 
-以下参数在 H5 和 PC 收银台中的含义与要求一致：
+调用统一收银台接口时传入以下参数：
 
 | 参数 | 值 | 说明 |
 | --- | --- | --- |
-| `isConsent` | `true` | 表示本次支付用于创建订阅授权 |
-| `customerId` | 创建客户接口返回值 | 标识完成首次支付与授权的客户 |
-| `paymentInitiator` | `merchant` | 支付发起方，目前仅支持商户发起 |
-| `paymentType` | `scheduled` | 支付类型，目前仅支持计划扣款 |
+| `checkoutMode` | `CONSENT_INITIAL` | 表示本次支付用于创建订阅授权 |
+| `consumerInfo.customerId` | 创建客户接口返回值 | 标识完成首次支付与授权的客户 |
+| `paymentConsent.paymentInitiator` | `MERCHANT` | 支付发起方，目前仅支持商户发起 |
+| `paymentConsent.paymentType` | `scheduled` 或 `unscheduled` | 支付类型：计划扣款或非计划扣款 |
 
 <Warning>
   必须先创建客户，再创建首次支付收银台。只有首次支付成功且返回 `consentId` 后，订阅授权才可用于后续支付；创建收银台成功不代表支付或授权成功。
@@ -67,7 +67,7 @@ description: "管理客户与订阅授权，并由商户发起后续支付"
 
 ## 支付结果通知与 consentId
 
-创建首次支付收银台时传入 `notifyUrl`。首次支付成功并创建订阅授权后，支付结果通知会在普通支付字段之外返回 `consentId`。
+创建首次支付收银台时传入 `notificationUrl`。首次支付成功并创建订阅授权后，支付结果通知会在普通支付字段之外返回 `consentId`。
 
 ```json
 {

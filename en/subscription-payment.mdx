@@ -3,7 +3,7 @@ title: "Subscription Payments"
 description: "Manage customers and subscription consents, then initiate subsequent payments"
 ---
 
-Subscription Payments are designed for memberships, software services, content subscriptions, and other businesses that collect multiple payments. The customer completes the initial payment and grants authorization through H5 Checkout or PC Checkout. Once the consent is active, the merchant initiates subsequent payments under the agreed terms without sending the customer through Checkout again.
+Subscription Payments are designed for memberships, software services, content subscriptions, and other businesses that collect multiple payments. The customer completes the initial payment and grants authorization through Unified Checkout. Once the consent is active, the merchant initiates subsequent payments under the agreed terms without sending the customer through Checkout again.
 
 <Note>
   YeahPay provides customer, subscription consent, and subsequent payment capabilities. Your system manages subscription periods, plans, billing dates, retry policies, and service fulfillment.
@@ -16,7 +16,7 @@ Subscription Payments are designed for memberships, software services, content s
     Call [`POST /consent-payment/customers/create`](/en/api-reference/subscription-payments/create-customer). Use a unique, immutable `merchantCustomerId` for the merchant and save the `customerId` returned in the response.
   </Step>
   <Step title="Create the initial-payment Checkout">
-    Choose [H5 Checkout](/en/api-reference/checkout/get-checkout-url) or [PC Checkout](/en/api-reference/checkout/get-pc-checkout-url) for the customer's device. Provide `isConsent=true`, `customerId`, `paymentInitiator=merchant`, and `paymentType=scheduled` to either API.
+    Call [Get Unified Checkout URL](/en/api-reference/payment-checkout/get-unified-checkout-url) with `checkoutMode=CONSENT_INITIAL`, `consumerInfo.customerId`, and `paymentConsent`. See the table below for the parameter requirements.
   </Step>
   <Step title="Complete the initial payment and obtain consentId">
     After the customer completes the initial payment, YeahPay creates the subscription consent and returns `consentId` in the payment notification. Verify the signature and confirm payment success, then save `consentId` for consent management and subsequent payments.
@@ -31,14 +31,14 @@ Subscription Payments are designed for memberships, software services, content s
 
 ## Initial-payment parameters
 
-The following parameters have the same meaning and requirements in H5 Checkout and PC Checkout:
+Provide the following parameters when calling the Unified Checkout API:
 
 | Parameter | Value | Description |
 | --- | --- | --- |
-| `isConsent` | `true` | Marks the payment as an initial subscription authorization payment |
-| `customerId` | Returned by Create customer | Identifies the customer completing the initial payment and authorization |
-| `paymentInitiator` | `merchant` | Identifies the payment initiator; currently only merchant initiation is supported |
-| `paymentType` | `scheduled` | Identifies the payment type; currently only scheduled payments are supported |
+| `checkoutMode` | `CONSENT_INITIAL` | Marks the payment as an initial subscription authorization payment |
+| `consumerInfo.customerId` | Returned by Create customer | Identifies the customer completing the initial payment and authorization |
+| `paymentConsent.paymentInitiator` | `MERCHANT` | Identifies the payment initiator; currently only merchant initiation is supported |
+| `paymentConsent.paymentType` | `scheduled` or `unscheduled` | Identifies the payment type: scheduled or unscheduled charges |
 
 <Warning>
   Create the customer before creating the initial-payment Checkout. The consent can be used for subsequent payments only after the initial payment succeeds and returns `consentId`; successfully creating a Checkout does not mean that the payment or consent succeeded.
@@ -67,7 +67,7 @@ A customer identifies the consumer who completes the initial payment and grants 
 
 ## Payment notification and consentId
 
-Provide `notifyUrl` when creating the initial-payment Checkout. After the initial payment succeeds and the subscription consent is created, the payment notification returns `consentId` in addition to the standard payment fields.
+Provide `notificationUrl` when creating the initial-payment Checkout. After the initial payment succeeds and the subscription consent is created, the payment notification returns `consentId` in addition to the standard payment fields.
 
 ```json
 {

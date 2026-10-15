@@ -27,6 +27,7 @@ export const SignedApiPlayground = ({ locale = "en" }) => {
       invalidJson: "The request body must be valid JSON.",
       unsupported: "This browser does not support Web Crypto.",
       generationError: "Could not generate the signature.",
+      environmentUnavailable: "This operation is not available in the selected environment yet.",
       output: "Signed request",
       outputDescription: "Generated locally. Your appKey is never included in the request.",
       waiting: "Complete the request on the left, then generate its signature.",
@@ -71,6 +72,7 @@ export const SignedApiPlayground = ({ locale = "en" }) => {
       invalidJson: "请求体必须是有效的 JSON。",
       unsupported: "当前浏览器不支持 Web Crypto。",
       generationError: "无法生成签名。",
+      environmentUnavailable: "该接口暂未提供所选环境的地址。",
       output: "签名请求",
       outputDescription: "全部在浏览器本地生成，appKey 不会放入请求。",
       waiting: "在左侧填写请求参数，然后生成签名。",
@@ -103,83 +105,38 @@ export const SignedApiPlayground = ({ locale = "en" }) => {
     },
   }
   // BEGIN AUTO-GENERATED OPENAPI OPERATIONS
-  // Source fingerprint: 821d723df7af265c
+  // Source fingerprint: ca7e2911fb24b0dc
   const operationDefinitions = [
     {
       "operationId": "getRedirectUrl",
       "method": "POST",
-      "path": "/cardOrder/getRedirectUrl",
-      "summaryZh": "获取收银台地址",
-      "summaryEn": "Get checkout URL",
+      "path": "/openapi/v2/getRedirectUrl",
+      "summaryZh": "获取统一收银台地址",
+      "summaryEn": "Get Unified Checkout URL",
       "sampleBody": {
         "merchantId": "SAMPLE_MERCHANT_ID",
         "orderId": "ORDER_TIMESTAMP",
-        "merchantReferenceNumber": "SAMPLE_MERCHANT_REFERENCE_NUMBER",
-        "isOnline": false,
-        "isConsent": false,
-        "customerId": "SAMPLE_CUSTOMER_ID",
-        "paymentInitiator": "merchant",
-        "paymentType": "scheduled",
+        "amount": 1000,
         "currency": "SGD",
-        "amount": "100",
-        "goodsList": "[]",
-        "callback": "https://merchant.example.com/yeahpay/callback",
-        "lang": "zh-CN",
-        "notifyUrl": "https://merchant.example.com/yeahpay/callback",
-        "payWay": "SAMPLE_PAY_WAY",
-        "limitPay": "SAMPLE_LIMIT_PAY",
-        "countdown": 5,
-        "target": "SAMPLE_TARGET",
-        "preAuth": "1",
-        "mobile": "SAMPLE_MOBILE",
-        "eMail": "SAMPLE_E_MAIL"
-      }
-    },
-    {
-      "operationId": "getTradeType",
-      "method": "POST",
-      "path": "/cardOrder/getTradeType",
-      "summaryZh": "查询支付方式",
-      "summaryEn": "Query payment methods",
-      "sampleBody": {
-        "merchantId": "SAMPLE_MERCHANT_ID",
-        "currency": "SGD"
-      }
-    },
-    {
-      "operationId": "getPcRedirectUrl",
-      "method": "POST",
-      "path": "/cardOrder/getPcRedirectUrl",
-      "summaryZh": "获取 PC 收银台地址",
-      "summaryEn": "Get PC checkout URL",
-      "sampleBody": {
-        "merchantId": "SAMPLE_MERCHANT_ID",
-        "orderId": "ORDER_TIMESTAMP",
-        "busiType": "PHYSICAL",
-        "currency": "SGD",
-        "amount": "100",
-        "goodsList": "[]",
-        "timestamp": "TIMESTAMP",
-        "callback": "https://merchant.example.com/yeahpay/callback",
-        "lang": "zh-CN",
-        "consumerInfo": "SAMPLE_CONSUMER_INFO",
-        "notifyUrl": "https://merchant.example.com/yeahpay/callback",
-        "payWay": "SAMPLE_PAY_WAY",
-        "limitPay": "SAMPLE_LIMIT_PAY",
-        "countdown": 5,
-        "target": "SAMPLE_TARGET",
-        "logisticsInfo": "SAMPLE_LOGISTICS_INFO",
-        "billInfo": "SAMPLE_BILL_INFO",
-        "isConsent": false,
-        "customerId": "SAMPLE_CUSTOMER_ID",
-        "paymentInitiator": "merchant",
-        "paymentType": "scheduled",
-        "preAuth": "1",
-        "merchantReferenceNumber": "SAMPLE_MERCHANT_REFERENCE_NUMBER",
-        "mobile": "SAMPLE_MOBILE",
-        "eMail": "SAMPLE_E_MAIL",
-        "orderExpiration": "300",
-        "isOnline": false
+        "productType": "VIRTUAL",
+        "productList": [
+          {
+            "productName": "Monthly plan",
+            "quantity": 1,
+            "unitPrice": 1000
+          }
+        ],
+        "consumerInfo": {
+          "firstName": "Tan",
+          "lastName": "Mei",
+          "email": "buyer@example.com"
+        },
+        "locale": "en-US",
+        "callbackUrl": "https://merchant.example.com/yeahpay/callback",
+        "notificationUrl": "https://merchant.example.com/yeahpay/notify"
+      },
+      "baseUrls": {
+        "test": "https://t-acquire-business.lepass.cn/gwp/checkout"
       }
     },
     {
@@ -550,7 +507,7 @@ export const SignedApiPlayground = ({ locale = "en" }) => {
 
   const signingUrlFor = (baseUrl, path) => {
     const basePath = new URL(baseUrl).pathname
-      .replace(/^\/(?:gw|acceptance)(?=\/)/, "")
+      .replace(/^\/(?:gwp|gw|acceptance)(?=\/)/, "")
       .replace(/\/+$/, "")
     return `${basePath}/${path.replace(/^\/+/, "")}`
   }
@@ -596,10 +553,15 @@ export const SignedApiPlayground = ({ locale = "en" }) => {
 
     const operation = operationForId(selectedOperationId)
     if (!operation) return
+    // 接口级地址优先；未提供所选环境地址的接口不生成签名
+    const baseUrl = operation.baseUrls ? operation.baseUrls[environment] : environments[environment].baseUrl
+    if (!baseUrl) {
+      setError(text.environmentUnavailable)
+      return
+    }
     setGenerating(true)
     setError("")
     try {
-      const baseUrl = environments[environment].baseUrl
       const endpoint = `${baseUrl}${operation.path}`
       const signUrl = signingUrlFor(baseUrl, operation.path)
       const timestamp = Date.now().toString()
