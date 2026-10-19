@@ -10,10 +10,11 @@ YeahPay API 使用 HTTPS 和 JSON 提供支付、查询、退款及收银台服�
 | 环境 | Base URL | 状态 |
 | --- | --- | --- |
 | 测试环境 | `https://t-acquire-business.lepass.cn/gw/abroad-business-acceptance-open-api` | 用于开发和联调 |
+| 沙箱环境 | `https://open-api.yeahpay.sg/acceptance/sandbox` | 用于沙箱联调 |
 | 生产环境 | `https://open-api.yeahpay.sg/acceptance/acceptance-open-api` | 用于正式交易 |
 
 <Warning>
-  测试环境和生产环境使用不同的 `appId` 与 `apiKey`。切换环境时，请同时替换 Base URL 和对应凭证。
+  不同环境使用不同的 `appId` 与 `apiKey`。切换环境时，请同时替换 Base URL 和对应凭证。
 </Warning>
 
 ## 公共请求头

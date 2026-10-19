@@ -13,8 +13,8 @@
   ],
   "tags": [
     {
-      "name": "payment-checkout",
-      "description": "统一收银台：创建支付意图（PaymentIntent）并返回托管收银台地址"
+      "name": "统一收银台",
+      "description": "创建支付意图（PaymentIntent）并返回托管收银台地址"
     },
     {
       "name": "订阅支付",
@@ -43,18 +43,11 @@
     "/openapi/v2/getRedirectUrl": {
       "post": {
         "tags": [
-          "payment-checkout"
+          "统一收银台"
         ],
         "summary": "获取统一收银台地址",
         "description": "创建支付意图（PaymentIntent）并返回统一收银台地址。每次调用都会创建新的支付意图；商户需已配置审核通过的收银台访问域名。",
         "operationId": "getRedirectUrl",
-        "servers": [
-          {
-            "url": "https://t-acquire-business.lepass.cn/gwp/checkout",
-            "description": "测试环境",
-            "x-environment": "test"
-          }
-        ],
         "x-mint": {
           "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=getRedirectUrl\">使用此接口参数生成请求签名和 cURL。</Card>"
         },

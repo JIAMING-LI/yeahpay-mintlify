@@ -16,7 +16,7 @@ description: "管理客户与订阅授权，并由商户发起后续支付"
     调用 [`POST /consent-payment/customers/create`](/api-reference/订阅支付/创建客户)，使用商户侧唯一且不变的 `merchantCustomerId` 创建客户，并保存响应中的 `customerId`。
   </Step>
   <Step title="创建首次支付收银台">
-    调用[获取统一收银台地址](/api-reference/payment-checkout/获取统一收银台地址)接口，传入 `checkoutMode=CONSENT_INITIAL`、`consumerInfo.customerId` 和 `paymentConsent`，参数要求见下表。
+    调用[获取统一收银台地址](/api-reference/统一收银台/获取统一收银台地址)接口，传入 `checkoutMode=CONSENT_INITIAL`、`consumerInfo.customerId` 和 `paymentConsent`，参数要求见下表。
   </Step>
   <Step title="完成首次支付并取得 consentId">
     消费者完成首次支付后，YeahPay 创建订阅授权，并在支付结果通知中返回 `consentId`。商户验签并确认支付成功后，应保存 `consentId`，用于订阅管理和后续支付。

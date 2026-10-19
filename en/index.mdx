@@ -10,10 +10,11 @@ YeahPay provides payment, query, refund, and checkout APIs over HTTPS with JSON 
 | Environment | Base URL | Usage |
 | --- | --- | --- |
 | Test | `https://t-acquire-business.lepass.cn/gw/abroad-business-acceptance-open-api` | Development and integration testing |
+| Sandbox | `https://open-api.yeahpay.sg/acceptance/sandbox` | Sandbox integration testing |
 | Production | `https://open-api.yeahpay.sg/acceptance/acceptance-open-api` | Live transactions |
 
 <Warning>
-  The test and production environments use different `appId` and `apiKey` values. When you switch environments, update both the Base URL and its credentials.
+  Each environment uses different `appId` and `apiKey` values. When you switch environments, update both the Base URL and its credentials.
 </Warning>
 
 ## Common request headers

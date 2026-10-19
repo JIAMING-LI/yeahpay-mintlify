@@ -12,7 +12,7 @@ Unified Checkout works in mobile browsers, in-app WebViews, and desktop websites
     Generate a unique merchant order ID and prepare the amount (an integer in the smallest currency unit), currency, product type, consumer information, frontend return URL in `callbackUrl`, and payment notification URL in `notificationUrl`. For physical goods, you can also provide `shippingInfo` and `billingInfo`.
   </Step>
   <Step title="Get the Unified Checkout URL">
-    Sign and call [`POST /openapi/v2/getRedirectUrl`](/en/api-reference/payment-checkout/get-unified-checkout-url) from your server. Set `checkoutMode=PRE_AUTH` for a pre-authorization, or `checkoutMode=CONSENT_INITIAL` for the initial payment of a Subscription Payment.
+    Sign and call [`POST /openapi/v2/getRedirectUrl`](/en/api-reference/unified-checkout/get-unified-checkout-url) from your server. Set `checkoutMode=PRE_AUTH` for a pre-authorization, or `checkoutMode=CONSENT_INITIAL` for the initial payment of a Subscription Payment.
   </Step>
   <Step title="Open Checkout">
     Read the hosted page URL from `data.checkoutUrl` and save `data.paymentIntentId`. On mobile, redirect the current page. On desktop websites, you can open it in a new window or tab while retaining the merchant page.
@@ -23,7 +23,7 @@ Unified Checkout works in mobile browsers, in-app WebViews, and desktop websites
 </Steps>
 
 <CardGroup cols={2}>
-  <Card title="Unified Checkout API" icon="book-open" href="/en/api-reference/payment-checkout/get-unified-checkout-url">
+  <Card title="Unified Checkout API" icon="book-open" href="/en/api-reference/unified-checkout/get-unified-checkout-url">
     Review the complete request fields, conditional requirements, and the response schema.
   </Card>
   <Card title="Test a signed request" icon="terminal" href="/en/api-tester?operationId=getRedirectUrl">
