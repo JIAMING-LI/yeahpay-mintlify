@@ -13,8 +13,8 @@
   ],
   "tags": [
     {
-      "name": "payment-checkout",
-      "description": "Unified Checkout: create a PaymentIntent and return the hosted Checkout URL"
+      "name": "Unified Checkout",
+      "description": "Create a PaymentIntent and return the hosted Checkout URL"
     },
     {
       "name": "Subscription payments",
@@ -43,18 +43,11 @@
     "/openapi/v2/getRedirectUrl": {
       "post": {
         "tags": [
-          "payment-checkout"
+          "Unified Checkout"
         ],
         "summary": "Get Unified Checkout URL",
         "description": "Create a PaymentIntent and return the Unified Checkout URL. Each call creates a new PaymentIntent. The merchant must have an approved Checkout access domain configured.",
         "operationId": "getRedirectUrl",
-        "servers": [
-          {
-            "url": "https://t-acquire-business.lepass.cn/gwp/checkout",
-            "description": "Test environment",
-            "x-environment": "test"
-          }
-        ],
         "x-mint": {
           "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=getRedirectUrl\">Generate the signature and cURL for this operation.</Card>"
         },

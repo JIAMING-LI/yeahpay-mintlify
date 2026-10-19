@@ -16,7 +16,7 @@ Subscription Payments are designed for memberships, software services, content s
     Call [`POST /consent-payment/customers/create`](/en/api-reference/subscription-payments/create-customer). Use a unique, immutable `merchantCustomerId` for the merchant and save the `customerId` returned in the response.
   </Step>
   <Step title="Create the initial-payment Checkout">
-    Call [Get Unified Checkout URL](/en/api-reference/payment-checkout/get-unified-checkout-url) with `checkoutMode=CONSENT_INITIAL`, `consumerInfo.customerId`, and `paymentConsent`. See the table below for the parameter requirements.
+    Call [Get Unified Checkout URL](/en/api-reference/unified-checkout/get-unified-checkout-url) with `checkoutMode=CONSENT_INITIAL`, `consumerInfo.customerId`, and `paymentConsent`. See the table below for the parameter requirements.
   </Step>
   <Step title="Complete the initial payment and obtain consentId">
     After the customer completes the initial payment, YeahPay creates the subscription consent and returns `consentId` in the payment notification. Verify the signature and confirm payment success, then save `consentId` for consent management and subsequent payments.
