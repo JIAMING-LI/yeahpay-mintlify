@@ -1,0 +1,65 @@
+---
+title: "支付链接"
+description: "通过 API 创建可分享的收款链接，管理商品并接收收款结果"
+---
+
+Payment Link 支持指定金额收款和商品组单。商户创建链接后，将返回的 `paymentUrl` 分享给买家完成付款。
+
+## 接入准备
+
+- 向平台开通支付链接功能，未开通时返回 `210004`。
+- 提供商户服务端的出口 IP 并完成白名单配置，未授权请求可能在网关被拒绝。
+- 使用商户后台的 `appId` 和 API key，沿用[快速开始](/)中的 acceptance 入口及[SHA-512 签名规则](/signature)。每个请求体都须传与应用绑定商户一致的 `merchantId`。
+
+请求金额单位为分，时间字段使用**秒级 Unix 时间戳**；签名 Header 的 `timestamp` 使用毫秒。接口业务成功码为 `0`。
+
+## 接入流程
+
+<Steps>
+  <Step title="准备商品，可选">
+    指定金额链接可直接建单。商品组单先[上传图片](/api-reference/支付链接/上传支付链接商品图片)，使用返回的 `fileId` [创建商品](/api-reference/支付链接/创建支付链接商品)。上传使用 Base64 JSON，不使用 multipart。
+  </Step>
+  <Step title="创建支付链接">
+    调用[创建支付链接](/api-reference/支付链接/创建支付链接)，选择 `FIXED_AMOUNT` 或 `PRODUCT`。建议始终提供唯一的 `merchantLinkNo`，并保存返回的 `linkId`；商品创建同样建议提供 `merchantProductNo`。
+  </Step>
+  <Step title="确认链接生效并分享">
+    通过[链接详情](/api-reference/支付链接/查询支付链接详情)确认状态为 `ACTIVE`，再分享 `paymentUrl`。省略 `effectiveTime` 时默认约 1 分钟后生效，`PENDING` 期间不能付款。
+  </Step>
+  <Step title="确认收款结果">
+    验证收款成功通知的签名后处理业务，同时保留查询链接详情中成功支付记录的能力。
+  </Step>
+</Steps>
+
+## 创建防重与修改
+
+| 操作 | 约定 |
+| --- | --- |
+| 创建链接 | `requestId` 用于追踪；创建防重依赖同商户唯一的 `merchantLinkNo`，重复返回 `290053` |
+| 创建商品 | 创建防重依赖同商户唯一的 `merchantProductNo`，重复返回 `290054` |
+| 修改字段 | `operation=UPDATE_FIELDS`，不可混传 `status` |
+| 变更状态 | `operation=CHANGE_STATUS`，只传定位字段、请求标识和目标 `status` |
+
+不传商户侧编号时，超时重试可能创建多条记录。`ACTIVE` 链接不能修改金额；需要新建链接并停用原链接。链接不支持删除，商品支持 `DELETED`。商品变更不影响已创建链接的商品快照。
+
+## 收款成功通知
+
+仅开放 API 创建的链接（`source=API`）支付成功后推送 `payment_link.paid`，失败或退款不推送。优先使用链接的 `notifyUrl`，否则使用商户默认结果回调地址；两者都为空则不推送。
+
+通知 Header 包含 `appid`、`timestamp`、`version`、`nonce`、`algorithm` 和 `signature`。使用收到的原始请求体和 Header 值验签；签名首行是配置的**完整回调 URL**，包含协议、域名、路径及查询串。
+
+```text
+signText = callbackUrl + LF + appid + LF + timestamp + LF
+         + version + LF + nonce + LF + rawBody + LF + apiKey
+signature = Base64(SHA-512(UTF-8(signText)))
+```
+
+验签并完成业务处理后返回纯文本 `success`，其他应答会触发重试，商户应幂等处理同一支付订单。通知中的 `thirdOrderId` 为支付业务订单号；查询链接详情仍使用创建时保存的 `linkId` 或 `merchantLinkNo`。
+
+<CardGroup cols={2}>
+  <Card title="支付链接接口" icon="book-open" href="/api-reference/支付链接/创建支付链接">
+    创建、分页查询、详情及修改链接。
+  </Card>
+  <Card title="签名调试" icon="terminal" href="/api-tester?operationId=createPaymentLink">
+    生成带商户标识的 JSON 请求、签名和 cURL。
+  </Card>
+</CardGroup>

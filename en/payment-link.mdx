@@ -1,0 +1,65 @@
+---
+title: "Payment Links"
+description: "Create shareable payment links, manage products, and receive successful payment notifications"
+---
+
+Payment Links support fixed amounts and product-based orders. Create a link and share its returned `paymentUrl` with buyers.
+
+## Before you integrate
+
+- Ask the platform to enable Payment Links; requests return `210004` when the feature is not enabled.
+- Register your merchant server's outbound IP addresses in the allowlist. Unauthorized requests may be rejected at the gateway.
+- Use your merchant `appId` and API key with the acceptance endpoints in [Get Started](/en) and the [SHA-512 signing rules](/en/signature). Every request body must include a `merchantId` matching the merchant bound to the application.
+
+Request amounts are in cents and time fields use **Unix timestamps in seconds**. The signing header `timestamp` uses milliseconds. Business success code is `0`.
+
+## Integration flow
+
+<Steps>
+  <Step title="Prepare products, if needed">
+    Fixed-amount links do not require products. For product-based links, [upload an image](/en/api-reference/payment-links/upload-payment-link-product-image), then use its `fileId` to [create a product](/en/api-reference/payment-links/create-payment-link-product). Upload uses Base64 JSON rather than multipart.
+  </Step>
+  <Step title="Create a payment link">
+    Call [Create Payment Link](/en/api-reference/payment-links/create-payment-link) with `FIXED_AMOUNT` or `PRODUCT`. Always supply a unique `merchantLinkNo` where possible and save the returned `linkId`. Likewise, provide `merchantProductNo` when creating products.
+  </Step>
+  <Step title="Confirm activation before sharing">
+    Use [link details](/en/api-reference/payment-links/get-payment-link-details) to confirm `ACTIVE` before sharing `paymentUrl`. Omitting `effectiveTime` defaults to activation about one minute later; payment is unavailable while `PENDING`.
+  </Step>
+  <Step title="Confirm payment results">
+    Verify payment notification signatures before processing orders and retain the ability to query successful payment records through link details.
+  </Step>
+</Steps>
+
+## Deduplication and updates
+
+| Operation | Contract |
+| --- | --- |
+| Create a link | `requestId` is for tracing. Creation deduplication uses merchant-unique `merchantLinkNo`; duplicates return `290053`. |
+| Create a product | Creation deduplication uses merchant-unique `merchantProductNo`; duplicates return `290054`. |
+| Update fields | Use `operation=UPDATE_FIELDS` without `status`. |
+| Change status | Use `operation=CHANGE_STATUS` with identifiers, the request ID, and the target `status` only. |
+
+Without merchant-side numbers, retrying after a timeout may create duplicates. An `ACTIVE` link's amount cannot be changed; create another link and disable the original. Links cannot be deleted; products support `DELETED`. Product changes do not alter snapshots in existing links.
+
+## Successful payment notifications
+
+Only successful payments for API-created links (`source=API`) trigger `payment_link.paid`. Failures and refunds do not. The link's `notifyUrl` takes priority over the merchant default callback; neither configured means no notification.
+
+Notification headers include `appid`, `timestamp`, `version`, `nonce`, `algorithm`, and `signature`. Verify the exact received body and header values. The first signing line is the configured **complete callback URL**, including scheme, domain, path, and query string.
+
+```text
+signText = callbackUrl + LF + appid + LF + timestamp + LF
+         + version + LF + nonce + LF + rawBody + LF + apiKey
+signature = Base64(SHA-512(UTF-8(signText)))
+```
+
+Return plain-text `success` after verification and business processing. Other responses trigger retries, so deduplicate processing by payment order. Notification `thirdOrderId` identifies a payment business order; getting link details still requires the `linkId` or `merchantLinkNo` saved during creation.
+
+<CardGroup cols={2}>
+  <Card title="Payment Link APIs" icon="book-open" href="/en/api-reference/payment-links/create-payment-link">
+    Create, list, inspect, and modify payment links.
+  </Card>
+  <Card title="Signed request tester" icon="terminal" href="/en/api-tester?operationId=createPaymentLink">
+    Generate merchant-scoped JSON requests, signatures, and cURL.
+  </Card>
+</CardGroup>

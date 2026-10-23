@@ -47,7 +47,7 @@ export const SignedApiPlayground = ({ locale = "en" }) => {
       serializationWarning:
         "The signature is valid only if Mintlify serializes the body exactly as shown here. The generated cURL is the most reliable request sample.",
       selectOperation: "Select an API operation",
-      checkoutEnvironmentNote: "Use one of the confirmed Checkout environments below. The sandbox endpoint is pending confirmation.",
+      environmentNote: "Only the listed environments are confirmed for this operation. The sandbox endpoint is pending confirmation.",
     },
     zh: {
       eyebrow: "YeahPay 开发者工具",
@@ -92,7 +92,7 @@ export const SignedApiPlayground = ({ locale = "en" }) => {
       ],
       serializationWarning: "只有 Mintlify 生成的请求体与这里完全一致时签名才有效；生成的 cURL 是最可靠的请求示例。",
       selectOperation: "请选择 API 接口",
-      checkoutEnvironmentNote: "Checkout 可选择下列已确认环境，沙箱入口待确认。",
+      environmentNote: "此接口可选择下列已确认环境，沙箱入口待确认。",
     },
   }
   const text = textByLocale[locale] ?? textByLocale.en
@@ -111,7 +111,7 @@ export const SignedApiPlayground = ({ locale = "en" }) => {
     },
   }
   // BEGIN AUTO-GENERATED OPENAPI OPERATIONS
-  // Source fingerprint: 338b141e7c0f0520
+  // Source fingerprint: 343b386b9be5cea4
   const operationDefinitions = [
     {
       "operationId": "getRedirectUrl",
@@ -504,6 +504,173 @@ export const SignedApiPlayground = ({ locale = "en" }) => {
         "merchantId": "SAMPLE_MERCHANT_ID",
         "language": "SAMPLE_LANGUAGE"
       }
+    },
+    {
+      "operationId": "createPaymentLink",
+      "method": "POST",
+      "path": "/payment-link/links/create",
+      "summaryZh": "创建支付链接",
+      "summaryEn": "Create Payment Link",
+      "serverUrls": {
+        "test": "https://t-acquire-business.lepass.cn/gw/abroad-business-acceptance-open-api",
+        "production": "https://open-api.yeahpay.net/acceptance/acceptance-open-api"
+      },
+      "sampleBody": {
+        "requestId": "createPaymentLink-TIMESTAMP-1",
+        "merchantLinkNo": "LINK-1-TIMESTAMP",
+        "name": "Sample payment link",
+        "linkType": "FIXED_AMOUNT",
+        "amount": 9900,
+        "paymentLimitType": "UNLIMITED",
+        "expireTime": 1924992000,
+        "notifyUrl": "https://merchant.example.com/plink/callback",
+        "merchantId": "SAMPLE_MERCHANT_ID"
+      }
+    },
+    {
+      "operationId": "queryPaymentLinks",
+      "method": "POST",
+      "path": "/payment-link/links/query",
+      "summaryZh": "分页查询支付链接",
+      "summaryEn": "List Payment Links",
+      "serverUrls": {
+        "test": "https://t-acquire-business.lepass.cn/gw/abroad-business-acceptance-open-api",
+        "production": "https://open-api.yeahpay.net/acceptance/acceptance-open-api"
+      },
+      "sampleBody": {
+        "createdTimeStart": 1792627200,
+        "createdTimeEnd": 1792713600,
+        "status": [
+          "ACTIVE",
+          "PENDING"
+        ],
+        "source": "API",
+        "page": 1,
+        "pageSize": 10,
+        "merchantId": "SAMPLE_MERCHANT_ID"
+      }
+    },
+    {
+      "operationId": "getPaymentLinkDetail",
+      "method": "POST",
+      "path": "/payment-link/links/detail",
+      "summaryZh": "查询支付链接详情",
+      "summaryEn": "Get Payment Link Details",
+      "serverUrls": {
+        "test": "https://t-acquire-business.lepass.cn/gw/abroad-business-acceptance-open-api",
+        "production": "https://open-api.yeahpay.net/acceptance/acceptance-open-api"
+      },
+      "sampleBody": {
+        "merchantLinkNo": "LINK-TIMESTAMP",
+        "includePayments": true,
+        "paymentPage": 1,
+        "paymentPageSize": 10,
+        "merchantId": "SAMPLE_MERCHANT_ID"
+      }
+    },
+    {
+      "operationId": "modifyPaymentLink",
+      "method": "POST",
+      "path": "/payment-link/links/modify",
+      "summaryZh": "修改支付链接",
+      "summaryEn": "Modify Payment Link",
+      "serverUrls": {
+        "test": "https://t-acquire-business.lepass.cn/gw/abroad-business-acceptance-open-api",
+        "production": "https://open-api.yeahpay.net/acceptance/acceptance-open-api"
+      },
+      "sampleBody": {
+        "requestId": "modifyPaymentLink-TIMESTAMP-1",
+        "merchantLinkNo": "LINK-TIMESTAMP",
+        "operation": "UPDATE_FIELDS",
+        "name": "Sample payment link",
+        "notifyUrl": "https://merchant.example.com/plink/callback-v2",
+        "merchantId": "SAMPLE_MERCHANT_ID"
+      }
+    },
+    {
+      "operationId": "createPaymentLinkProduct",
+      "method": "POST",
+      "path": "/payment-link/products/create",
+      "summaryZh": "创建支付链接商品",
+      "summaryEn": "Create Payment Link Product",
+      "serverUrls": {
+        "test": "https://t-acquire-business.lepass.cn/gw/abroad-business-acceptance-open-api",
+        "production": "https://open-api.yeahpay.net/acceptance/acceptance-open-api"
+      },
+      "sampleBody": {
+        "requestId": "createPaymentLinkProduct-TIMESTAMP-1",
+        "merchantProductNo": "SKU-TIMESTAMP",
+        "name": "Sample product",
+        "price": 4900,
+        "description": "Sample description",
+        "imageFileId": "SAMPLE_FILE_ID",
+        "merchantId": "SAMPLE_MERCHANT_ID"
+      }
+    },
+    {
+      "operationId": "queryPaymentLinkProducts",
+      "method": "POST",
+      "path": "/payment-link/products/query",
+      "summaryZh": "分页查询支付链接商品",
+      "summaryEn": "List Payment Link Products",
+      "serverUrls": {
+        "test": "https://t-acquire-business.lepass.cn/gw/abroad-business-acceptance-open-api",
+        "production": "https://open-api.yeahpay.net/acceptance/acceptance-open-api"
+      },
+      "sampleBody": {
+        "page": 1,
+        "pageSize": 10,
+        "merchantId": "SAMPLE_MERCHANT_ID"
+      }
+    },
+    {
+      "operationId": "getPaymentLinkProductDetail",
+      "method": "POST",
+      "path": "/payment-link/products/detail",
+      "summaryZh": "查询支付链接商品详情",
+      "summaryEn": "Get Payment Link Product Details",
+      "serverUrls": {
+        "test": "https://t-acquire-business.lepass.cn/gw/abroad-business-acceptance-open-api",
+        "production": "https://open-api.yeahpay.net/acceptance/acceptance-open-api"
+      },
+      "sampleBody": {
+        "merchantProductNo": "SKU-TIMESTAMP",
+        "merchantId": "SAMPLE_MERCHANT_ID"
+      }
+    },
+    {
+      "operationId": "modifyPaymentLinkProduct",
+      "method": "POST",
+      "path": "/payment-link/products/modify",
+      "summaryZh": "修改支付链接商品",
+      "summaryEn": "Modify Payment Link Product",
+      "serverUrls": {
+        "test": "https://t-acquire-business.lepass.cn/gw/abroad-business-acceptance-open-api",
+        "production": "https://open-api.yeahpay.net/acceptance/acceptance-open-api"
+      },
+      "sampleBody": {
+        "requestId": "modifyPaymentLinkProduct-TIMESTAMP-1",
+        "merchantProductNo": "SKU-TIMESTAMP",
+        "operation": "UPDATE_FIELDS",
+        "price": 5900,
+        "merchantId": "SAMPLE_MERCHANT_ID"
+      }
+    },
+    {
+      "operationId": "uploadPaymentLinkImage",
+      "method": "POST",
+      "path": "/payment-link/attach/upload",
+      "summaryZh": "上传支付链接商品图片",
+      "summaryEn": "Upload Payment Link Product Image",
+      "serverUrls": {
+        "test": "https://t-acquire-business.lepass.cn/gw/abroad-business-acceptance-open-api",
+        "production": "https://open-api.yeahpay.net/acceptance/acceptance-open-api"
+      },
+      "sampleBody": {
+        "file": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a0j8AAAAASUVORK5CYII=",
+        "fileName": "sample.png",
+        "merchantId": "SAMPLE_MERCHANT_ID"
+      }
     }
   ]
   // END AUTO-GENERATED OPENAPI OPERATIONS
@@ -516,7 +683,24 @@ export const SignedApiPlayground = ({ locale = "en" }) => {
     const serialized = JSON.stringify(operation?.sampleBody ?? {})
       .replaceAll("TIMESTAMP", timestamp)
       .replaceAll('"zh-CN"', locale === "zh" ? '"zh-CN"' : '"en"')
-    return JSON.parse(serialized)
+    const body = JSON.parse(serialized)
+    if (operation?.path.startsWith("/payment-link/")) {
+      const now = Math.floor(Date.now() / 1000)
+      const offsets = {
+        effectiveTime: 60,
+        expireTime: 7 * 86400,
+        createdTimeStart: -86400,
+        createdTimeEnd: 0,
+        effectiveTimeStart: -86400,
+        effectiveTimeEnd: 0,
+        expireTimeStart: 0,
+        expireTimeEnd: 7 * 86400,
+      }
+      for (const [field, offset] of Object.entries(offsets)) {
+        if (typeof body[field] === "number") body[field] = now + offset
+      }
+    }
+    return body
   }
 
   const [selectedOperationId, setSelectedOperationId] = useState(operations[0]?.operationId ?? "")
@@ -695,7 +879,7 @@ export const SignedApiPlayground = ({ locale = "en" }) => {
           </div>
 
           {selectedOperation?.serverUrls && !selectedEnvironments.sandbox && (
-            <p className="text-xs leading-5 text-zinc-600 dark:text-zinc-400">{text.checkoutEnvironmentNote}</p>
+            <p className="text-xs leading-5 text-zinc-600 dark:text-zinc-400">{text.environmentNote}</p>
           )}
 
           {selectedOperation && (

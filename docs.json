@@ -35,6 +35,7 @@
                 "pages": [
                   "unified-checkout",
                   "embedded-checkout",
+                  "payment-link",
                   "subscription-payment"
                 ]
               },
@@ -77,6 +78,7 @@
                 "pages": [
                   "en/unified-checkout",
                   "en/embedded-checkout",
+                  "en/payment-link",
                   "en/subscription-payment"
                 ]
               },

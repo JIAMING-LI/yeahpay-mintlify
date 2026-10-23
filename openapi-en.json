@@ -21,6 +21,10 @@
       "description": "Merchant-server creation and querying of embedded PaymentIntents for use with the frontend SDK"
     },
     {
+      "name": "Payment Links",
+      "description": "Payment link, product, and image management"
+    },
+    {
       "name": "Subscription payments",
       "description": "Customer, consent, and subsequent charge management"
     },
@@ -50,7 +54,7 @@
           "Unified Checkout"
         ],
         "summary": "Get Unified Checkout URL",
-        "description": "Create a PaymentIntent and return the Unified Checkout URL. Each call creates a new PaymentIntent. The merchant must have an approved Checkout access domain configured.\n\nCheckout test Base URL: https://t-acquire-business.lepass.cn/gwp/checkout. Production Base URL: https://open-api.yeahpay.net/gwp/checkout. The sandbox endpoint is pending confirmation. The first signing line is /checkout/openapi/v2/getRedirectUrl, excluding the domain and /gwp.",
+        "description": "Create a PaymentIntent and return the Unified Checkout URL.",
         "operationId": "getRedirectUrl",
         "x-mint": {
           "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=getRedirectUrl\">Generate the signature and cURL for this operation.</Card>"
@@ -132,7 +136,7 @@
           "Embedded Checkout"
         ],
         "summary": "Create Embedded PaymentIntent",
-        "description": "Create an embedded PaymentIntent from the merchant server. Ordinary new-card payments wait for buyer submission in the SDK. CIT/MIT requests with a valid consentToken initiate a charge during creation. Keep the API key and consentToken on the server; send only paymentIntentId and paymentIntentToken to the frontend.\n\nTest endpoint: https://t-acquire-business.lepass.cn/gwp/checkout/openapi/v2/createIntent. The first signing line is /checkout/openapi/v2/createIntent, excluding the domain and /gwp. Production endpoint: https://open-api.yeahpay.net/gwp/checkout/openapi/v2/createIntent. The sandbox endpoint is pending confirmation. Use the common signing headers.\n\nSend amount in JSON integer notation, never as a string, decimal, or scientific notation. Zero is only allowed for CIT new-card binding: customerId and CIT, without consentToken or buttonType. Only final_auth is supported; pre-authorization and subsequent capture are unavailable.\n\nThe same merchantId and requestId return the original PI without comparing new parameters or charging again. A different requestId with the same merchantOrderId returns 292003. Keep original business identifiers on retries. A direct-charge 292009, 500, or timeout may still follow creation or charging: query the original merchantOrderId first, and replay the original request if the original Token is needed. Replays do not replace the Token or extend Session validity. The default is 24 hours; use the actual Session expiry.\n\ncode=0 only means the request was processed; inspect data.status for payment results. Let the SDK handle PENDING and REQUIRES_CUSTOMER_ACTION. Frontend events and HTTP 200 are not proof of payment. Obtain a ready initial consentToken through a merchant query or verified success notification.",
+        "description": "Create an embedded PaymentIntent and return its ID and SDK Session Token.",
         "operationId": "createIntent",
         "servers": [
           {
@@ -337,7 +341,7 @@
           "Embedded Checkout"
         ],
         "summary": "Query Embedded Payment Status",
-        "description": "Query a PaymentIntent from the merchant server within merchantId. Supply exactly one of paymentIntentId and merchantOrderId. The legacy orderId, requestId, and Session Token are not query keys.\n\nTest endpoint: https://t-acquire-business.lepass.cn/gwp/checkout/openapi/v2/queryIntentStatus. The first signing line is /checkout/openapi/v2/queryIntentStatus, excluding the domain and /gwp. Production endpoint: https://open-api.yeahpay.net/gwp/checkout/openapi/v2/queryIntentStatus. The sandbox endpoint is pending confirmation. Use merchant OpenAPI signing, not a browser Session Token. This POST operation differs from the internal SDK GET /cashier/v2/queryIntentStatus.\n\ncode=0 means processed successfully; data.status is the overall PI state. Actions appear in latest_payment_attempt.nextAction, not at the top level. Merchant queries do not execute 3DS Continue. Let the SDK complete authentication with the original Token.\n\nDoes not issue paymentIntentToken or return refund totals, refundable balances, top-level customerId, or card. An initial consentToken is returned only when ACTIVE with complete credentials. If the PI succeeded but the reference is not ready, query the same PI later without binding or charging again. A valid original reference may also be returned for subsequent payments; its presence does not prove this payment succeeded.\n\n292000 indicates invalid parameters; 292001 a missing or out-of-scope PI; 292003 an order ID creation conflict; 292004/292005 state or concurrency restrictions. 292009, 500, and timeouts require result confirmation. Keep the original order identifiers and continue querying instead of creating another charge.",
+        "description": "Query payment status and binding results by PaymentIntent ID or merchant order ID.",
         "operationId": "queryIntentStatus",
         "servers": [
           {
@@ -1865,6 +1869,1028 @@
           }
         }
       }
+    },
+    "/payment-link/links/create": {
+      "post": {
+        "tags": [
+          "Payment Links"
+        ],
+        "summary": "Create Payment Link",
+        "description": "Create a payment link to share with buyers.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PaymentLinkCreateReq"
+              },
+              "examples": {
+                "example1": {
+                  "value": {
+                    "requestId": "createPaymentLink-TIMESTAMP-1",
+                    "merchantLinkNo": "LINK-1-TIMESTAMP",
+                    "name": "Sample payment link",
+                    "linkType": "FIXED_AMOUNT",
+                    "amount": 9900,
+                    "paymentLimitType": "UNLIMITED",
+                    "expireTime": 1924992000,
+                    "notifyUrl": "https://merchant.example.com/plink/callback",
+                    "merchantId": "SAMPLE_MERCHANT_ID"
+                  }
+                },
+                "example2": {
+                  "value": {
+                    "requestId": "createPaymentLink-TIMESTAMP-2",
+                    "name": "Sample payment link",
+                    "linkType": "PRODUCT",
+                    "products": [
+                      {
+                        "productId": "SAMPLE_PRODUCT_ID",
+                        "quantity": 2
+                      }
+                    ],
+                    "paymentLimitType": "LIMITED",
+                    "paymentLimitCount": 50,
+                    "expireTime": 1924992000,
+                    "merchantId": "SAMPLE_MERCHANT_ID",
+                    "merchantLinkNo": "LINK-2-TIMESTAMP"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/PaymentLinkResult"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/PaymentLinkCreateResp"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "code": 0,
+                  "message": "Request successful",
+                  "data": {
+                    "linkId": "SAMPLE_LINK_ID",
+                    "merchantLinkNo": "LINK-TIMESTAMP",
+                    "paymentUrl": "https://t-payment.yeahpay.net/checkout/paymentlink/#/?id=SAMPLE_LINK_ID",
+                    "status": "PENDING",
+                    "currency": "SGD",
+                    "amount": 9900,
+                    "effectiveTime": 1789697376,
+                    "expireTime": 1792289314,
+                    "source": "API",
+                    "createdTime": 1789697316
+                  },
+                  "traceId": "SAMPLE_TRACE_ID"
+                }
+              }
+            }
+          }
+        },
+        "operationId": "createPaymentLink",
+        "servers": [
+          {
+            "url": "https://t-acquire-business.lepass.cn/gw/abroad-business-acceptance-open-api",
+            "description": "Test environment",
+            "x-environment": "test"
+          },
+          {
+            "url": "https://open-api.yeahpay.net/acceptance/acceptance-open-api",
+            "description": "Production environment",
+            "x-environment": "production"
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PaymentLinkVersionHeader"
+          },
+          {
+            "$ref": "#/components/parameters/TimestampHeader"
+          },
+          {
+            "name": "algorithm",
+            "in": "header",
+            "required": true,
+            "description": "Signing algorithm, fixed to SHA-512",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "SHA-512"
+              ],
+              "default": "SHA-512"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/AppIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/NonceHeader"
+          },
+          {
+            "$ref": "#/components/parameters/SignatureHeader"
+          }
+        ],
+        "x-mint": {
+          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=createPaymentLink\">Generate the signature and cURL for this operation.</Card>"
+        }
+      }
+    },
+    "/payment-link/links/query": {
+      "post": {
+        "tags": [
+          "Payment Links"
+        ],
+        "summary": "List Payment Links",
+        "description": "List payment links with filters and pagination.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PaymentLinkQueryReq"
+              },
+              "example": {
+                "createdTimeStart": 1792627200,
+                "createdTimeEnd": 1792713600,
+                "status": [
+                  "ACTIVE",
+                  "PENDING"
+                ],
+                "source": "API",
+                "page": 1,
+                "pageSize": 10,
+                "merchantId": "SAMPLE_MERCHANT_ID"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/PaymentLinkResult"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "records": {
+                              "type": "array",
+                              "items": {
+                                "$ref": "#/components/schemas/PaymentLinkItemResp"
+                              }
+                            },
+                            "total": {
+                              "type": "integer",
+                              "example": 1
+                            },
+                            "size": {
+                              "type": "integer",
+                              "example": 10
+                            },
+                            "current": {
+                              "type": "integer",
+                              "example": 1
+                            },
+                            "pages": {
+                              "type": "integer",
+                              "example": 1
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "operationId": "queryPaymentLinks",
+        "servers": [
+          {
+            "url": "https://t-acquire-business.lepass.cn/gw/abroad-business-acceptance-open-api",
+            "description": "Test environment",
+            "x-environment": "test"
+          },
+          {
+            "url": "https://open-api.yeahpay.net/acceptance/acceptance-open-api",
+            "description": "Production environment",
+            "x-environment": "production"
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PaymentLinkVersionHeader"
+          },
+          {
+            "$ref": "#/components/parameters/TimestampHeader"
+          },
+          {
+            "name": "algorithm",
+            "in": "header",
+            "required": true,
+            "description": "Signing algorithm, fixed to SHA-512",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "SHA-512"
+              ],
+              "default": "SHA-512"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/AppIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/NonceHeader"
+          },
+          {
+            "$ref": "#/components/parameters/SignatureHeader"
+          }
+        ],
+        "x-mint": {
+          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=queryPaymentLinks\">Generate the signature and cURL for this operation.</Card>"
+        }
+      }
+    },
+    "/payment-link/links/detail": {
+      "post": {
+        "tags": [
+          "Payment Links"
+        ],
+        "summary": "Get Payment Link Details",
+        "description": "Get link details, product snapshots, and successful payment records.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PaymentLinkDetailReq"
+              },
+              "example": {
+                "merchantLinkNo": "LINK-TIMESTAMP",
+                "includePayments": true,
+                "paymentPage": 1,
+                "paymentPageSize": 10,
+                "merchantId": "SAMPLE_MERCHANT_ID"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/PaymentLinkResult"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/PaymentLinkDetailResp"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "operationId": "getPaymentLinkDetail",
+        "servers": [
+          {
+            "url": "https://t-acquire-business.lepass.cn/gw/abroad-business-acceptance-open-api",
+            "description": "Test environment",
+            "x-environment": "test"
+          },
+          {
+            "url": "https://open-api.yeahpay.net/acceptance/acceptance-open-api",
+            "description": "Production environment",
+            "x-environment": "production"
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PaymentLinkVersionHeader"
+          },
+          {
+            "$ref": "#/components/parameters/TimestampHeader"
+          },
+          {
+            "name": "algorithm",
+            "in": "header",
+            "required": true,
+            "description": "Signing algorithm, fixed to SHA-512",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "SHA-512"
+              ],
+              "default": "SHA-512"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/AppIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/NonceHeader"
+          },
+          {
+            "$ref": "#/components/parameters/SignatureHeader"
+          }
+        ],
+        "x-mint": {
+          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=getPaymentLinkDetail\">Generate the signature and cURL for this operation.</Card>"
+        }
+      }
+    },
+    "/payment-link/links/modify": {
+      "post": {
+        "tags": [
+          "Payment Links"
+        ],
+        "summary": "Modify Payment Link",
+        "description": "Update payment link fields or enable or disable a link.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PaymentLinkModifyReq"
+              },
+              "examples": {
+                "example1": {
+                  "value": {
+                    "requestId": "modifyPaymentLink-TIMESTAMP-1",
+                    "merchantLinkNo": "LINK-TIMESTAMP",
+                    "operation": "UPDATE_FIELDS",
+                    "name": "Sample payment link",
+                    "notifyUrl": "https://merchant.example.com/plink/callback-v2",
+                    "merchantId": "SAMPLE_MERCHANT_ID"
+                  }
+                },
+                "example2": {
+                  "value": {
+                    "requestId": "modifyPaymentLink-TIMESTAMP-2",
+                    "merchantLinkNo": "LINK-TIMESTAMP",
+                    "operation": "CHANGE_STATUS",
+                    "status": "DISABLED",
+                    "merchantId": "SAMPLE_MERCHANT_ID"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/PaymentLinkResult"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/PaymentLinkModifyResp"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "operationId": "modifyPaymentLink",
+        "servers": [
+          {
+            "url": "https://t-acquire-business.lepass.cn/gw/abroad-business-acceptance-open-api",
+            "description": "Test environment",
+            "x-environment": "test"
+          },
+          {
+            "url": "https://open-api.yeahpay.net/acceptance/acceptance-open-api",
+            "description": "Production environment",
+            "x-environment": "production"
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PaymentLinkVersionHeader"
+          },
+          {
+            "$ref": "#/components/parameters/TimestampHeader"
+          },
+          {
+            "name": "algorithm",
+            "in": "header",
+            "required": true,
+            "description": "Signing algorithm, fixed to SHA-512",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "SHA-512"
+              ],
+              "default": "SHA-512"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/AppIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/NonceHeader"
+          },
+          {
+            "$ref": "#/components/parameters/SignatureHeader"
+          }
+        ],
+        "x-mint": {
+          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=modifyPaymentLink\">Generate the signature and cURL for this operation.</Card>"
+        }
+      }
+    },
+    "/payment-link/products/create": {
+      "post": {
+        "tags": [
+          "Payment Links"
+        ],
+        "summary": "Create Payment Link Product",
+        "description": "Create a product for product-based payment links.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PaymentLinkProductCreateReq"
+              },
+              "example": {
+                "requestId": "createPaymentLinkProduct-TIMESTAMP-1",
+                "merchantProductNo": "SKU-TIMESTAMP",
+                "name": "Sample product",
+                "price": 4900,
+                "description": "Sample description",
+                "imageFileId": "SAMPLE_FILE_ID",
+                "merchantId": "SAMPLE_MERCHANT_ID"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/PaymentLinkResult"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/PaymentLinkProductResp"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "operationId": "createPaymentLinkProduct",
+        "servers": [
+          {
+            "url": "https://t-acquire-business.lepass.cn/gw/abroad-business-acceptance-open-api",
+            "description": "Test environment",
+            "x-environment": "test"
+          },
+          {
+            "url": "https://open-api.yeahpay.net/acceptance/acceptance-open-api",
+            "description": "Production environment",
+            "x-environment": "production"
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PaymentLinkVersionHeader"
+          },
+          {
+            "$ref": "#/components/parameters/TimestampHeader"
+          },
+          {
+            "name": "algorithm",
+            "in": "header",
+            "required": true,
+            "description": "Signing algorithm, fixed to SHA-512",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "SHA-512"
+              ],
+              "default": "SHA-512"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/AppIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/NonceHeader"
+          },
+          {
+            "$ref": "#/components/parameters/SignatureHeader"
+          }
+        ],
+        "x-mint": {
+          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=createPaymentLinkProduct\">Generate the signature and cURL for this operation.</Card>"
+        }
+      }
+    },
+    "/payment-link/products/query": {
+      "post": {
+        "tags": [
+          "Payment Links"
+        ],
+        "summary": "List Payment Link Products",
+        "description": "List products with filters and pagination, excluding deleted products by default.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PaymentLinkProductQueryReq"
+              },
+              "example": {
+                "page": 1,
+                "pageSize": 10,
+                "merchantId": "SAMPLE_MERCHANT_ID"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/PaymentLinkResult"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "records": {
+                              "type": "array",
+                              "items": {
+                                "$ref": "#/components/schemas/PaymentLinkProductResp"
+                              }
+                            },
+                            "total": {
+                              "type": "integer"
+                            },
+                            "size": {
+                              "type": "integer"
+                            },
+                            "current": {
+                              "type": "integer"
+                            },
+                            "pages": {
+                              "type": "integer"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "operationId": "queryPaymentLinkProducts",
+        "servers": [
+          {
+            "url": "https://t-acquire-business.lepass.cn/gw/abroad-business-acceptance-open-api",
+            "description": "Test environment",
+            "x-environment": "test"
+          },
+          {
+            "url": "https://open-api.yeahpay.net/acceptance/acceptance-open-api",
+            "description": "Production environment",
+            "x-environment": "production"
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PaymentLinkVersionHeader"
+          },
+          {
+            "$ref": "#/components/parameters/TimestampHeader"
+          },
+          {
+            "name": "algorithm",
+            "in": "header",
+            "required": true,
+            "description": "Signing algorithm, fixed to SHA-512",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "SHA-512"
+              ],
+              "default": "SHA-512"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/AppIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/NonceHeader"
+          },
+          {
+            "$ref": "#/components/parameters/SignatureHeader"
+          }
+        ],
+        "x-mint": {
+          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=queryPaymentLinkProducts\">Generate the signature and cURL for this operation.</Card>"
+        }
+      }
+    },
+    "/payment-link/products/detail": {
+      "post": {
+        "tags": [
+          "Payment Links"
+        ],
+        "summary": "Get Payment Link Product Details",
+        "description": "Get product details by platform ID or merchant product number.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PaymentLinkProductDetailReq"
+              },
+              "example": {
+                "merchantProductNo": "SKU-TIMESTAMP",
+                "merchantId": "SAMPLE_MERCHANT_ID"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/PaymentLinkResult"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/PaymentLinkProductResp"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "operationId": "getPaymentLinkProductDetail",
+        "servers": [
+          {
+            "url": "https://t-acquire-business.lepass.cn/gw/abroad-business-acceptance-open-api",
+            "description": "Test environment",
+            "x-environment": "test"
+          },
+          {
+            "url": "https://open-api.yeahpay.net/acceptance/acceptance-open-api",
+            "description": "Production environment",
+            "x-environment": "production"
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PaymentLinkVersionHeader"
+          },
+          {
+            "$ref": "#/components/parameters/TimestampHeader"
+          },
+          {
+            "name": "algorithm",
+            "in": "header",
+            "required": true,
+            "description": "Signing algorithm, fixed to SHA-512",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "SHA-512"
+              ],
+              "default": "SHA-512"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/AppIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/NonceHeader"
+          },
+          {
+            "$ref": "#/components/parameters/SignatureHeader"
+          }
+        ],
+        "x-mint": {
+          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=getPaymentLinkProductDetail\">Generate the signature and cURL for this operation.</Card>"
+        }
+      }
+    },
+    "/payment-link/products/modify": {
+      "post": {
+        "tags": [
+          "Payment Links"
+        ],
+        "summary": "Modify Payment Link Product",
+        "description": "Update product fields or change product status.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PaymentLinkProductModifyReq"
+              },
+              "examples": {
+                "example1": {
+                  "value": {
+                    "requestId": "modifyPaymentLinkProduct-TIMESTAMP-1",
+                    "merchantProductNo": "SKU-TIMESTAMP",
+                    "operation": "UPDATE_FIELDS",
+                    "price": 5900,
+                    "merchantId": "SAMPLE_MERCHANT_ID"
+                  }
+                },
+                "example2": {
+                  "value": {
+                    "requestId": "modifyPaymentLinkProduct-TIMESTAMP-2",
+                    "merchantProductNo": "SKU-TIMESTAMP",
+                    "operation": "CHANGE_STATUS",
+                    "status": "DELETED",
+                    "merchantId": "SAMPLE_MERCHANT_ID"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/PaymentLinkResult"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/PaymentLinkProductResp"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "operationId": "modifyPaymentLinkProduct",
+        "servers": [
+          {
+            "url": "https://t-acquire-business.lepass.cn/gw/abroad-business-acceptance-open-api",
+            "description": "Test environment",
+            "x-environment": "test"
+          },
+          {
+            "url": "https://open-api.yeahpay.net/acceptance/acceptance-open-api",
+            "description": "Production environment",
+            "x-environment": "production"
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PaymentLinkVersionHeader"
+          },
+          {
+            "$ref": "#/components/parameters/TimestampHeader"
+          },
+          {
+            "name": "algorithm",
+            "in": "header",
+            "required": true,
+            "description": "Signing algorithm, fixed to SHA-512",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "SHA-512"
+              ],
+              "default": "SHA-512"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/AppIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/NonceHeader"
+          },
+          {
+            "$ref": "#/components/parameters/SignatureHeader"
+          }
+        ],
+        "x-mint": {
+          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=modifyPaymentLinkProduct\">Generate the signature and cURL for this operation.</Card>"
+        }
+      }
+    },
+    "/payment-link/attach/upload": {
+      "post": {
+        "tags": [
+          "Payment Links"
+        ],
+        "summary": "Upload Payment Link Product Image",
+        "description": "Upload a product image and return the fileId used by products.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "merchantId",
+                  "file",
+                  "fileName"
+                ],
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "description": "Full Base64-encoded image, sent as JSON rather than multipart. The original image must not exceed 2MB and must be JPEG, PNG, or WEBP. Invalid format, encoding, and size return 290087, 290088, and 290089 respectively.",
+                    "example": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a0j8AAAAASUVORK5CYII="
+                  },
+                  "fileName": {
+                    "type": "string",
+                    "description": "Filename with an extension matching the image content. An empty filename returns 290085; empty image content returns 290086.",
+                    "example": "tshirt.png"
+                  },
+                  "merchantId": {
+                    "type": "string",
+                    "description": "Merchant ID, which must match the merchant bound to appId",
+                    "example": "SAMPLE_MERCHANT_ID"
+                  }
+                },
+                "example": {
+                  "file": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a0j8AAAAASUVORK5CYII=",
+                  "fileName": "sample.png",
+                  "merchantId": "SAMPLE_MERCHANT_ID"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/PaymentLinkResult"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "fileId": {
+                              "type": "string",
+                              "description": "File ID to use as imageFileId"
+                            },
+                            "fileName": {
+                              "type": "string"
+                            },
+                            "url": {
+                              "type": "string",
+                              "description": "File access path"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "code": 0,
+                  "message": "Request successful",
+                  "data": {
+                    "fileId": "SAMPLE_FILE_ID",
+                    "fileName": "tshirt.png",
+                    "url": "picture2/M00/1C/CA/CmAiA2qsoUWAEfgLAAAASGAv3rg007.png"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "uploadPaymentLinkImage",
+        "servers": [
+          {
+            "url": "https://t-acquire-business.lepass.cn/gw/abroad-business-acceptance-open-api",
+            "description": "Test environment",
+            "x-environment": "test"
+          },
+          {
+            "url": "https://open-api.yeahpay.net/acceptance/acceptance-open-api",
+            "description": "Production environment",
+            "x-environment": "production"
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PaymentLinkVersionHeader"
+          },
+          {
+            "$ref": "#/components/parameters/TimestampHeader"
+          },
+          {
+            "name": "algorithm",
+            "in": "header",
+            "required": true,
+            "description": "Signing algorithm, fixed to SHA-512",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "SHA-512"
+              ],
+              "default": "SHA-512"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/AppIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/NonceHeader"
+          },
+          {
+            "$ref": "#/components/parameters/SignatureHeader"
+          }
+        ],
+        "x-mint": {
+          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=uploadPaymentLinkImage\">Generate the signature and cURL for this operation.</Card>"
+        }
+      }
     }
   },
   "webhooks": {
@@ -1966,6 +2992,135 @@
             }
           }
         }
+      }
+    },
+    "paymentLinkPaidNotification": {
+      "post": {
+        "tags": [
+          "Payment Links"
+        ],
+        "summary": "Payment Link Paid Notification",
+        "description": "The platform notifies the merchant when an API-created payment link receives a successful payment.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "eventType": {
+                    "type": "string",
+                    "example": "payment_link.paid",
+                    "description": "Event type, fixed to payment_link.paid; absent from ordinary transaction notifications",
+                    "const": "payment_link.paid"
+                  },
+                  "merchantId": {
+                    "type": "string",
+                    "example": "SAMPLE_MERCHANT_ID"
+                  },
+                  "leshuaOrderId": {
+                    "type": "string",
+                    "example": "SAMPLE_PAYMENT_ORDER_ID",
+                    "description": "Platform payment order ID"
+                  },
+                  "thirdOrderId": {
+                    "type": "string",
+                    "example": "PL-SAMPLE-PAYMENT",
+                    "description": "Payment-link business order ID, not linkId or merchantLinkNo. Use the link identifiers saved during creation to get link details."
+                  },
+                  "amount": {
+                    "type": "string",
+                    "example": "100",
+                    "description": "Amount in cents"
+                  },
+                  "currency": {
+                    "type": "string",
+                    "example": "SGD"
+                  },
+                  "status": {
+                    "type": "string",
+                    "example": "2",
+                    "description": "2 means payment succeeded"
+                  },
+                  "payTime": {
+                    "type": "string",
+                    "example": "2026-09-18 09:35:26",
+                    "description": "Payment time string; the notification timestamp header still uses milliseconds"
+                  },
+                  "payWay": {
+                    "type": "string",
+                    "example": "WXZF"
+                  },
+                  "settlementAmount": {
+                    "type": "string",
+                    "example": "2"
+                  },
+                  "channelOrderId": {
+                    "type": "string"
+                  },
+                  "attach": {
+                    "type": "string",
+                    "example": "{\"pay_source\":3}",
+                    "description": "Additional information as a JSON string"
+                  }
+                }
+              },
+              "example": {
+                "eventType": "payment_link.paid",
+                "merchantId": "SAMPLE_MERCHANT_ID",
+                "leshuaOrderId": "SAMPLE_PAYMENT_ORDER_ID",
+                "thirdOrderId": "PL-SAMPLE-PAYMENT",
+                "amount": "100",
+                "currency": "SGD",
+                "status": "2",
+                "payTime": "2026-09-18 09:35:26",
+                "payWay": "WXZF"
+              }
+            }
+          },
+          "required": true,
+          "description": "Only successful payments for source=API are sent, excluding failures and refunds. The link notifyUrl takes priority over the merchant default callback; no notification is sent if both are empty. Verify signatures before processing and retain the mapping between payment orders and links."
+        },
+        "responses": {
+          "200": {
+            "description": "Return plain-text success after signature verification and business processing; other responses trigger retries",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "success"
+                }
+              }
+            }
+          }
+        },
+        "operationId": "paymentLinkPaidNotification",
+        "security": [],
+        "parameters": [
+          {
+            "name": "appid",
+            "in": "header",
+            "required": true,
+            "description": "Notification appid; use its exact received value for signature verification",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/PaymentLinkVersionHeader"
+          },
+          {
+            "$ref": "#/components/parameters/TimestampHeader"
+          },
+          {
+            "$ref": "#/components/parameters/NonceHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AlgorithmHeader"
+          },
+          {
+            "$ref": "#/components/parameters/SignatureHeader"
+          }
+        ]
       }
     }
   },
@@ -2081,6 +3236,17 @@
           "type": "string",
           "maxLength": 2
         }
+      },
+      "PaymentLinkVersionHeader": {
+        "name": "version",
+        "in": "header",
+        "required": true,
+        "description": "Request version, fixed to 1.0",
+        "schema": {
+          "type": "string",
+          "const": "1.0"
+        },
+        "example": "1.0"
       }
     },
     "schemas": {
@@ -5782,6 +6948,1345 @@
         "required": [
           "code"
         ]
+      },
+      "PaymentLinkResult": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "example": 0,
+            "description": "**0 means success**, not 200. Other values are error codes."
+          },
+          "message": {
+            "type": "string",
+            "example": "Request successful"
+          },
+          "traceId": {
+            "type": "string",
+            "description": "Trace ID to provide to the platform when troubleshooting"
+          }
+        }
+      },
+      "PaymentLinkCreateReq": {
+        "type": "object",
+        "required": [
+          "merchantId",
+          "requestId",
+          "name",
+          "linkType",
+          "paymentLimitType",
+          "expireTime"
+        ],
+        "properties": {
+          "merchantId": {
+            "type": "string",
+            "description": "Merchant ID, which must match the merchant bound to appId",
+            "example": "SAMPLE_MERCHANT_ID"
+          },
+          "requestId": {
+            "type": "string",
+            "maxLength": 64,
+            "description": "Merchant request ID, up to 64 characters. Used for tracing rather than creation deduplication. Supply merchantLinkNo to prevent duplicate links."
+          },
+          "merchantLinkNo": {
+            "type": "string",
+            "maxLength": 64,
+            "description": "Merchant link number, unique within the merchant and recommended for every creation. Duplicate creation returns 290053. Without it, retries after a timeout can create multiple links."
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 50,
+            "description": "Link name visible to the merchant"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 100,
+            "description": "Link description"
+          },
+          "linkType": {
+            "type": "string",
+            "enum": [
+              "FIXED_AMOUNT",
+              "PRODUCT"
+            ],
+            "description": "FIXED_AMOUNT for a specified amount; PRODUCT for a product-based order"
+          },
+          "amount": {
+            "type": "integer",
+            "maximum": 999999999,
+            "minimum": 1,
+            "format": "int64",
+            "description": "Amount in cents, required for FIXED_AMOUNT and ignored for PRODUCT"
+          },
+          "products": {
+            "type": "array",
+            "description": "Product list, required for PRODUCT; at most 10 items",
+            "items": {
+              "type": "object",
+              "required": [
+                "productId",
+                "quantity"
+              ],
+              "properties": {
+                "productId": {
+                  "type": "string",
+                  "description": "Product ID"
+                },
+                "quantity": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 99
+                }
+              }
+            },
+            "minItems": 1,
+            "maxItems": 10
+          },
+          "collectAddress": {
+            "type": "string",
+            "enum": [
+              "NONE",
+              "BILLING",
+              "BILLING_AND_SHIPPING"
+            ],
+            "default": "NONE",
+            "description": "Address collection scope"
+          },
+          "collectPhone": {
+            "type": "boolean",
+            "default": false,
+            "description": "Whether to collect a contact phone number"
+          },
+          "collectRemark": {
+            "type": "boolean",
+            "default": false,
+            "description": "Whether to allow a buyer remark"
+          },
+          "paymentLimitType": {
+            "type": "string",
+            "enum": [
+              "UNLIMITED",
+              "LIMITED"
+            ],
+            "description": "UNLIMITED for unlimited payments; LIMITED for a payment count limit"
+          },
+          "paymentLimitCount": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 999,
+            "description": "Maximum payment count, required for LIMITED"
+          },
+          "effectiveTime": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Effective time as a Unix timestamp in seconds. Defaults to about one minute later when omitted. Explicit values must be in the future; allow at least 60 seconds to avoid 290039. Payment is unavailable while PENDING; share after the link becomes ACTIVE."
+          },
+          "expireTime": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Expiry as a Unix timestamp in seconds; replace example values for your use case. The supplied specification records an eight-hour test-environment clock discrepancy: allow over eight hours and verify status during integration. Production uses the actual intended time."
+          },
+          "emailNotifyEnabled": {
+            "type": "boolean",
+            "default": false,
+            "description": "Whether to email the merchant after a successful payment"
+          },
+          "emailNotifyLang": {
+            "type": "string",
+            "enum": [
+              "zh_CN",
+              "zh_HK",
+              "en_US"
+            ],
+            "description": "Notification email language; defaults according to merchant region"
+          },
+          "successMessage": {
+            "type": "string",
+            "maxLength": 200,
+            "description": "Custom payment success page message"
+          },
+          "notifyUrl": {
+            "type": "string",
+            "maxLength": 512,
+            "description": "Link-specific callback URL. Empty values fall back to the merchant default. Both HTTP and HTTPS are accepted. Changes apply immediately to subsequent payments; the old address no longer receives notifications."
+          }
+        },
+        "example": {
+          "requestId": "createPaymentLink-TIMESTAMP-1",
+          "merchantLinkNo": "LINK-1-TIMESTAMP",
+          "name": "Sample payment link",
+          "linkType": "FIXED_AMOUNT",
+          "amount": 9900,
+          "paymentLimitType": "UNLIMITED",
+          "expireTime": 1924992000,
+          "notifyUrl": "https://merchant.example.com/plink/callback",
+          "merchantId": "SAMPLE_MERCHANT_ID"
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "linkType": {
+                  "const": "FIXED_AMOUNT"
+                }
+              },
+              "required": [
+                "linkType"
+              ]
+            },
+            "then": {
+              "required": [
+                "amount"
+              ]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "linkType": {
+                  "const": "PRODUCT"
+                }
+              },
+              "required": [
+                "linkType"
+              ]
+            },
+            "then": {
+              "required": [
+                "products"
+              ]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "paymentLimitType": {
+                  "const": "LIMITED"
+                }
+              },
+              "required": [
+                "paymentLimitType"
+              ]
+            },
+            "then": {
+              "required": [
+                "paymentLimitCount"
+              ]
+            }
+          }
+        ]
+      },
+      "PaymentLinkCreateResp": {
+        "type": "object",
+        "properties": {
+          "linkId": {
+            "type": "string",
+            "description": "Platform-generated link ID"
+          },
+          "merchantLinkNo": {
+            "type": "string",
+            "description": "Merchant link number echoed back"
+          },
+          "paymentUrl": {
+            "type": "string",
+            "description": "Complete payment URL to share with buyers"
+          },
+          "status": {
+            "type": "string",
+            "description": "Created as PENDING; payments are available after the effective time when status becomes ACTIVE",
+            "enum": [
+              "PENDING",
+              "ACTIVE",
+              "EXPIRED",
+              "DISABLED",
+              "COMPLETED"
+            ]
+          },
+          "currency": {
+            "type": "string",
+            "description": "Currency from the merchant acquiring configuration"
+          },
+          "amount": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Amount in cents; calculated from products for product-based links"
+          },
+          "effectiveTime": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Unix timestamp in seconds"
+          },
+          "expireTime": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Unix timestamp in seconds"
+          },
+          "source": {
+            "type": "string",
+            "description": "Source, fixed to API"
+          },
+          "createdTime": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Unix timestamp in seconds"
+          }
+        }
+      },
+      "PaymentLinkQueryReq": {
+        "type": "object",
+        "required": [
+          "merchantId",
+          "createdTimeStart",
+          "createdTimeEnd"
+        ],
+        "properties": {
+          "merchantId": {
+            "type": "string",
+            "description": "Merchant ID, which must match the merchant bound to appId",
+            "example": "SAMPLE_MERCHANT_ID"
+          },
+          "name": {
+            "type": "string",
+            "description": "Link name, partial matching"
+          },
+          "status": {
+            "type": "array",
+            "description": "Link statuses; multiple values allowed",
+            "items": {
+              "type": "string",
+              "enum": [
+                "PENDING",
+                "ACTIVE",
+                "EXPIRED",
+                "DISABLED",
+                "COMPLETED"
+              ]
+            }
+          },
+          "linkType": {
+            "type": "string",
+            "enum": [
+              "FIXED_AMOUNT",
+              "PRODUCT"
+            ]
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "PAGE",
+              "API"
+            ],
+            "description": "All values when omitted"
+          },
+          "merchantLinkNo": {
+            "type": "string",
+            "description": "Merchant link number, exact matching"
+          },
+          "createdTimeStart": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Required creation range start as a Unix timestamp in seconds; at most 31 days before createdTimeEnd"
+          },
+          "createdTimeEnd": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Required creation range end as a Unix timestamp in seconds; at most 31 days after createdTimeStart"
+          },
+          "effectiveTimeStart": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Unix timestamp in seconds"
+          },
+          "effectiveTimeEnd": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Unix timestamp in seconds"
+          },
+          "expireTimeStart": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Unix timestamp in seconds"
+          },
+          "expireTimeEnd": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Unix timestamp in seconds"
+          },
+          "page": {
+            "type": "integer",
+            "default": 1
+          },
+          "pageSize": {
+            "type": "integer",
+            "default": 10,
+            "maximum": 100
+          }
+        },
+        "example": {
+          "createdTimeStart": 1792627200,
+          "createdTimeEnd": 1792713600,
+          "status": [
+            "ACTIVE",
+            "PENDING"
+          ],
+          "source": "API",
+          "page": 1,
+          "pageSize": 10,
+          "merchantId": "SAMPLE_MERCHANT_ID"
+        }
+      },
+      "PaymentLinkItemResp": {
+        "type": "object",
+        "properties": {
+          "linkId": {
+            "type": "string"
+          },
+          "merchantLinkNo": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "linkType": {
+            "type": "string"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Collection amount in cents"
+          },
+          "paymentLimitType": {
+            "type": "string"
+          },
+          "paymentLimitCount": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "Null when payment count is unlimited"
+          },
+          "paidCount": {
+            "type": "integer",
+            "description": "Successful payment count"
+          },
+          "status": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          },
+          "effectiveTime": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Unix timestamp in seconds"
+          },
+          "expireTime": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Unix timestamp in seconds"
+          },
+          "createdTime": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Unix timestamp in seconds"
+          },
+          "updatedTime": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Unix timestamp in seconds"
+          }
+        }
+      },
+      "PaymentLinkDetailReq": {
+        "type": "object",
+        "required": [
+          "merchantId"
+        ],
+        "properties": {
+          "merchantId": {
+            "type": "string",
+            "description": "Merchant ID, which must match the merchant bound to appId",
+            "example": "SAMPLE_MERCHANT_ID"
+          },
+          "linkId": {
+            "type": "string",
+            "description": "Supply this or merchantLinkNo; linkId takes priority if both are provided"
+          },
+          "merchantLinkNo": {
+            "type": "string"
+          },
+          "includePayments": {
+            "type": "boolean",
+            "default": true,
+            "description": "Whether to include successful payment records, paginated by paymentPage and paymentPageSize"
+          },
+          "paymentPage": {
+            "type": "integer",
+            "default": 1
+          },
+          "paymentPageSize": {
+            "type": "integer",
+            "default": 10,
+            "maximum": 50
+          }
+        },
+        "example": {
+          "merchantLinkNo": "LINK-TIMESTAMP",
+          "includePayments": true,
+          "paymentPage": 1,
+          "paymentPageSize": 10,
+          "merchantId": "SAMPLE_MERCHANT_ID"
+        },
+        "anyOf": [
+          {
+            "required": [
+              "linkId"
+            ]
+          },
+          {
+            "required": [
+              "merchantLinkNo"
+            ]
+          }
+        ]
+      },
+      "PaymentLinkDetailResp": {
+        "type": "object",
+        "properties": {
+          "linkInfo": {
+            "type": "object",
+            "description": "Complete link information, including list summary fields and the additional detail fields",
+            "properties": {
+              "linkId": {
+                "type": "string"
+              },
+              "merchantLinkNo": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "linkType": {
+                "type": "string"
+              },
+              "currency": {
+                "type": "string"
+              },
+              "amount": {
+                "type": "integer",
+                "format": "int64",
+                "description": "Collection amount in cents"
+              },
+              "paymentLimitType": {
+                "type": "string"
+              },
+              "paymentLimitCount": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "description": "Null when payment count is unlimited"
+              },
+              "paidCount": {
+                "type": "integer",
+                "description": "Successful payment count"
+              },
+              "status": {
+                "type": "string"
+              },
+              "source": {
+                "type": "string"
+              },
+              "effectiveTime": {
+                "type": "integer",
+                "format": "int64",
+                "description": "Unix timestamp in seconds"
+              },
+              "expireTime": {
+                "type": "integer",
+                "format": "int64",
+                "description": "Unix timestamp in seconds"
+              },
+              "createdTime": {
+                "type": "integer",
+                "format": "int64",
+                "description": "Unix timestamp in seconds"
+              },
+              "updatedTime": {
+                "type": "integer",
+                "format": "int64",
+                "description": "Unix timestamp in seconds"
+              },
+              "paymentUrl": {
+                "type": "string"
+              },
+              "collectAddress": {
+                "type": "string"
+              },
+              "collectPhone": {
+                "type": "boolean"
+              },
+              "collectRemark": {
+                "type": "boolean"
+              },
+              "emailNotifyEnabled": {
+                "type": "boolean"
+              },
+              "emailNotifyLang": {
+                "type": "string"
+              },
+              "successMessage": {
+                "type": "string"
+              },
+              "notifyUrl": {
+                "type": "string",
+                "description": "Effective callback URL for this link"
+              },
+              "totalPaidAmount": {
+                "type": "integer",
+                "format": "int64",
+                "description": "Total successful collection amount in cents"
+              },
+              "totalRefundAmount": {
+                "type": "integer",
+                "format": "int64",
+                "description": "Total refund amount in cents"
+              }
+            }
+          },
+          "products": {
+            "type": "array",
+            "description": "Product snapshots, returned for product-based links only. Fixed during link creation and unaffected by later product changes.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "productId": {
+                  "type": "string"
+                },
+                "snapshotName": {
+                  "type": "string"
+                },
+                "snapshotDescription": {
+                  "type": "string"
+                },
+                "snapshotPrice": {
+                  "type": "integer",
+                  "format": "int64"
+                },
+                "snapshotImageUrl": {
+                  "type": "string",
+                  "description": "Product image **file ID** returned by upload, not a directly accessible URL. Differs from imageUrl in product details."
+                },
+                "quantity": {
+                  "type": "integer"
+                },
+                "subtotal": {
+                  "type": "integer",
+                  "format": "int64",
+                  "description": "Subtotal in cents"
+                }
+              }
+            }
+          },
+          "payments": {
+            "type": "object",
+            "description": "Paginated successful payment records",
+            "properties": {
+              "records": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "orderNo": {
+                      "type": "string",
+                      "description": "Platform payment order number"
+                    },
+                    "bizOrderNo": {
+                      "type": "string",
+                      "description": "Business order number, such as PL-YYYYMMDD-XXXX"
+                    },
+                    "amount": {
+                      "type": "integer",
+                      "format": "int64",
+                      "description": "Payment amount in cents"
+                    },
+                    "refundAmount": {
+                      "type": "integer",
+                      "format": "int64",
+                      "description": "Refund amount in cents"
+                    },
+                    "currency": {
+                      "type": "string"
+                    },
+                    "paymentMethod": {
+                      "type": "string",
+                      "description": "Payment method name, such as AMEX_CARD"
+                    },
+                    "payCatalog": {
+                      "type": "string",
+                      "description": "Payment category, such as amex or wechat"
+                    },
+                    "paidTime": {
+                      "type": "integer",
+                      "format": "int64",
+                      "description": "Unix timestamp in seconds"
+                    },
+                    "customerName": {
+                      "type": "string"
+                    },
+                    "customerEmail": {
+                      "type": "string"
+                    },
+                    "customerPhone": {
+                      "type": "string"
+                    },
+                    "customerRemark": {
+                      "type": "string"
+                    },
+                    "billingAddress": {
+                      "type": "string"
+                    },
+                    "shippingAddress": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "total": {
+                "type": "integer"
+              },
+              "size": {
+                "type": "integer"
+              },
+              "current": {
+                "type": "integer"
+              },
+              "pages": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      },
+      "PaymentLinkModifyReq": {
+        "type": "object",
+        "required": [
+          "merchantId",
+          "requestId",
+          "operation"
+        ],
+        "properties": {
+          "merchantId": {
+            "type": "string",
+            "description": "Merchant ID, which must match the merchant bound to appId",
+            "example": "SAMPLE_MERCHANT_ID"
+          },
+          "requestId": {
+            "type": "string",
+            "maxLength": 64,
+            "description": "Unique merchant request ID used for request tracing"
+          },
+          "linkId": {
+            "type": "string",
+            "description": "Supply this or merchantLinkNo"
+          },
+          "merchantLinkNo": {
+            "type": "string",
+            "maxLength": 64
+          },
+          "operation": {
+            "type": "string",
+            "enum": [
+              "UPDATE_FIELDS",
+              "CHANGE_STATUS"
+            ],
+            "description": "Required. UPDATE_FIELDS updates fields without status. CHANGE_STATUS only accepts status, without other update fields. Missing or mixed parameters return 290062. Links can be disabled but not deleted."
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "DISABLED"
+            ],
+            "description": "Only allowed for CHANGE_STATUS"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 50
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "amount": {
+            "type": "integer",
+            "maximum": 999999999,
+            "minimum": 1,
+            "format": "int64",
+            "description": "Amount in cents, only for UPDATE_FIELDS. Changing the amount of an ACTIVE link returns 290050. Create another link and disable the original to change its amount."
+          },
+          "collectAddress": {
+            "type": "string"
+          },
+          "collectPhone": {
+            "type": "boolean"
+          },
+          "collectRemark": {
+            "type": "boolean"
+          },
+          "paymentLimitType": {
+            "type": "string"
+          },
+          "paymentLimitCount": {
+            "type": "integer",
+            "maximum": 999,
+            "minimum": 1
+          },
+          "effectiveTime": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Unix timestamp in seconds"
+          },
+          "expireTime": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Unix timestamp in seconds"
+          },
+          "emailNotifyEnabled": {
+            "type": "boolean"
+          },
+          "emailNotifyLang": {
+            "type": "string"
+          },
+          "successMessage": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "notifyUrl": {
+            "type": "string",
+            "maxLength": 512,
+            "description": "Link-specific callback URL; both HTTP and HTTPS are accepted"
+          }
+        },
+        "example": {
+          "requestId": "modifyPaymentLink-TIMESTAMP-1",
+          "merchantLinkNo": "LINK-TIMESTAMP",
+          "operation": "UPDATE_FIELDS",
+          "name": "Sample payment link",
+          "notifyUrl": "https://merchant.example.com/plink/callback-v2",
+          "merchantId": "SAMPLE_MERCHANT_ID"
+        },
+        "anyOf": [
+          {
+            "required": [
+              "linkId"
+            ]
+          },
+          {
+            "required": [
+              "merchantLinkNo"
+            ]
+          }
+        ],
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "operation": {
+                  "const": "CHANGE_STATUS"
+                }
+              },
+              "required": [
+                "operation"
+              ]
+            },
+            "then": {
+              "required": [
+                "status"
+              ],
+              "not": {
+                "anyOf": [
+                  {
+                    "required": [
+                      "name"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "description"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "amount"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "collectAddress"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "collectPhone"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "collectRemark"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "paymentLimitType"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "paymentLimitCount"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "effectiveTime"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "expireTime"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "emailNotifyEnabled"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "emailNotifyLang"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "successMessage"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "notifyUrl"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "operation": {
+                  "const": "UPDATE_FIELDS"
+                }
+              },
+              "required": [
+                "operation"
+              ]
+            },
+            "then": {
+              "not": {
+                "required": [
+                  "status"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "PaymentLinkModifyResp": {
+        "type": "object",
+        "properties": {
+          "linkId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "description": "Status after the operation"
+          },
+          "updatedTime": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Unix timestamp in seconds"
+          }
+        }
+      },
+      "PaymentLinkProductCreateReq": {
+        "type": "object",
+        "required": [
+          "merchantId",
+          "requestId",
+          "name",
+          "price"
+        ],
+        "properties": {
+          "merchantId": {
+            "type": "string",
+            "description": "Merchant ID, which must match the merchant bound to appId",
+            "example": "SAMPLE_MERCHANT_ID"
+          },
+          "requestId": {
+            "type": "string",
+            "maxLength": 64,
+            "description": "Merchant request ID, up to 64 characters. Used for tracing rather than creation deduplication. Supply merchantProductNo to prevent duplicate products."
+          },
+          "merchantProductNo": {
+            "type": "string",
+            "maxLength": 64,
+            "description": "Merchant product number, unique within the merchant and recommended for every creation. Duplicate creation returns 290054. Without it, retries after a timeout can create multiple products."
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 50
+          },
+          "price": {
+            "type": "integer",
+            "maximum": 999999999,
+            "minimum": 1,
+            "format": "int64",
+            "description": "Product unit price in cents"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "imageFileId": {
+            "type": "string",
+            "description": "fileId from the image upload operation; reusable across products"
+          }
+        },
+        "example": {
+          "requestId": "createPaymentLinkProduct-TIMESTAMP-1",
+          "merchantProductNo": "SKU-TIMESTAMP",
+          "name": "Sample product",
+          "price": 4900,
+          "description": "Sample description",
+          "imageFileId": "SAMPLE_FILE_ID",
+          "merchantId": "SAMPLE_MERCHANT_ID"
+        }
+      },
+      "PaymentLinkProductQueryReq": {
+        "type": "object",
+        "required": [
+          "merchantId"
+        ],
+        "properties": {
+          "merchantId": {
+            "type": "string",
+            "description": "Merchant ID, which must match the merchant bound to appId",
+            "example": "SAMPLE_MERCHANT_ID"
+          },
+          "name": {
+            "type": "string",
+            "description": "Product name, partial matching"
+          },
+          "status": {
+            "type": "array",
+            "description": "Product statuses; multiple values allowed. Deleted products are excluded by default.",
+            "items": {
+              "type": "string",
+              "enum": [
+                "ACTIVE",
+                "DISABLED",
+                "DELETED"
+              ]
+            }
+          },
+          "merchantProductNo": {
+            "type": "string",
+            "description": "Exact matching"
+          },
+          "createdTimeStart": {
+            "type": "integer",
+            "format": "int64",
+            "description": "At most 31 days before the range end"
+          },
+          "createdTimeEnd": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Unix timestamp in seconds"
+          },
+          "page": {
+            "type": "integer",
+            "default": 1
+          },
+          "pageSize": {
+            "type": "integer",
+            "default": 10,
+            "maximum": 100
+          }
+        },
+        "example": {
+          "page": 1,
+          "pageSize": 10,
+          "merchantId": "SAMPLE_MERCHANT_ID"
+        }
+      },
+      "PaymentLinkProductDetailReq": {
+        "type": "object",
+        "required": [
+          "merchantId"
+        ],
+        "properties": {
+          "merchantId": {
+            "type": "string",
+            "description": "Merchant ID, which must match the merchant bound to appId",
+            "example": "SAMPLE_MERCHANT_ID"
+          },
+          "productId": {
+            "type": "string",
+            "description": "Supply this or merchantProductNo; this ID takes priority if both are provided"
+          },
+          "merchantProductNo": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "merchantProductNo": "SKU-TIMESTAMP",
+          "merchantId": "SAMPLE_MERCHANT_ID"
+        },
+        "anyOf": [
+          {
+            "required": [
+              "productId"
+            ]
+          },
+          {
+            "required": [
+              "merchantProductNo"
+            ]
+          }
+        ]
+      },
+      "PaymentLinkProductModifyReq": {
+        "type": "object",
+        "required": [
+          "merchantId",
+          "requestId",
+          "operation"
+        ],
+        "properties": {
+          "merchantId": {
+            "type": "string",
+            "description": "Merchant ID, which must match the merchant bound to appId",
+            "example": "SAMPLE_MERCHANT_ID"
+          },
+          "requestId": {
+            "type": "string",
+            "maxLength": 64
+          },
+          "productId": {
+            "type": "string",
+            "description": "Supply this or merchantProductNo; this ID takes priority if both are provided"
+          },
+          "merchantProductNo": {
+            "type": "string",
+            "maxLength": 64
+          },
+          "operation": {
+            "type": "string",
+            "enum": [
+              "UPDATE_FIELDS",
+              "CHANGE_STATUS"
+            ],
+            "description": "Required. UPDATE_FIELDS updates fields without status. CHANGE_STATUS only accepts status, without other update fields. Product changes do not alter snapshots in existing links."
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "DISABLED",
+              "DELETED"
+            ],
+            "description": "Only allowed for CHANGE_STATUS"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 50
+          },
+          "price": {
+            "type": "integer",
+            "maximum": 999999999,
+            "minimum": 1,
+            "format": "int64"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "imageFileId": {
+            "type": "string",
+            "description": "fileId returned by image upload; ignored when imageClear=true"
+          },
+          "imageClear": {
+            "type": "boolean",
+            "description": "Clear the image and ignore imageFileId when true"
+          }
+        },
+        "example": {
+          "requestId": "modifyPaymentLinkProduct-TIMESTAMP-1",
+          "merchantProductNo": "SKU-TIMESTAMP",
+          "operation": "UPDATE_FIELDS",
+          "price": 5900,
+          "merchantId": "SAMPLE_MERCHANT_ID"
+        },
+        "anyOf": [
+          {
+            "required": [
+              "productId"
+            ]
+          },
+          {
+            "required": [
+              "merchantProductNo"
+            ]
+          }
+        ],
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "operation": {
+                  "const": "CHANGE_STATUS"
+                }
+              },
+              "required": [
+                "operation"
+              ]
+            },
+            "then": {
+              "required": [
+                "status"
+              ],
+              "not": {
+                "anyOf": [
+                  {
+                    "required": [
+                      "name"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "price"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "description"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "imageFileId"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "imageClear"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "operation": {
+                  "const": "UPDATE_FIELDS"
+                }
+              },
+              "required": [
+                "operation"
+              ]
+            },
+            "then": {
+              "not": {
+                "required": [
+                  "status"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "PaymentLinkProductResp": {
+        "type": "object",
+        "properties": {
+          "productId": {
+            "type": "string"
+          },
+          "merchantProductNo": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "price": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Product unit price in cents"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "imageUrl": {
+            "type": "string",
+            "description": "Product image **relative access path**, such as picture2/M00/.../xxx.png. Prepend the image service domain. Differs from the file ID in snapshotImageUrl returned by link details."
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "DISABLED",
+              "DELETED"
+            ]
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "PAGE",
+              "API"
+            ]
+          },
+          "createdTime": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Unix timestamp in seconds"
+          },
+          "updatedTime": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Unix timestamp in seconds"
+          },
+          "referencedLinkCount": {
+            "type": "integer",
+            "description": "Number of referencing links, returned only in product details. For reference only: snapshots keep existing links unchanged when the product changes."
+          }
+        }
       }
     }
   },
@@ -5792,5 +8297,6 @@
     "The common parameter table specifies version 1.0, while the signing example uses 2.0. This specification follows the common parameter table.",
     "The Checkout production Base URL was confirmed as https://open-api.yeahpay.net/gwp/checkout. The sandbox endpoint is pending confirmation."
   ],
-  "x-embedded-checkout-source": "embedded-checkout-merchant-api-v1.5.md"
+  "x-embedded-checkout-source": "embedded-checkout-merchant-api-v1.5.md",
+  "x-payment-link-source": "payment-link-openapi-v2.yaml"
 }
