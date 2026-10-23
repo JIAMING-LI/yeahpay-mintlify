@@ -1,0 +1,105 @@
+---
+title: "Embedded Checkout"
+description: "Embed YeahPay Checkout in your website, with server-side PaymentIntent creation and result confirmation"
+---
+
+Embedded Checkout uses a JavaScript SDK to mount a YeahPay iframe inside your website. Buyers enter card details, select saved cards, and complete authentication in Checkout. Your server creates payments, signs requests, and confirms results.
+
+<Note>
+  This guide follows merchant API V1.5 and browser SDK V1.0. Test and production endpoints are listed below; the sandbox endpoint is pending confirmation. Use the matching application credentials, SDK script, and SDK `env` when switching environments.
+</Note>
+
+## Integration flow
+
+<Steps>
+  <Step title="Create a PaymentIntent on your server">
+    Use a unique `merchantOrderId` and a `requestId` for this creation request, then sign and call [Create Embedded PaymentIntent](/en/api-reference/embedded-checkout/create-embedded-paymentintent). Ordinary positive-amount new-card payments can omit `customerId`. For binding, saved-card display, or existing-Consent direct charges, first prepare a platform customer through the existing [Create customer API](/en/api-reference/subscription-payments/create-customer).
+  </Step>
+  <Step title="Mount the SDK on your frontend">
+    Send only the current payment's `paymentIntentId` and `paymentIntentToken` to the frontend. Follow the [SDK guide](/en/embedded-checkout-sdk) to create the element, register events, and mount Checkout.
+  </Step>
+  <Step title="Let the buyer pay or authenticate">
+    Buyers submit ordinary new-card payments and initial bindings in the SDK. An existing-Consent direct charge starts during `createIntent`; the SDK uses the original Token to query its status and handle authentication.
+  </Step>
+  <Step title="Confirm results on your server">
+    Verify and process success notifications idempotently, or call [Query Embedded Payment Status](/en/api-reference/embedded-checkout/query-embedded-payment-status). Frontend events and browser redirects only control the user experience.
+  </Step>
+</Steps>
+
+## Environments and signing
+
+| Environment | Checkout merchant API Base URL | SDK `env` |
+| --- | --- | --- |
+| Test | `https://t-acquire-business.lepass.cn/gwp/checkout` | `test` |
+| Production | `https://open-api.yeahpay.net/gwp/checkout` | `pro` |
+| Sandbox | Pending confirmation | Pending confirmation |
+
+Customer management continues to use the [acceptance URLs in Get Started](/en). Its test Base URL is `https://t-acquire-business.lepass.cn/gw/abroad-business-acceptance-open-api`. For test and production SDK scripts, see the [frontend SDK guide](/en/embedded-checkout-sdk#load-the-sdk).
+
+| Operation | Path appended to the Checkout Base URL | First signing line |
+| --- | --- | --- |
+| `createIntent` | `/openapi/v2/createIntent` | `/checkout/openapi/v2/createIntent` |
+| `queryIntentStatus` | `/openapi/v2/queryIntentStatus` | `/checkout/openapi/v2/queryIntentStatus` |
+
+Use the [common signing rules](/en/signature) and headers: `appId`, `version=1.0`, `timestamp`, `nonce`, `algorithm=SHA-512`, and `signature`. The first signing line excludes the domain and `/gwp` but retains `/checkout`. `Accept-Timezone` can select the timezone for synchronous record timestamps; do not append `Z` to a value without an offset.
+
+<Warning>
+  Customer management and Checkout use different service prefixes. Do not append Checkout operations to the acceptance Base URL. The [signed request tester](/en/api-tester?operationId=createIntent) uses the selected Checkout environment. Its first signing line always retains `/checkout`.
+</Warning>
+
+## Payment and binding scenarios
+
+`paymentInitiator` and `consentToken` belong inside `payment_consent`.
+
+| Scenario | Amount | Customer and consent fields | When payment starts |
+| --- | --- | --- | --- |
+| Ordinary new-card payment | Positive | Optional `customerId`, no `payment_consent` | Buyer submits in the SDK |
+| Saved-card selection in the component | Positive | `customerId`, no `payment_consent` | Buyer selects a card and submits |
+| Pay and bind a card | Positive | `customerId` + `CIT`, no `consentToken` | Buyer submits a new card |
+| Bind without a charge | Zero | `customerId` + `CIT`, no `consentToken` or `checkout.buttonType` | Buyer submits and verifies a new card |
+| Initial MIT authorization and payment | Positive | `customerId` + `MIT`, no `consentToken` | Buyer submits a new card |
+| Existing-Consent direct charge | Positive | `customerId` + `CIT/MIT` matching the original binding + active `consentToken` | During `createIntent` |
+
+Zero-amount MIT requests are rejected. Only `final_auth` is supported; pre-authorization and subsequent capture are unavailable. `SUBSCRIBE` is a button label and does not create an automatic recurring charge schedule.
+
+Send amounts as JSON integers in the smallest currency unit: SGD 10.00 is `1000`. `"1000"`, `1000.0`, and `1e3` are rejected. The product total does not determine the amount charged.
+
+## Credential boundaries
+
+| Value | Storage and use |
+| --- | --- |
+| `apiKey` | Kept only on the merchant server for request signing |
+| `paymentIntentToken` | Browser Session credential for the current PI; pass to the SDK without logging it or sending it to analytics |
+| `consentToken` | Binding reference kept on the merchant server for subsequent charges; never expose it to the browser |
+
+An initial binding reference may become ready after payment succeeds. If a query has no `consentToken` yet, query the same PI later instead of binding again. The SDK's `savedCardId` is a selection reference for the current Session and cannot replace a cross-order `consentToken`.
+
+## States, retries, and notifications
+
+| `data.status` | Merchant action |
+| --- | --- |
+| `REQUIRES_PAYMENT_METHOD` | Waiting for buyer submission, or the previous attempt failed or closed; inspect the latest attempt before proceeding |
+| `REQUIRES_CUSTOMER_ACTION` | Let the SDK complete authentication |
+| `PENDING` | Query the original PI without creating another charge |
+| `SUCCEEDED` | Positive-amount payment completed, or zero-amount card verification completed |
+
+`code=0` means the request was processed. Neither HTTP 200 nor the frontend `ended` event proves payment succeeded. Actions appear in `latest_payment_attempt.nextAction`. Merchant queries do not execute 3DS Continue; the SDK handles authentication.
+
+Reuse the original `merchantId`, `requestId`, and `merchantOrderId` for network retries. Replaying the same `requestId` returns the original PI without applying new parameters or charging again. It does not replace the original Token or extend its validity. A direct-charge `292009`, `500`, or timeout can occur after creation or charging; query the original order first.
+
+Success notifications use `eventType=PAYMENT_SUCCEEDED`; deduplicate by `eventId`. After verification and successful processing, respond with HTTP 200 and plain-text `success`. Automatic redelivery is not guaranteed, and failure or refund events are not sent, so retain active querying. Notification verification uses the full merchant notification URL as its first signing line, unlike the path used for outgoing API requests.
+
+<CardGroup cols={2}>
+  <Card title="Frontend SDK guide" icon="code" href="/en/embedded-checkout-sdk">
+    Initialization, events, lifecycle, and HTML, Vue, and React examples.
+  </Card>
+  <Card title="Create PaymentIntent" icon="book-open" href="/en/api-reference/embedded-checkout/create-embedded-paymentintent">
+    Creation fields, conditional requirements, and idempotency rules.
+  </Card>
+  <Card title="Query payment status" icon="magnifying-glass" href="/en/api-reference/embedded-checkout/query-embedded-payment-status">
+    Confirm results by PaymentIntent ID or merchant order ID.
+  </Card>
+  <Card title="Test a signed request" icon="terminal" href="/en/api-tester?operationId=createIntent">
+    Select Checkout test or production to generate signatures and cURL.
+  </Card>
+</CardGroup>

@@ -7,11 +7,13 @@ YeahPay provides payment, query, refund, and checkout APIs over HTTPS with JSON 
 
 ## Environment URLs
 
+The table below lists acceptance Base URLs for customer management and existing transaction APIs. Unified and Embedded Checkout use separate [Checkout endpoints](/en/embedded-checkout#environments-and-signing), with production Base URL `https://open-api.yeahpay.net/gwp/checkout`.
+
 | Environment | Base URL | Usage |
 | --- | --- | --- |
 | Test | `https://t-acquire-business.lepass.cn/gw/abroad-business-acceptance-open-api` | Development and integration testing |
-| Sandbox | `https://open-api.yeahpay.sg/acceptance/sandbox` | Sandbox integration testing |
-| Production | `https://open-api.yeahpay.sg/acceptance/acceptance-open-api` | Live transactions |
+| Sandbox | `https://open-api.yeahpay.net/acceptance/sandbox` | Sandbox integration testing |
+| Production | `https://open-api.yeahpay.net/acceptance/acceptance-open-api` | Live transactions |
 
 <Warning>
   Each environment uses different `appId` and `apiKey` values. When you switch environments, update both the Base URL and its credentials.
@@ -50,7 +52,7 @@ All API requests use `POST` and `application/json`.
     Verify payments, queries, reversal transactions, and asynchronous notifications. After processing a payment or refund notification successfully, return `success` as the response body.
   </Step>
   <Step title="Switch to production">
-    Change the Base URL to `https://open-api.yeahpay.sg/acceptance/acceptance-open-api` and use the production credentials. Do not reuse test credentials.
+    Change the Base URL to `https://open-api.yeahpay.net/acceptance/acceptance-open-api` and use the production credentials. Do not reuse test credentials.
   </Step>
 </Steps>
 

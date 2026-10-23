@@ -1,0 +1,261 @@
+---
+title: "嵌入式收银台前端接入"
+sidebarTitle: "前端 SDK 接入"
+description: "通过 YeahPay Checkout SDK 挂载收银台，并在 HTML、Vue 3 和 React 中管理其生命周期"
+---
+
+本页面向商户网页开发者，按浏览器 SDK V1.0 整理。支付建单和最终结果确认由商户服务端完成，见[嵌入式接入流程](/embedded-checkout)。以下示例使用测试 SDK 和 `env: 'test'`；正式接入时切换生产脚本、`env: 'pro'` 及生产应用凭证。Checkout 沙箱入口待确认。
+
+## 引入 SDK
+
+SDK 通过脚本标签分发，没有 npm 包。先在页面 HTML 中加载脚本，再运行使用 SDK 的客户端代码：
+
+| 环境 | SDK 脚本地址 | 初始化 `env` |
+| --- | --- | --- |
+| 测试 | `https://t-payment.yeahpay.net/checkout/yeahpay-checkout-sdk/checkoutSDK.js` | `test` |
+| 生产 | `https://payment.yeahpay.net/checkout/yeahpay-checkout-sdk/checkoutSDK.js` | `pro` |
+
+```html
+<script src="https://t-payment.yeahpay.net/checkout/yeahpay-checkout-sdk/checkoutSDK.js"></script>
+```
+
+加载后通过 `window.YeahPayCheckoutSDK` 访问。Vue/React 的 Vite 项目可放在根目录 `index.html`，Create React App 放在 `public/index.html`。SSR 框架须使用客户端脚本加载机制，等待脚本加载完成后再初始化；不要在服务端访问 `window`。
+
+直接引用官方脚本，便于取得修复；不要自建镜像或代理。脚本地址调整时以平台公告为准。
+
+## 初始化与挂载
+
+```javascript
+const sdk = window.YeahPayCheckoutSDK.init({
+  appId: 'YOUR_TEST_APP_ID',
+  env: 'test',
+  debug: false,
+})
+
+const element = sdk.createElement('checkout', {
+  paymentIntentId,
+  paymentIntentToken,
+  height: '720px',
+  minHeight: '520px',
+})
+
+// 先注册事件，再挂载到页面已有的 DOM 节点。
+element.on('ended', (payload) => {
+  window.location.assign(payload.pending ? '/order/processing' : '/order/result')
+})
+element.mount(document.getElementById('yeahpay-checkout'))
+```
+
+`paymentIntentId` 和 `paymentIntentToken` 来自商户服务端调用 [createIntent](/api-reference/嵌入式收银台/创建嵌入式支付意图) 的成功响应。服务端只将这两个值下发给前端，不要将整份响应（可能包含 `consentToken`）透传浏览器。
+
+| 初始化参数 | 必填 | 说明 |
+| --- | --- | --- |
+| `appId` | 是 | 公开的应用 ID，不能填写 API key |
+| `env` | 是 | `test` 为测试，`pro` 为生产；与建单环境和 SDK 脚本保持一致 |
+| `debug` | 否 | 默认 `false`，打开 SDK 生命周期调试日志 |
+
+`init()` 重复调用会覆盖全局配置，建议整个应用只初始化一次。展示语言由建单的 `checkout.locale` 设置，不放在 `init()` 参数中。
+
+| 元素参数 | 默认值 | 说明 |
+| --- | --- | --- |
+| `paymentIntentId` | 无 | 当前支付意图 ID，必填 |
+| `paymentIntentToken` | 无 | 当前 PI 的 Session 凭据，必填 |
+| `height` | `720px` | iframe 高度 |
+| `minHeight` | `520px` | iframe 最小高度 |
+| `width` | `100%` | iframe 宽度 |
+| `style` | `{}` | 与内置样式合并的附加 inline style |
+
+<Warning>
+  不向浏览器下发 API key 或 `consentToken`，不记录 Session Token。卡号、有效期和安全码由 YeahPay 收银台收集，商户页面和 SDK 无需读取这些字段。
+</Warning>
+
+## 监听事件
+
+| 事件 | V1.0 行为 | 页面处理 |
+| --- | --- | --- |
+| `load` | 收银台首屏渲染完成 | 收起加载动画 |
+| `error` | 支付会话加载失败；卡被拒等支付失败不触发此事件 | `recoverable=true` 时买家可在收银台内重新加载；`false` 时停止使用该会话，交给服务端查原 PI |
+| `paymentClicked` | 买家点击支付按钮 | 可埋点，不能用于支付前拦截 |
+| `ended` | 流程结束，可能成功、处理中或失败 | `pending=true` 可进入处理中页；其他情况进入结果页，由后端确认实际状态 |
+
+`redirect`、`cancelled`、`methodChange`、`accountPendingVerification`、`shippingChange` 为保留事件，V1.0 不触发。V1.0 的 3DS 验证在收银台内完成。未注册事件不会阻塞收银台，监听回调异常会被 SDK 捕获。
+
+<Warning>
+  `ended` 且 `pending=false` 也可能表示失败，不要将它命名为“已付款”或直接发货。`error` 不可恢复也不代表没有扣款；先由服务端查询原支付意图。
+</Warning>
+
+## 生命周期与框架示例
+
+离开支付页面时调用 `element.destroy()`。应用整体退出时可调用 `sdk.destroyAll()` 清理当前页面创建的全部元素。`destroy()` 移除界面后，元素仍可重新挂载。
+
+Vue/React 共用以下单例文件，在脚本加载完成后调用：
+
+```javascript
+// sdk-singleton.js
+let instance
+
+export function getCheckoutSDK() {
+  if (!window.YeahPayCheckoutSDK) {
+    throw new Error('Checkout SDK has not loaded')
+  }
+  if (!instance) {
+    instance = window.YeahPayCheckoutSDK.init({
+      appId: 'YOUR_TEST_APP_ID',
+      env: 'test',
+      debug: false,
+    })
+  }
+  return instance
+}
+```
+
+<Tabs>
+  <Tab title="HTML">
+    示例中的 `/api/checkout/session` 是需要商户自行实现的后端路由：服务端确定订单和金额，使用原业务标识幂等调用 `createIntent`，仅返回 `{ paymentIntentId, paymentIntentToken }`。
+
+    ```html
+    <!doctype html>
+    <html lang="zh-CN">
+      <head>
+        <meta charset="UTF-8" />
+        <title>Checkout Demo</title>
+      </head>
+      <body>
+        <p id="checkout-message" role="status">正在加载收银台</p>
+        <div id="yeahpay-checkout" style="min-height: 720px"></div>
+        <script src="https://t-payment.yeahpay.net/checkout/yeahpay-checkout-sdk/checkoutSDK.js"></script>
+        <script>
+          let element
+          const message = document.getElementById('checkout-message')
+
+          async function startCheckout() {
+            try {
+              const response = await fetch('/api/checkout/session', { method: 'POST' })
+              if (!response.ok) throw new Error('Session request failed')
+              const { paymentIntentId, paymentIntentToken } = await response.json()
+              const sdk = window.YeahPayCheckoutSDK.init({
+                appId: 'YOUR_TEST_APP_ID', env: 'test', debug: false,
+              })
+              element = sdk.createElement('checkout', { paymentIntentId, paymentIntentToken })
+              element.on('load', () => { message.textContent = '' })
+              element.on('error', ({ recoverable }) => {
+                message.textContent = recoverable
+                  ? '请在收银台内重新加载'
+                  : '会话不可用，请查询原订单结果'
+              })
+              element.on('ended', ({ pending }) => {
+                window.location.assign(pending ? '/order/processing' : '/order/result')
+              })
+              element.mount(document.getElementById('yeahpay-checkout'))
+            } catch {
+              message.textContent = '无法加载收银台，请通过商户后端确认原订单'
+            }
+          }
+
+          window.addEventListener('pagehide', () => element?.destroy())
+          window.addEventListener('pageshow', ({ persisted }) => {
+            if (persisted) element?.mount(document.getElementById('yeahpay-checkout'))
+          })
+          startCheckout()
+        </script>
+      </body>
+    </html>
+    ```
+  </Tab>
+  <Tab title="Vue 3">
+    先在 `index.html` 加载 SDK，再引入单例。父组件传入服务端取得的 ID 和 Token；更换支付意图时，用 `:key="paymentIntentId"` 重新挂载组件。
+
+    ```vue
+    <script setup>
+    import { onBeforeUnmount, onMounted, ref } from 'vue'
+    import { getCheckoutSDK } from './sdk-singleton'
+
+    const props = defineProps({
+      paymentIntentId: { type: String, required: true },
+      paymentIntentToken: { type: String, required: true },
+    })
+    const emit = defineEmits(['finished', 'processing', 'sessionError'])
+    const containerRef = ref(null)
+    let element
+
+    onMounted(() => {
+      element = getCheckoutSDK().createElement('checkout', {
+        paymentIntentId: props.paymentIntentId,
+        paymentIntentToken: props.paymentIntentToken,
+      })
+      element.on('ended', ({ pending }) => emit(pending ? 'processing' : 'finished'))
+      element.on('error', ({ recoverable }) => emit('sessionError', { recoverable }))
+      element.mount(containerRef.value)
+    })
+    onBeforeUnmount(() => element?.destroy())
+    </script>
+
+    <template>
+      <div ref="containerRef" style="min-height: 720px"></div>
+    </template>
+    ```
+  </Tab>
+  <Tab title="React">
+    在页面 HTML 加载 SDK，并引入同一份单例。`onFinished` 表示流程结束，父组件应展示后端确认的订单结果。父组件可用 `useCallback` 稳定回调，避免无关渲染导致重新挂载。
+
+    ```jsx
+    import { useEffect, useRef } from 'react'
+    import { getCheckoutSDK } from './sdk-singleton'
+
+    export function CheckoutPanel({
+      paymentIntentId, paymentIntentToken, onFinished, onProcessing, onSessionError,
+    }) {
+      const containerRef = useRef(null)
+
+      useEffect(() => {
+        const element = getCheckoutSDK().createElement('checkout', {
+          paymentIntentId, paymentIntentToken,
+        })
+        element.on('ended', ({ pending }) => {
+          if (pending) onProcessing?.()
+          else onFinished?.()
+        })
+        element.on('error', ({ recoverable }) => onSessionError?.({ recoverable }))
+        element.mount(containerRef.current)
+        return () => element.destroy()
+      }, [paymentIntentId, paymentIntentToken, onFinished, onProcessing, onSessionError])
+
+      return <div ref={containerRef} style={{ minHeight: 720 }} />
+    }
+    ```
+  </Tab>
+</Tabs>
+
+## 结果确认与会话失效
+
+商户服务端通过[商户 POST 查单接口](/api-reference/嵌入式收银台/查询嵌入式支付状态)或验签后的成功通知确认结果。此接口使用商户签名，与 SDK 内部使用 Token 的 GET 查单不同，浏览器不要直接调用商户签名接口。
+
+`paymentIntentToken` 默认有效 24 小时，以实际 Session 为准。失效不表示 PI 已过期或支付失败；重放建单不会换 Token 或延长有效期。应先查询原 PI，确认结果后再决定业务后续操作，避免因前端错误重新发起另一笔扣款。
+
+SDK 负责 3DS 查询和 Continue。已有 Consent 直接支付在建单时已发起，不应让 SDK 再提交一次支付；商户也不要自行调用 Cashier Continue。
+
+## 自研页面后续支付的设备信息
+
+买家在商户自研页面选择已绑定卡、直接发起后续支付时，需要在该页面接入设备指纹脚本，并让采集标识与支付请求一致。测试脚本可放在页面结束位置：
+
+```html
+<script
+  async
+  id="airwallex-fraud-api"
+  data-order-session-id="PAYMENT_DEVICE_UUID"
+  src="https://static.sandbox.airwallex.com/webapp/fraud/device-fingerprint/index.js">
+</script>
+```
+
+将 `PAYMENT_DEVICE_UUID` 替换为本次支付尝试生成的唯一随机值，建议 UUID，最长 128 个字符，只使用英文字母、数字、下划线和连字符。按接入要求在支付前完成脚本加载；新支付尝试使用新值，原请求网络重试复用原值。
+
+按 V1.5，**仅正金额 CIT + 有效 `consentToken` 的直扣**可由商户后端在 `createIntent` 顶层传 `deviceId`，值与页面 `data-order-session-id` 一致。普通支付、首次绑定和 MIT 不传此字段；不是 `device_id`。设备值必须在建单时传入，不能等扣款发起后再用 SDK Token 补传。
+
+<CardGroup cols={2}>
+  <Card title="创建嵌入式支付意图" icon="book-open" href="/api-reference/嵌入式收银台/创建嵌入式支付意图">
+    查看服务端字段、场景和条件校验。
+  </Card>
+  <Card title="查询嵌入式支付状态" icon="magnifying-glass" href="/api-reference/嵌入式收银台/查询嵌入式支付状态">
+    确认支付和绑定结果，处理超时与状态恢复。
+  </Card>
+</CardGroup>

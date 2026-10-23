@@ -44,8 +44,23 @@ Signing URL:
 ```
 
 <Note>
-  `/gw` and `/acceptance` are transport gateway prefixes and are not included in the signature. If your merchant environment uses another gateway path, use the verification path provided by YeahPay.
+  `/gw`, `/gwp`, and `/acceptance` are transport gateway prefixes and are not included in the signature. If your merchant environment uses another gateway path, use the verification path provided by YeahPay.
 </Note>
+
+Unified and Embedded Checkout use separate service endpoints. Keep `/checkout` in both test and production signing paths:
+
+```text
+Request URL:
+https://t-acquire-business.lepass.cn/gwp/checkout/openapi/v2/createIntent
+
+Production request URL:
+https://open-api.yeahpay.net/gwp/checkout/openapi/v2/createIntent
+
+Signing URL:
+/checkout/openapi/v2/createIntent
+```
+
+For [`queryIntentStatus`](/en/api-reference/embedded-checkout/query-embedded-payment-status), the signing URL is `/checkout/openapi/v2/queryIntentStatus`. For Unified Checkout it is `/checkout/openapi/v2/getRedirectUrl`. The sandbox endpoint remains pending confirmation and cannot be inferred from the acceptance sandbox URL.
 
 ## Generate and send a request
 
@@ -94,7 +109,7 @@ Signing URL:
 
     function buildSignUrl(requestBaseUrl, requestPath) {
       const basePath = new URL(requestBaseUrl).pathname
-        .replace(/^\/(?:gw|acceptance)(?=\/)/, "")
+        .replace(/^\/(?:gw|gwp|acceptance)(?=\/)/, "")
         .replace(/\/+$/, "");
       return `${basePath}/${requestPath.replace(/^\/+/, "")}`;
     }
@@ -163,6 +178,8 @@ Signing URL:
     String basePath = URI.create(baseUrl).getPath();
     if (basePath.startsWith("/gw/")) {
         basePath = basePath.substring("/gw".length());
+    } else if (basePath.startsWith("/gwp/")) {
+        basePath = basePath.substring("/gwp".length());
     } else if (basePath.startsWith("/acceptance/")) {
         basePath = basePath.substring("/acceptance".length());
     }

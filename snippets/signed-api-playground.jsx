@@ -47,6 +47,7 @@ export const SignedApiPlayground = ({ locale = "en" }) => {
       serializationWarning:
         "The signature is valid only if Mintlify serializes the body exactly as shown here. The generated cURL is the most reliable request sample.",
       selectOperation: "Select an API operation",
+      checkoutEnvironmentNote: "Use one of the confirmed Checkout environments below. The sandbox endpoint is pending confirmation.",
     },
     zh: {
       eyebrow: "YeahPay 开发者工具",
@@ -91,6 +92,7 @@ export const SignedApiPlayground = ({ locale = "en" }) => {
       ],
       serializationWarning: "只有 Mintlify 生成的请求体与这里完全一致时签名才有效；生成的 cURL 是最可靠的请求示例。",
       selectOperation: "请选择 API 接口",
+      checkoutEnvironmentNote: "Checkout 可选择下列已确认环境，沙箱入口待确认。",
     },
   }
   const text = textByLocale[locale] ?? textByLocale.en
@@ -101,15 +103,15 @@ export const SignedApiPlayground = ({ locale = "en" }) => {
     },
     sandbox: {
       label: text.sandbox,
-      baseUrl: "https://open-api.yeahpay.sg/acceptance/sandbox",
+      baseUrl: "https://open-api.yeahpay.net/acceptance/sandbox",
     },
     production: {
       label: text.production,
-      baseUrl: "https://open-api.yeahpay.sg/acceptance/acceptance-open-api",
+      baseUrl: "https://open-api.yeahpay.net/acceptance/acceptance-open-api",
     },
   }
   // BEGIN AUTO-GENERATED OPENAPI OPERATIONS
-  // Source fingerprint: 684c1a80b0e6cbc1
+  // Source fingerprint: 338b141e7c0f0520
   const operationDefinitions = [
     {
       "operationId": "getRedirectUrl",
@@ -117,9 +119,13 @@ export const SignedApiPlayground = ({ locale = "en" }) => {
       "path": "/openapi/v2/getRedirectUrl",
       "summaryZh": "获取统一收银台地址",
       "summaryEn": "Get Unified Checkout URL",
+      "serverUrls": {
+        "test": "https://t-acquire-business.lepass.cn/gwp/checkout",
+        "production": "https://open-api.yeahpay.net/gwp/checkout"
+      },
       "sampleBody": {
         "merchantId": "SAMPLE_MERCHANT_ID",
-        "orderId": "ORDER_TIMESTAMP",
+        "merchantOrderId": "ORDER_TIMESTAMP",
         "amount": 1000,
         "currency": "SGD",
         "productType": "VIRTUAL",
@@ -138,6 +144,47 @@ export const SignedApiPlayground = ({ locale = "en" }) => {
         "locale": "en-US",
         "callbackUrl": "https://merchant.example.com/yeahpay/callback",
         "notificationUrl": "https://merchant.example.com/yeahpay/notify"
+      }
+    },
+    {
+      "operationId": "createIntent",
+      "method": "POST",
+      "path": "/openapi/v2/createIntent",
+      "summaryZh": "创建嵌入式支付意图",
+      "summaryEn": "Create Embedded PaymentIntent",
+      "serverUrls": {
+        "test": "https://t-acquire-business.lepass.cn/gwp/checkout",
+        "production": "https://open-api.yeahpay.net/gwp/checkout"
+      },
+      "sampleBody": {
+        "merchantId": "SAMPLE_MERCHANT_ID",
+        "requestId": "pay-TIMESTAMP",
+        "merchantOrderId": "ORDER-TIMESTAMP",
+        "amount": 1000,
+        "currency": "SGD",
+        "checkout": {
+          "buttonType": "PAY",
+          "locale": "en-US"
+        },
+        "callback": {
+          "returnUrl": "https://shop.example.com/payment/result",
+          "notificationUrl": "https://shop.example.com/payment/notify"
+        }
+      }
+    },
+    {
+      "operationId": "queryIntentStatus",
+      "method": "POST",
+      "path": "/openapi/v2/queryIntentStatus",
+      "summaryZh": "查询嵌入式支付状态",
+      "summaryEn": "Query Embedded Payment Status",
+      "serverUrls": {
+        "test": "https://t-acquire-business.lepass.cn/gwp/checkout",
+        "production": "https://open-api.yeahpay.net/gwp/checkout"
+      },
+      "sampleBody": {
+        "merchantId": "SAMPLE_MERCHANT_ID",
+        "merchantOrderId": "ORDER-TIMESTAMP"
       }
     },
     {
@@ -484,6 +531,12 @@ export const SignedApiPlayground = ({ locale = "en" }) => {
 
   const operationForId = (operationId) => operations.find((operation) => operation.operationId === operationId)
 
+  const environmentsFor = (operation) => operation?.serverUrls
+    ? Object.fromEntries(Object.entries(environments)
+      .filter(([key]) => operation.serverUrls[key])
+      .map(([key, value]) => [key, { ...value, baseUrl: operation.serverUrls[key] }]))
+    : environments
+
   const resetExample = (operationId = selectedOperationId) => {
     const operation = operationForId(operationId)
     if (!operation) return
@@ -508,7 +561,7 @@ export const SignedApiPlayground = ({ locale = "en" }) => {
 
   const signingUrlFor = (baseUrl, path) => {
     const basePath = new URL(baseUrl).pathname
-      .replace(/^\/(?:gw|acceptance)(?=\/)/, "")
+      .replace(/^\/(?:gw|gwp|acceptance)(?=\/)/, "")
       .replace(/\/+$/, "")
     return `${basePath}/${path.replace(/^\/+/, "")}`
   }
@@ -523,14 +576,15 @@ export const SignedApiPlayground = ({ locale = "en" }) => {
     const requestedOperationId = new URLSearchParams(globalThis.location?.search ?? "").get("operationId")
     const requestedOperation = operationForId(requestedOperationId)
     if (requestedOperation) {
-      setSelectedOperationId(requestedOperation.operationId)
-      setRawBody(JSON.stringify(sampleBodyFor(requestedOperation), null, 2))
+      changeOperation(requestedOperation.operationId)
     }
   }, [])
 
   const changeOperation = (operationId) => {
     setSelectedOperationId(operationId)
     const operation = operationForId(operationId)
+    const availableEnvironments = environmentsFor(operation)
+    setEnvironment((current) => availableEnvironments[current] ? current : Object.keys(availableEnvironments)[0])
     setRawBody(JSON.stringify(sampleBodyFor(operation), null, 2))
     setResult(null)
     setError("")
@@ -557,7 +611,7 @@ export const SignedApiPlayground = ({ locale = "en" }) => {
     setGenerating(true)
     setError("")
     try {
-      const baseUrl = environments[environment].baseUrl
+      const baseUrl = environmentsFor(operation)[environment].baseUrl
       const endpoint = `${baseUrl}${operation.path}`
       const signUrl = signingUrlFor(baseUrl, operation.path)
       const timestamp = Date.now().toString()
@@ -591,6 +645,7 @@ export const SignedApiPlayground = ({ locale = "en" }) => {
   }
 
   const selectedOperation = operationForId(selectedOperationId)
+  const selectedEnvironments = environmentsFor(selectedOperation)
 
   return (
     <div className="not-prose my-8 overflow-hidden rounded-2xl border border-blue-100 bg-[#f2f3f5] shadow-[0_20px_60px_-36px_rgba(0,85,255,0.4)] dark:border-blue-950 dark:bg-[#06072b]">
@@ -632,12 +687,16 @@ export const SignedApiPlayground = ({ locale = "en" }) => {
                 }}
                 className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-3 text-sm text-[#161647] outline-none transition focus:border-blue-600 focus:ring-2 focus:ring-blue-600/15 dark:border-blue-950 dark:bg-[#0a1446] dark:text-white"
               >
-                {Object.entries(environments).map(([key, value]) => (
+                {Object.entries(selectedEnvironments).map(([key, value]) => (
                   <option key={key} value={key}>{value.label}</option>
                 ))}
               </select>
             </label>
           </div>
+
+          {selectedOperation?.serverUrls && !selectedEnvironments.sandbox && (
+            <p className="text-xs leading-5 text-zinc-600 dark:text-zinc-400">{text.checkoutEnvironmentNote}</p>
+          )}
 
           {selectedOperation && (
             <div className="flex flex-wrap items-center gap-2 rounded-xl border border-zinc-200 bg-white px-3 py-2.5 dark:border-zinc-800 dark:bg-zinc-900">

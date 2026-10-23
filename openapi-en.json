@@ -17,6 +17,10 @@
       "description": "Create a PaymentIntent and return the hosted Checkout URL"
     },
     {
+      "name": "Embedded Checkout",
+      "description": "Merchant-server creation and querying of embedded PaymentIntents for use with the frontend SDK"
+    },
+    {
       "name": "Subscription payments",
       "description": "Customer, consent, and subsequent charge management"
     },
@@ -46,7 +50,7 @@
           "Unified Checkout"
         ],
         "summary": "Get Unified Checkout URL",
-        "description": "Create a PaymentIntent and return the Unified Checkout URL. Each call creates a new PaymentIntent. The merchant must have an approved Checkout access domain configured.",
+        "description": "Create a PaymentIntent and return the Unified Checkout URL. Each call creates a new PaymentIntent. The merchant must have an approved Checkout access domain configured.\n\nCheckout test Base URL: https://t-acquire-business.lepass.cn/gwp/checkout. Production Base URL: https://open-api.yeahpay.net/gwp/checkout. The sandbox endpoint is pending confirmation. The first signing line is /checkout/openapi/v2/getRedirectUrl, excluding the domain and /gwp.",
         "operationId": "getRedirectUrl",
         "x-mint": {
           "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=getRedirectUrl\">Generate the signature and cURL for this operation.</Card>"
@@ -107,6 +111,362 @@
           "500": {
             "description": "Server error"
           }
+        },
+        "servers": [
+          {
+            "url": "https://t-acquire-business.lepass.cn/gwp/checkout",
+            "description": "Checkout test environment",
+            "x-environment": "test"
+          },
+          {
+            "url": "https://open-api.yeahpay.net/gwp/checkout",
+            "description": "Checkout production environment",
+            "x-environment": "production"
+          }
+        ]
+      }
+    },
+    "/openapi/v2/createIntent": {
+      "post": {
+        "tags": [
+          "Embedded Checkout"
+        ],
+        "summary": "Create Embedded PaymentIntent",
+        "description": "Create an embedded PaymentIntent from the merchant server. Ordinary new-card payments wait for buyer submission in the SDK. CIT/MIT requests with a valid consentToken initiate a charge during creation. Keep the API key and consentToken on the server; send only paymentIntentId and paymentIntentToken to the frontend.\n\nTest endpoint: https://t-acquire-business.lepass.cn/gwp/checkout/openapi/v2/createIntent. The first signing line is /checkout/openapi/v2/createIntent, excluding the domain and /gwp. Production endpoint: https://open-api.yeahpay.net/gwp/checkout/openapi/v2/createIntent. The sandbox endpoint is pending confirmation. Use the common signing headers.\n\nSend amount in JSON integer notation, never as a string, decimal, or scientific notation. Zero is only allowed for CIT new-card binding: customerId and CIT, without consentToken or buttonType. Only final_auth is supported; pre-authorization and subsequent capture are unavailable.\n\nThe same merchantId and requestId return the original PI without comparing new parameters or charging again. A different requestId with the same merchantOrderId returns 292003. Keep original business identifiers on retries. A direct-charge 292009, 500, or timeout may still follow creation or charging: query the original merchantOrderId first, and replay the original request if the original Token is needed. Replays do not replace the Token or extend Session validity. The default is 24 hours; use the actual Session expiry.\n\ncode=0 only means the request was processed; inspect data.status for payment results. Let the SDK handle PENDING and REQUIRES_CUSTOMER_ACTION. Frontend events and HTTP 200 are not proof of payment. Obtain a ready initial consentToken through a merchant query or verified success notification.",
+        "operationId": "createIntent",
+        "servers": [
+          {
+            "url": "https://t-acquire-business.lepass.cn/gwp/checkout",
+            "description": "Checkout test environment",
+            "x-environment": "test"
+          },
+          {
+            "url": "https://open-api.yeahpay.net/gwp/checkout",
+            "description": "Checkout production environment",
+            "x-environment": "production"
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/VersionHeader"
+          },
+          {
+            "$ref": "#/components/parameters/TimestampHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AlgorithmHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AppIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/NonceHeader"
+          },
+          {
+            "$ref": "#/components/parameters/SignatureHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptLanguageHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptTimezoneHeader"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmbeddedCheckoutCreateRequest"
+              },
+              "examples": {
+                "ordinary": {
+                  "summary": "Ordinary new-card payment",
+                  "value": {
+                    "merchantId": "SAMPLE_MERCHANT_ID",
+                    "requestId": "pay-TIMESTAMP",
+                    "merchantOrderId": "ORDER-TIMESTAMP",
+                    "amount": 1000,
+                    "currency": "SGD",
+                    "checkout": {
+                      "buttonType": "PAY",
+                      "locale": "en-US"
+                    },
+                    "callback": {
+                      "returnUrl": "https://shop.example.com/payment/result",
+                      "notificationUrl": "https://shop.example.com/payment/notify"
+                    }
+                  }
+                },
+                "bind": {
+                  "summary": "Pay and bind a card",
+                  "value": {
+                    "merchantId": "SAMPLE_MERCHANT_ID",
+                    "requestId": "bind-TIMESTAMP",
+                    "merchantOrderId": "ORDER-BIND-TIMESTAMP",
+                    "amount": 1000,
+                    "currency": "SGD",
+                    "checkout": {
+                      "buttonType": "PAY",
+                      "locale": "en-US"
+                    },
+                    "callback": {
+                      "returnUrl": "https://shop.example.com/payment/result",
+                      "notificationUrl": "https://shop.example.com/payment/notify"
+                    },
+                    "customerId": "cus_yk_example",
+                    "payment_consent": {
+                      "paymentInitiator": "CIT"
+                    }
+                  }
+                },
+                "zero": {
+                  "summary": "CIT zero-amount card binding",
+                  "value": {
+                    "merchantId": "SAMPLE_MERCHANT_ID",
+                    "requestId": "zero-TIMESTAMP",
+                    "merchantOrderId": "ORDER-ZERO-TIMESTAMP",
+                    "amount": 0,
+                    "currency": "SGD",
+                    "checkout": {
+                      "locale": "en-US"
+                    },
+                    "callback": {
+                      "returnUrl": "https://shop.example.com/payment/result",
+                      "notificationUrl": "https://shop.example.com/payment/notify"
+                    },
+                    "customerId": "cus_yk_example",
+                    "payment_consent": {
+                      "paymentInitiator": "CIT"
+                    }
+                  }
+                },
+                "direct": {
+                  "summary": "CIT existing-Consent direct charge",
+                  "value": {
+                    "merchantId": "SAMPLE_MERCHANT_ID",
+                    "requestId": "direct-TIMESTAMP",
+                    "merchantOrderId": "ORDER-DIRECT-TIMESTAMP",
+                    "amount": 1000,
+                    "currency": "SGD",
+                    "checkout": {
+                      "buttonType": "PAY",
+                      "locale": "en-US"
+                    },
+                    "callback": {
+                      "returnUrl": "https://shop.example.com/payment/result",
+                      "notificationUrl": "https://shop.example.com/payment/notify"
+                    },
+                    "customerId": "cus_yk_example",
+                    "payment_consent": {
+                      "paymentInitiator": "CIT",
+                      "consentToken": "SAMPLE_CONSENT_REFERENCE"
+                    },
+                    "deviceId": "sample-device-uuid"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Check code for the business result, then data.status for the payment state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmbeddedCheckoutCreateResponse"
+                },
+                "examples": {
+                  "success": {
+                    "summary": "Processed successfully",
+                    "value": {
+                      "code": 0,
+                      "message": "Operation succeeded",
+                      "data": {
+                        "paymentIntentId": "SAMPLE_PAYMENT_INTENT_ID",
+                        "merchantOrderId": "ORDER-TIMESTAMP",
+                        "amount": 1000,
+                        "currency": "SGD",
+                        "status": "REQUIRES_PAYMENT_METHOD",
+                        "payment_method_options": {
+                          "card": {
+                            "authorization_type": "final_auth"
+                          }
+                        },
+                        "paymentIntentToken": "SAMPLE_SESSION_TOKEN",
+                        "availablePaymentMethods": [
+                          "card"
+                        ],
+                        "createTime": "2026-10-10 02:00:00",
+                        "updateTime": "2026-10-10 02:00:00"
+                      },
+                      "traceId": "SAMPLE_TRACE_ID"
+                    }
+                  },
+                  "businessError": {
+                    "summary": "Example business error within HTTP 200",
+                    "value": {
+                      "code": 292000,
+                      "message": "Invalid parameters",
+                      "traceId": "SAMPLE_TRACE_ID"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Malformed request; amounts must use integer notation"
+          },
+          "401": {
+            "description": "Merchant signature or application authentication failed"
+          },
+          "500": {
+            "description": "Internal error or uncertain result. Query with original business identifiers without charging again."
+          }
+        },
+        "x-mint": {
+          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=createIntent\">Generate the signature and cURL for this operation.</Card>"
+        }
+      }
+    },
+    "/openapi/v2/queryIntentStatus": {
+      "post": {
+        "tags": [
+          "Embedded Checkout"
+        ],
+        "summary": "Query Embedded Payment Status",
+        "description": "Query a PaymentIntent from the merchant server within merchantId. Supply exactly one of paymentIntentId and merchantOrderId. The legacy orderId, requestId, and Session Token are not query keys.\n\nTest endpoint: https://t-acquire-business.lepass.cn/gwp/checkout/openapi/v2/queryIntentStatus. The first signing line is /checkout/openapi/v2/queryIntentStatus, excluding the domain and /gwp. Production endpoint: https://open-api.yeahpay.net/gwp/checkout/openapi/v2/queryIntentStatus. The sandbox endpoint is pending confirmation. Use merchant OpenAPI signing, not a browser Session Token. This POST operation differs from the internal SDK GET /cashier/v2/queryIntentStatus.\n\ncode=0 means processed successfully; data.status is the overall PI state. Actions appear in latest_payment_attempt.nextAction, not at the top level. Merchant queries do not execute 3DS Continue. Let the SDK complete authentication with the original Token.\n\nDoes not issue paymentIntentToken or return refund totals, refundable balances, top-level customerId, or card. An initial consentToken is returned only when ACTIVE with complete credentials. If the PI succeeded but the reference is not ready, query the same PI later without binding or charging again. A valid original reference may also be returned for subsequent payments; its presence does not prove this payment succeeded.\n\n292000 indicates invalid parameters; 292001 a missing or out-of-scope PI; 292003 an order ID creation conflict; 292004/292005 state or concurrency restrictions. 292009, 500, and timeouts require result confirmation. Keep the original order identifiers and continue querying instead of creating another charge.",
+        "operationId": "queryIntentStatus",
+        "servers": [
+          {
+            "url": "https://t-acquire-business.lepass.cn/gwp/checkout",
+            "description": "Checkout test environment",
+            "x-environment": "test"
+          },
+          {
+            "url": "https://open-api.yeahpay.net/gwp/checkout",
+            "description": "Checkout production environment",
+            "x-environment": "production"
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/VersionHeader"
+          },
+          {
+            "$ref": "#/components/parameters/TimestampHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AlgorithmHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AppIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/NonceHeader"
+          },
+          {
+            "$ref": "#/components/parameters/SignatureHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptLanguageHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptTimezoneHeader"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmbeddedCheckoutQueryRequest"
+              },
+              "examples": {
+                "byOrder": {
+                  "summary": "Query by merchant order ID",
+                  "value": {
+                    "merchantId": "SAMPLE_MERCHANT_ID",
+                    "merchantOrderId": "ORDER-TIMESTAMP"
+                  }
+                },
+                "byIntent": {
+                  "summary": "Query by PaymentIntent ID",
+                  "value": {
+                    "merchantId": "SAMPLE_MERCHANT_ID",
+                    "paymentIntentId": "SAMPLE_PAYMENT_INTENT_ID"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Check code for the business result, then data.status for the payment state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmbeddedCheckoutQueryResponse"
+                },
+                "examples": {
+                  "success": {
+                    "summary": "Processed successfully",
+                    "value": {
+                      "code": 0,
+                      "message": "Operation succeeded",
+                      "data": {
+                        "paymentIntentId": "SAMPLE_PAYMENT_INTENT_ID",
+                        "merchantOrderId": "ORDER-TIMESTAMP",
+                        "amount": 1000,
+                        "currency": "SGD",
+                        "status": "SUCCEEDED",
+                        "payment_method_options": {
+                          "card": {
+                            "authorization_type": "final_auth"
+                          }
+                        },
+                        "latest_payment_attempt": {
+                          "paymentAttemptId": "SAMPLE_PAYMENT_ATTEMPT_ID",
+                          "status": "SUCCEEDED",
+                          "payment_method": {
+                            "type": "card"
+                          },
+                          "createTime": "2026-10-10 02:00:05",
+                          "updateTime": "2026-10-10 02:00:30"
+                        },
+                        "createTime": "2026-10-10 02:00:00",
+                        "updateTime": "2026-10-10 02:00:30"
+                      },
+                      "traceId": "SAMPLE_TRACE_ID"
+                    }
+                  },
+                  "businessError": {
+                    "summary": "Example business error within HTTP 200",
+                    "value": {
+                      "code": 292000,
+                      "message": "Invalid parameters",
+                      "traceId": "SAMPLE_TRACE_ID"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Malformed request; amounts must use integer notation"
+          },
+          "401": {
+            "description": "Merchant signature or application authentication failed"
+          },
+          "500": {
+            "description": "Internal error or uncertain result. Query with original business identifiers without charging again."
+          }
+        },
+        "x-mint": {
+          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=queryIntentStatus\">Generate the signature and cURL for this operation.</Card>"
         }
       }
     },
@@ -4287,9 +4647,9 @@
             "description": "Merchant ID",
             "maxLength": 32
           },
-          "orderId": {
+          "merchantOrderId": {
             "type": "string",
-            "description": "Merchant order number",
+            "description": "Merchant order ID, unique within the current merchant",
             "maxLength": 64
           },
           "amount": {
@@ -4372,7 +4732,7 @@
         },
         "required": [
           "merchantId",
-          "orderId",
+          "merchantOrderId",
           "amount",
           "currency",
           "productType",
@@ -4408,7 +4768,7 @@
         ],
         "example": {
           "merchantId": "SAMPLE_MERCHANT_ID",
-          "orderId": "ORDER_TIMESTAMP",
+          "merchantOrderId": "ORDER_TIMESTAMP",
           "amount": 1000,
           "currency": "SGD",
           "productType": "VIRTUAL",
@@ -4453,7 +4813,7 @@
             "properties": {
               "checkoutUrl": {
                 "type": "string",
-                "description": "Checkout URL, valid for 2 hours by default",
+                "description": "Checkout URL. The code defaults for both Session and short-link validity are 24 hours and can be overridden by environment configuration. Use the deployed configuration.",
                 "format": "uri"
               },
               "paymentIntentId": {
@@ -4479,13 +4839,958 @@
             "paymentIntentId": "SAMPLE_PAYMENT_INTENT_ID"
           }
         }
+      },
+      "EmbeddedCheckoutAddress": {
+        "type": "object",
+        "properties": {
+          "country": {
+            "type": "string",
+            "description": "Uppercase two-letter country code",
+            "pattern": "^[A-Z]{2}$",
+            "example": "SG"
+          },
+          "state": {
+            "type": "string",
+            "description": "State or province, up to 64 characters",
+            "maxLength": 64
+          },
+          "city": {
+            "type": "string",
+            "description": "City; required for shipping and billing addresses",
+            "maxLength": 64
+          },
+          "district": {
+            "type": "string",
+            "description": "District, up to 64 characters",
+            "maxLength": 64
+          },
+          "streetAddress": {
+            "type": "string",
+            "description": "Non-blank street address, up to 256 characters",
+            "maxLength": 256,
+            "pattern": "\\S"
+          },
+          "postalCode": {
+            "type": "string",
+            "description": "Postal code, up to 32 characters",
+            "maxLength": 32
+          }
+        },
+        "required": [
+          "country",
+          "streetAddress"
+        ]
+      },
+      "EmbeddedCheckoutDeliveryAddress": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/EmbeddedCheckoutAddress"
+          },
+          {
+            "type": "object",
+            "required": [
+              "city"
+            ],
+            "properties": {
+              "city": {
+                "type": "string",
+                "pattern": "\\S"
+              }
+            }
+          }
+        ]
+      },
+      "EmbeddedCheckoutCustomer": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string",
+            "description": "Buyer first name for this payment; does not create or update a customer profile",
+            "maxLength": 64
+          },
+          "lastName": {
+            "type": "string",
+            "description": "Buyer last name for this payment",
+            "maxLength": 64
+          },
+          "email": {
+            "type": "string",
+            "description": "Buyer email for this payment",
+            "format": "email",
+            "maxLength": 128
+          },
+          "phone": {
+            "type": "string",
+            "description": "Buyer phone for this payment",
+            "maxLength": 50
+          },
+          "address": {
+            "$ref": "#/components/schemas/EmbeddedCheckoutAddress"
+          }
+        },
+        "description": "Used when customerId is omitted. With customerId, the existing customer profile takes precedence and is not overwritten."
+      },
+      "EmbeddedCheckoutProduct": {
+        "type": "object",
+        "properties": {
+          "productName": {
+            "type": "string",
+            "description": "Product name, up to 256 characters",
+            "maxLength": 256,
+            "minLength": 1
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Product quantity as a positive JSON integer"
+          },
+          "unitPrice": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "maximum": 2147483647,
+            "description": "Unit price as a positive JSON integer in the smallest currency unit"
+          },
+          "description": {
+            "type": "string",
+            "description": "Product description, up to 500 characters",
+            "maxLength": 500
+          },
+          "productImage": {
+            "type": "string",
+            "description": "Product image; must be an HTTPS URL when provided",
+            "format": "uri",
+            "maxLength": 1024,
+            "pattern": "^https://"
+          }
+        },
+        "required": [
+          "productName",
+          "quantity",
+          "unitPrice"
+        ]
+      },
+      "EmbeddedCheckoutShipping": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string",
+            "description": "Non-blank recipient first name",
+            "maxLength": 64,
+            "pattern": "\\S"
+          },
+          "lastName": {
+            "type": "string",
+            "description": "Non-blank recipient last name",
+            "maxLength": 64,
+            "pattern": "\\S"
+          },
+          "phone": {
+            "type": "string",
+            "description": "Recipient phone; currently not projected into Session or downstream shipping data",
+            "maxLength": 50
+          },
+          "address": {
+            "$ref": "#/components/schemas/EmbeddedCheckoutDeliveryAddress"
+          }
+        },
+        "required": [
+          "firstName",
+          "lastName",
+          "address"
+        ]
+      },
+      "EmbeddedCheckoutOrder": {
+        "type": "object",
+        "properties": {
+          "productType": {
+            "type": "string",
+            "description": "Product type; defaults to VIRTUAL when products and shipping are omitted",
+            "enum": [
+              "PHYSICAL",
+              "VIRTUAL"
+            ]
+          },
+          "productList": {
+            "type": "array",
+            "maxItems": 10,
+            "items": {
+              "$ref": "#/components/schemas/EmbeddedCheckoutProduct"
+            },
+            "description": "Up to 10 display products. A non-empty list requires productType. The product total does not determine the amount charged."
+          },
+          "shipping": {
+            "$ref": "#/components/schemas/EmbeddedCheckoutShipping"
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "productList": {
+                  "type": "array",
+                  "minItems": 1
+                }
+              },
+              "required": [
+                "productList"
+              ]
+            },
+            "then": {
+              "required": [
+                "productType"
+              ]
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "shipping"
+              ]
+            },
+            "then": {
+              "required": [
+                "productType"
+              ]
+            }
+          }
+        ]
+      },
+      "EmbeddedCheckoutBilling": {
+        "type": "object",
+        "properties": {
+          "billingFirstName": {
+            "type": "string",
+            "description": "Non-blank billing contact first name",
+            "maxLength": 64,
+            "pattern": "\\S"
+          },
+          "billingLastName": {
+            "type": "string",
+            "description": "Non-blank billing contact last name",
+            "maxLength": 64,
+            "pattern": "\\S"
+          },
+          "billingEmail": {
+            "type": "string",
+            "description": "Billing contact email address",
+            "maxLength": 128,
+            "format": "email"
+          },
+          "phone": {
+            "type": "string",
+            "description": "Billing phone; currently not returned or forwarded",
+            "maxLength": 50
+          },
+          "address": {
+            "$ref": "#/components/schemas/EmbeddedCheckoutDeliveryAddress"
+          }
+        },
+        "required": [
+          "billingFirstName",
+          "billingLastName",
+          "billingEmail",
+          "address"
+        ]
+      },
+      "EmbeddedCheckoutPaymentMethod": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "card"
+            ]
+          },
+          "card": {
+            "type": "object",
+            "properties": {
+              "billing": {
+                "$ref": "#/components/schemas/EmbeddedCheckoutBilling"
+              }
+            }
+          }
+        },
+        "description": "Billing prefill only. Does not accept card numbers or security codes and does not initiate payment. The SDK submits new-card payments."
+      },
+      "EmbeddedCheckoutPaymentOptions": {
+        "type": "object",
+        "properties": {
+          "card": {
+            "type": "object",
+            "properties": {
+              "authorization_type": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "enum": [
+                  "final_auth",
+                  null
+                ],
+                "description": "Defaults to final_auth when omitted or null. pre_auth and subsequent capture are not supported."
+              }
+            }
+          }
+        }
+      },
+      "EmbeddedCheckoutConsent": {
+        "type": "object",
+        "properties": {
+          "paymentInitiator": {
+            "type": "string",
+            "enum": [
+              "CIT",
+              "MIT"
+            ],
+            "description": "Required for initial binding or when consentToken is supplied. Subsequent payments must match the original binding type."
+          },
+          "consentToken": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 256,
+            "description": "Active binding reference kept on the server. When supplied, createIntent immediately initiates a charge and amount must be positive. Never pass it to the browser."
+          }
+        }
+      },
+      "EmbeddedCheckoutDisplay": {
+        "type": "object",
+        "properties": {
+          "buttonType": {
+            "type": "string",
+            "enum": [
+              "PAY",
+              "BOOK",
+              "SUBSCRIBE",
+              "DONATE"
+            ],
+            "description": "Button label for positive amounts; defaults to PAY. Omit for zero amounts, which display BIND. SUBSCRIBE does not create an automatic billing schedule."
+          },
+          "locale": {
+            "type": "string",
+            "description": "Checkout language: zh-CN, zh-HK, or en-US. Other values fall back to en-US.",
+            "example": "en-US"
+          }
+        }
+      },
+      "EmbeddedCheckoutCallback": {
+        "type": "object",
+        "properties": {
+          "returnUrl": {
+            "type": "string",
+            "description": "HTTPS return URL, up to 1024 characters. Omitted or blank values use the approved merchant website. userInfo and fragments are not allowed.",
+            "maxLength": 1024
+          },
+          "notificationUrl": {
+            "type": "string",
+            "description": "HTTPS notification URL, up to 1024 characters. Falls back to the application default order notification URL when omitted. userInfo and fragments are not allowed.",
+            "maxLength": 1024,
+            "format": "uri",
+            "pattern": "^https://"
+          }
+        },
+        "description": "Both return and notification URLs need a valid explicit value or default configuration. They are not interchangeable."
+      },
+      "EmbeddedCheckoutCreateRequest": {
+        "type": "object",
+        "properties": {
+          "merchantId": {
+            "type": "string",
+            "description": "Merchant ID within the appId permission scope",
+            "maxLength": 32,
+            "minLength": 1
+          },
+          "requestId": {
+            "type": "string",
+            "description": "Creation idempotency key, up to 64 characters. Reuse for network retries. The same merchant and requestId return the original PI without comparing new parameters or charging again.",
+            "maxLength": 64,
+            "minLength": 1
+          },
+          "merchantOrderId": {
+            "type": "string",
+            "description": "Merchant order ID, unique within the merchant. Reusing it with a different requestId returns a conflict.",
+            "maxLength": 64,
+            "minLength": 1
+          },
+          "amount": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0,
+            "maximum": 2147483647,
+            "description": "JSON integer in the smallest currency unit. Zero is only for CIT new-card binding without a charge. MIT, ordinary payments, and existing-Consent charges require a positive amount. Strings, decimals, and scientific notation are rejected."
+          },
+          "currency": {
+            "type": "string",
+            "description": "Three-letter currency code, normalized to uppercase by the server; must be enabled for the merchant",
+            "pattern": "^[A-Za-z]{3}$",
+            "example": "SGD"
+          },
+          "payWay": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[Mm][Aa][Ss][Tt][Ee][Rr][Cc][Aa][Rr][Dd]$",
+            "description": "Only Mastercard, case-insensitively. MASTER and whitespace are rejected. Omit or use null for available card brands. This filter does not validate the brand of an existing-Consent direct charge."
+          },
+          "customerId": {
+            "type": "string",
+            "description": "Platform customer ID, required for CIT/MIT binding and existing-Consent direct charges; also needed to show saved cards. This field alone does not initiate a charge.",
+            "maxLength": 64,
+            "minLength": 1
+          },
+          "deviceId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "\\S",
+            "description": "Non-blank device reference for positive-amount CIT direct charges with a valid consentToken only. Must match the buyer-side fingerprint reference. Rejected for ordinary payments, initial binding, or MIT. Reuse on retries."
+          },
+          "customer": {
+            "$ref": "#/components/schemas/EmbeddedCheckoutCustomer"
+          },
+          "order": {
+            "$ref": "#/components/schemas/EmbeddedCheckoutOrder"
+          },
+          "payment_method": {
+            "$ref": "#/components/schemas/EmbeddedCheckoutPaymentMethod"
+          },
+          "payment_method_options": {
+            "$ref": "#/components/schemas/EmbeddedCheckoutPaymentOptions"
+          },
+          "payment_consent": {
+            "$ref": "#/components/schemas/EmbeddedCheckoutConsent"
+          },
+          "checkout": {
+            "$ref": "#/components/schemas/EmbeddedCheckoutDisplay"
+          },
+          "callback": {
+            "$ref": "#/components/schemas/EmbeddedCheckoutCallback"
+          }
+        },
+        "required": [
+          "merchantId",
+          "requestId",
+          "merchantOrderId",
+          "amount",
+          "currency"
+        ],
+        "additionalProperties": false,
+        "example": {
+          "merchantId": "SAMPLE_MERCHANT_ID",
+          "requestId": "pay-TIMESTAMP",
+          "merchantOrderId": "ORDER-TIMESTAMP",
+          "amount": 1000,
+          "currency": "SGD",
+          "checkout": {
+            "buttonType": "PAY",
+            "locale": "en-US"
+          },
+          "callback": {
+            "returnUrl": "https://shop.example.com/payment/result",
+            "notificationUrl": "https://shop.example.com/payment/notify"
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "amount": {
+                  "const": 0
+                }
+              },
+              "required": [
+                "amount"
+              ]
+            },
+            "then": {
+              "required": [
+                "customerId",
+                "payment_consent"
+              ],
+              "properties": {
+                "payment_consent": {
+                  "type": "object",
+                  "required": [
+                    "paymentInitiator"
+                  ],
+                  "properties": {
+                    "paymentInitiator": {
+                      "const": "CIT"
+                    },
+                    "consentToken": {
+                      "type": "null"
+                    }
+                  }
+                },
+                "checkout": {
+                  "type": "object",
+                  "properties": {
+                    "buttonType": false
+                  }
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "payment_consent": {
+                  "type": "object",
+                  "properties": {
+                    "paymentInitiator": {
+                      "enum": [
+                        "CIT",
+                        "MIT"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "paymentInitiator"
+                  ]
+                }
+              },
+              "required": [
+                "payment_consent"
+              ]
+            },
+            "then": {
+              "required": [
+                "customerId"
+              ]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "payment_consent": {
+                  "type": "object",
+                  "properties": {
+                    "consentToken": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "consentToken"
+                  ]
+                }
+              },
+              "required": [
+                "payment_consent"
+              ]
+            },
+            "then": {
+              "required": [
+                "customerId"
+              ],
+              "properties": {
+                "amount": {
+                  "minimum": 1
+                },
+                "payment_consent": {
+                  "required": [
+                    "paymentInitiator"
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "deviceId": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "deviceId"
+              ]
+            },
+            "then": {
+              "required": [
+                "customerId",
+                "payment_consent"
+              ],
+              "properties": {
+                "amount": {
+                  "minimum": 1
+                },
+                "payment_consent": {
+                  "type": "object",
+                  "required": [
+                    "paymentInitiator",
+                    "consentToken"
+                  ],
+                  "properties": {
+                    "paymentInitiator": {
+                      "const": "CIT"
+                    },
+                    "consentToken": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "EmbeddedCheckoutQueryRequest": {
+        "type": "object",
+        "properties": {
+          "merchantId": {
+            "type": "string",
+            "description": "Merchant ID owning the payment",
+            "maxLength": 32,
+            "minLength": 1
+          },
+          "paymentIntentId": {
+            "type": "string",
+            "description": "PaymentIntent ID; supply exactly one of this and merchantOrderId",
+            "maxLength": 128,
+            "minLength": 1
+          },
+          "merchantOrderId": {
+            "type": "string",
+            "description": "Original merchant order ID; supply exactly one of this and paymentIntentId. Do not use orderId.",
+            "maxLength": 64,
+            "minLength": 1
+          }
+        },
+        "required": [
+          "merchantId"
+        ],
+        "additionalProperties": false,
+        "oneOf": [
+          {
+            "required": [
+              "paymentIntentId"
+            ],
+            "not": {
+              "required": [
+                "merchantOrderId"
+              ]
+            }
+          },
+          {
+            "required": [
+              "merchantOrderId"
+            ],
+            "not": {
+              "required": [
+                "paymentIntentId"
+              ]
+            }
+          }
+        ],
+        "example": {
+          "merchantId": "SAMPLE_MERCHANT_ID",
+          "merchantOrderId": "ORDER-TIMESTAMP"
+        }
+      },
+      "EmbeddedCheckoutCardSummary": {
+        "type": "object",
+        "properties": {
+          "bin": {
+            "type": "string",
+            "description": "First six digits from the masked card record; returned only when available",
+            "pattern": "^[0-9]{6}$"
+          },
+          "last4": {
+            "type": "string",
+            "description": "Last four digits from the masked card record",
+            "pattern": "^[0-9]{4}$"
+          },
+          "brand": {
+            "type": "string",
+            "description": "Lowercase card brand, such as visa, mastercard, or amex"
+          },
+          "issuer_name": {
+            "type": "string",
+            "description": "Issuer name when available"
+          },
+          "card_type": {
+            "type": "string",
+            "enum": [
+              "CREDIT",
+              "DEBIT"
+            ]
+          },
+          "billing": {
+            "type": "object",
+            "properties": {
+              "billingFirstName": {
+                "type": "string"
+              },
+              "billingLastName": {
+                "type": "string"
+              },
+              "billingEmail": {
+                "type": "string"
+              },
+              "address": {
+                "type": "object",
+                "properties": {
+                  "country": {
+                    "type": "string",
+                    "description": "Uppercase two-letter country code",
+                    "pattern": "^[A-Z]{2}$",
+                    "example": "SG"
+                  },
+                  "state": {
+                    "type": "string",
+                    "description": "State or province, up to 64 characters",
+                    "maxLength": 64
+                  },
+                  "city": {
+                    "type": "string",
+                    "description": "City; required for shipping and billing addresses",
+                    "maxLength": 64
+                  },
+                  "district": {
+                    "type": "string",
+                    "description": "District, up to 64 characters",
+                    "maxLength": 64
+                  },
+                  "streetAddress": {
+                    "type": "string",
+                    "description": "Non-blank street address, up to 256 characters",
+                    "maxLength": 256,
+                    "pattern": "\\S"
+                  },
+                  "postalCode": {
+                    "type": "string",
+                    "description": "Postal code, up to 32 characters",
+                    "maxLength": 32
+                  }
+                }
+              }
+            },
+            "description": "Billing data saved for this attempt, returned only when available; not reconstructed from later customer profile changes"
+          }
+        },
+        "description": "Only available summary fields are returned. mask, expiry, issuer country, and PREPAID are not promised."
+      },
+      "EmbeddedCheckoutNextAction": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "example": "REDIRECT"
+          },
+          "status": {
+            "type": "string",
+            "description": "Status of the current authentication stage; COMPLETED does not mean payment succeeded",
+            "example": "PENDING"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "url": {
+                "type": "string",
+                "format": "uri"
+              },
+              "method": {
+                "type": "string",
+                "example": "GET"
+              },
+              "stage": {
+                "type": "string",
+                "example": "user"
+              }
+            }
+          },
+          "requiresServerContinue": {
+            "type": "boolean"
+          }
+        },
+        "description": "Actions appear only in latest_payment_attempt.nextAction. Let the SDK handle them with the original Token. Merchant queries do not execute Continue."
+      },
+      "EmbeddedCheckoutAttempt": {
+        "type": "object",
+        "properties": {
+          "paymentAttemptId": {
+            "type": "string",
+            "description": "Platform payment attempt ID, not an internal transaction order ID"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "CREATED",
+              "PENDING",
+              "REQUIRES_CUSTOMER_ACTION",
+              "SUCCEEDED",
+              "FAILED",
+              "CANCELLED",
+              "EXPIRED"
+            ]
+          },
+          "payment_method": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "card"
+                ]
+              },
+              "card": {
+                "$ref": "#/components/schemas/EmbeddedCheckoutCardSummary"
+              }
+            }
+          },
+          "nextAction": {
+            "$ref": "#/components/schemas/EmbeddedCheckoutNextAction"
+          },
+          "createTime": {
+            "type": "string",
+            "description": "Record time in the requested Accept-Timezone and service date format; do not append Z to a value without an offset",
+            "example": "2026-10-10 02:00:00"
+          },
+          "updateTime": {
+            "type": "string",
+            "description": "Record time in the requested Accept-Timezone and service date format; do not append Z to a value without an offset",
+            "example": "2026-10-10 02:00:00"
+          }
+        },
+        "description": "Latest payment attempt, omitted if none exists. Specific failure errorCode and errorMessage are not returned."
+      },
+      "EmbeddedCheckoutPaymentResult": {
+        "type": "object",
+        "properties": {
+          "paymentIntentId": {
+            "type": "string",
+            "description": "Platform-generated PaymentIntent ID; preserve the exact string"
+          },
+          "merchantOrderId": {
+            "type": "string",
+            "description": "Original merchant order ID, always named merchantOrderId"
+          },
+          "amount": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0,
+            "maximum": 2147483647,
+            "description": "Creation amount; zero denotes card verification or binding, not a sale"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "REQUIRES_PAYMENT_METHOD",
+              "REQUIRES_CUSTOMER_ACTION",
+              "PENDING",
+              "SUCCEEDED"
+            ],
+            "description": "Overall PI status. SUCCEEDED means a positive-amount payment or zero-amount card verification completed. Session expiry does not change the payment result."
+          },
+          "payment_method_options": {
+            "$ref": "#/components/schemas/EmbeddedCheckoutPaymentOptions"
+          },
+          "consentToken": {
+            "type": "string",
+            "description": "Server-side binding reference, returned when ACTIVE with complete downstream credentials. May appear later for initial bindings. Never expose to browsers or treat its presence as proof of payment."
+          },
+          "latest_payment_attempt": {
+            "$ref": "#/components/schemas/EmbeddedCheckoutAttempt"
+          },
+          "createTime": {
+            "type": "string",
+            "description": "Record time in the requested Accept-Timezone and service date format; do not append Z to a value without an offset",
+            "example": "2026-10-10 02:00:00"
+          },
+          "updateTime": {
+            "type": "string",
+            "description": "Record time in the requested Accept-Timezone and service date format; do not append Z to a value without an offset",
+            "example": "2026-10-10 02:00:00"
+          }
+        }
+      },
+      "EmbeddedCheckoutCreateResult": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/EmbeddedCheckoutPaymentResult"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "paymentIntentToken": {
+                "type": "string",
+                "description": "Browser Session credential for this PI. Successful creation and replays return the original Token without extending its validity, even if it has expired."
+              },
+              "availablePaymentMethods": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "card"
+                  ]
+                },
+                "description": "Desktop estimate of card availability with a valid Session: card or an empty list. Empty for direct charges and possibly omitted without Session. The SDK Session determines final availability."
+              }
+            },
+            "required": [
+              "paymentIntentToken"
+            ]
+          }
+        ]
+      },
+      "EmbeddedCheckoutCreateResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": "Business result code. Zero means processed successfully. HTTP 200 can still contain a business error."
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/EmbeddedCheckoutCreateResult"
+          },
+          "traceId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code"
+        ]
+      },
+      "EmbeddedCheckoutQueryResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": "Business result code. Zero means processed successfully. HTTP 200 can still contain a business error."
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/EmbeddedCheckoutPaymentResult"
+          },
+          "traceId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code"
+        ]
       }
     }
   },
   "x-source-document": "YeahPay API Documentation (SG Transactions) 2.1.docx",
   "x-source-notes": [
     "The document title is 2.1, while the latest revision record says 2.0.1.",
-    "The production URL was confirmed as https://open-api.yeahpay.sg/acceptance/acceptance-open-api/.",
-    "The common parameter table specifies version 1.0, while the signing example uses 2.0. This specification follows the common parameter table."
-  ]
+    "The production URL was confirmed as https://open-api.yeahpay.net/acceptance/acceptance-open-api/.",
+    "The common parameter table specifies version 1.0, while the signing example uses 2.0. This specification follows the common parameter table.",
+    "The Checkout production Base URL was confirmed as https://open-api.yeahpay.net/gwp/checkout. The sandbox endpoint is pending confirmation."
+  ],
+  "x-embedded-checkout-source": "embedded-checkout-merchant-api-v1.5.md"
 }

@@ -2,7 +2,7 @@
 
 本仓库用于维护 YeahPay API 的 Mintlify 文档站。站点同时提供中文和英文接入指南、OpenAPI 3.1 API Reference、SHA-512 签名说明，以及可生成签名和 cURL 的在线接口调试工具。
 
-当前 OpenAPI 规范版本为 `2.1`，内容包括收银台、扫码交易、统一撤销或退款、支付结果通知和退款结果通知等接口。
+当前 OpenAPI 规范版本为 `2.1`，内容包括统一收银台、嵌入式收银台建单与查单、扫码交易、统一撤销或退款、支付结果通知和退款结果通知等接口。嵌入式接口按商户 API V1.5 整理，前端接入页按浏览器 SDK V1.0 整理。
 
 ## 主要能力
 
@@ -133,6 +133,7 @@ Codex 和 Claude Code 共用 `scripts/hooks/` 下的 hook 实现：
 | --- | --- |
 | `docs.json` | Mintlify 站点、双语导航和主题配置 |
 | `index.mdx`、`signature.mdx`、`api-tester.mdx` | 中文接入文档 |
+| `embedded-checkout.mdx`、`embedded-checkout-sdk.mdx` | 嵌入式收银台流程和前端 SDK 接入；英文对应页位于 `en/` |
 | `en/` | 英文接入文档 |
 | `openapi.json` | 中文 OpenAPI 唯一事实来源 |
 | `openapi-en.json` | 自动生成的英文 OpenAPI |
@@ -146,7 +147,7 @@ Codex 和 Claude Code 共用 `scripts/hooks/` 下的 hook 实现：
 1. 不要直接编辑 `openapi-en.json`，重新生成时所有手工修改都会被覆盖。
 2. 不要直接编辑 `snippets/signed-api-playground.jsx` 中标记为自动生成的 OpenAPI 操作块；组件其他非生成部分可以正常维护。
 3. 新增中文 OpenAPI 文案但未补充英文映射时，英文生成脚本会失败。
-4. 当前 OpenAPI 只配置了测试环境服务器地址。增加或修改其他环境地址前，需要先确认实际网关地址。
+4. 全局 OpenAPI 默认服务器为 acceptance 测试地址；`getRedirectUrl`、`createIntent`、`queryIntentStatus` 通过操作级 `servers` 使用独立 Checkout 入口：测试 `https://t-acquire-business.lepass.cn/gwp/checkout`，生产 `https://open-api.yeahpay.net/gwp/checkout`。`x-environment: test/production` 同步签名工具的环境选项；签名路径保留 `/checkout`、去掉 `/gwp`。Checkout 沙箱入口仍待确认，不从 acceptance 地址推导。
 5. 仓库没有 Node.js 包清单或锁文件；生成脚本仅依赖 Node.js 内置模块，Mintlify CLI 需要单独全局安装。
 6. 仓库没有内置发布工作流。线上发布方式取决于外部 Mintlify 项目的部署配置。
 7. `docs.json` 中的 Support、Dashboard 和页脚社交链接仍是 Mintlify 通用配置，正式发布前应替换为 YeahPay 的实际链接。

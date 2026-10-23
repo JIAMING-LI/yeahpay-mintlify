@@ -45,8 +45,23 @@ https://t-acquire-business.lepass.cn/gw/abroad-business-acceptance-open-api/orde
 ```
 
 <Note>
-  `/gw` 和 `/acceptance` 是传输层网关前缀，不参与签名。若商户环境使用了不同的网关路径，请以 YeahPay 提供的验签路径为准。
+  `/gw`、`/gwp` 和 `/acceptance` 是传输层网关前缀，不参与签名。若商户环境使用了不同的网关路径，请以 YeahPay 提供的验签路径为准。
 </Note>
+
+统一收银台和嵌入式 Checkout 使用独立入口，测试与生产签名时均保留 `/checkout`：
+
+```text
+请求地址：
+https://t-acquire-business.lepass.cn/gwp/checkout/openapi/v2/createIntent
+
+生产请求地址：
+https://open-api.yeahpay.net/gwp/checkout/openapi/v2/createIntent
+
+签名 URL：
+/checkout/openapi/v2/createIntent
+```
+
+[`queryIntentStatus`](/api-reference/嵌入式收银台/查询嵌入式支付状态) 同理，签名 URL 为 `/checkout/openapi/v2/queryIntentStatus`；统一收银台为 `/checkout/openapi/v2/getRedirectUrl`。沙箱入口仍待确认，不能从 acceptance 沙箱地址推导。
 
 ## 生成步骤
 
@@ -95,7 +110,7 @@ https://t-acquire-business.lepass.cn/gw/abroad-business-acceptance-open-api/orde
     
     function buildSignUrl(requestBaseUrl, requestPath) {
       const basePath = new URL(requestBaseUrl).pathname
-        .replace(/^\/(?:gw|acceptance)(?=\/)/, "")
+        .replace(/^\/(?:gw|gwp|acceptance)(?=\/)/, "")
         .replace(/\/+$/, "");
       return `${basePath}/${requestPath.replace(/^\/+/, "")}`;
     }
@@ -163,6 +178,8 @@ https://t-acquire-business.lepass.cn/gw/abroad-business-acceptance-open-api/orde
     String basePath = URI.create(baseUrl).getPath();
     if (basePath.startsWith("/gw/")) {
         basePath = basePath.substring("/gw".length());
+    } else if (basePath.startsWith("/gwp/")) {
+        basePath = basePath.substring("/gwp".length());
     } else if (basePath.startsWith("/acceptance/")) {
         basePath = basePath.substring("/acceptance".length());
     }

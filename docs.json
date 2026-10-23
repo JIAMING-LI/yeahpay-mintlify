@@ -34,8 +34,13 @@
                 "group": "支付产品",
                 "pages": [
                   "unified-checkout",
+                  "embedded-checkout",
                   "subscription-payment"
                 ]
+              },
+              {
+                "group": "嵌入式接入",
+                "pages": ["embedded-checkout-sdk"]
               }
             ]
           },
@@ -71,8 +76,13 @@
                 "group": "Payment products",
                 "pages": [
                   "en/unified-checkout",
+                  "en/embedded-checkout",
                   "en/subscription-payment"
                 ]
+              },
+              {
+                "group": "Embedded integration",
+                "pages": ["en/embedded-checkout-sdk"]
               }
             ]
           },

@@ -121,12 +121,20 @@ const definitions = operationEntries(zhSpec).map(({ path, method, operation }) =
   const requestSchema = operation.requestBody?.content?.["application/json"]?.schema ?? {
     type: "object",
   };
+  const overrideServers = operation.servers ?? zhSpec.paths[path].servers;
+  const serverUrls = overrideServers && Object.fromEntries(overrideServers.map((server) => {
+    if (!["test", "sandbox", "production"].includes(server["x-environment"])) {
+      throw new Error(`An environment is required for the server override on ${operation.operationId}`);
+    }
+    return [server["x-environment"], server.url];
+  }));
   return {
     operationId: operation.operationId,
     method: method.toUpperCase(),
     path,
     summaryZh: operation.summary ?? operation.operationId,
     summaryEn: enOperation.summary ?? enOperation.operationId,
+    ...(serverUrls ? { serverUrls } : {}),
     sampleBody: sampleValue(zhSpec, requestSchema, "body"),
   };
 });

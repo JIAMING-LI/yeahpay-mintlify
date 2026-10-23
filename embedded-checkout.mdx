@@ -1,0 +1,105 @@
+---
+title: "嵌入式收银台"
+description: "在商户网页内嵌入 YeahPay Checkout，由服务端创建支付意图并确认支付结果"
+---
+
+嵌入式收银台通过 JavaScript SDK 在商户网页中挂载 YeahPay iframe。买家在收银台内输入卡信息、选择已有卡并完成必要认证，商户服务端负责建单、签名和确认结果。
+
+<Note>
+  本指南按商户服务端 API V1.5 和浏览器 SDK V1.0 整理。测试与生产入口如下，沙箱入口待确认；切换环境时使用对应的应用凭证、SDK 脚本和 SDK `env`。
+</Note>
+
+## 接入流程
+
+<Steps>
+  <Step title="商户服务端创建支付意图">
+    使用唯一的 `merchantOrderId` 和本次建单的 `requestId`，签名调用[创建嵌入式支付意图](/api-reference/嵌入式收银台/创建嵌入式支付意图)。普通正金额新卡支付可以不传 `customerId`；绑卡、展示已有卡或已有授权直接支付时，先通过现有[创建客户接口](/api-reference/订阅支付/创建客户)准备平台客户。
+  </Step>
+  <Step title="前端挂载 SDK">
+    服务端只将当前支付的 `paymentIntentId` 和 `paymentIntentToken` 交给前端。前端按 [SDK 接入指南](/embedded-checkout-sdk)创建、监听并挂载收银台。
+  </Step>
+  <Step title="买家完成支付或认证">
+    普通新卡和首次绑卡由买家在 SDK 中提交。已有 Consent 直接支付在 `createIntent` 时已发起，SDK 用原 Token 查询状态并承接认证。
+  </Step>
+  <Step title="服务端确认业务结果">
+    验证成功通知的签名并幂等处理，或调用[查询嵌入式支付状态](/api-reference/嵌入式收银台/查询嵌入式支付状态)。前端事件和浏览器回跳仅用于页面展示。
+  </Step>
+</Steps>
+
+## 环境与签名
+
+| 环境 | Checkout 商户 API Base URL | SDK `env` |
+| --- | --- | --- |
+| 测试 | `https://t-acquire-business.lepass.cn/gwp/checkout` | `test` |
+| 生产 | `https://open-api.yeahpay.net/gwp/checkout` | `pro` |
+| 沙箱 | 待确认 | 待确认 |
+
+客户管理继续使用[快速开始中的 acceptance 地址](/)，测试 Base URL 为 `https://t-acquire-business.lepass.cn/gw/abroad-business-acceptance-open-api`。测试与生产 SDK 脚本见[前端 SDK 接入](/embedded-checkout-sdk#引入-sdk)。
+
+| 操作 | 请求路径，接在 Checkout Base URL 后 | 签名首行 |
+| --- | --- | --- |
+| `createIntent` | `/openapi/v2/createIntent` | `/checkout/openapi/v2/createIntent` |
+| `queryIntentStatus` | `/openapi/v2/queryIntentStatus` | `/checkout/openapi/v2/queryIntentStatus` |
+
+服务端沿用[公共请求头与签名规则](/signature)：`appId`、`version=1.0`、`timestamp`、`nonce`、`algorithm=SHA-512` 和 `signature`。签名首行不包含域名或 `/gwp`，但保留 `/checkout`。`Accept-Timezone` 可指定同步响应记录时间的时区；没有偏移量的时间字符串不可自行补 `Z`。
+
+<Warning>
+  客户管理和 Checkout 使用不同的服务前缀。不要将 Checkout 接口拼接到 acceptance Base URL；[签名调试工具](/api-tester?operationId=createIntent)按所选环境使用上述 Checkout 入口，签名首行始终保留 `/checkout`。
+</Warning>
+
+## 支付与绑卡场景
+
+`paymentInitiator` 和 `consentToken` 位于 `payment_consent` 对象中。
+
+| 场景 | 金额 | 客户与授权参数 | 发起时机 |
+| --- | --- | --- | --- |
+| 普通新卡支付 | 大于 0 | `customerId` 可选，不传 `payment_consent` | 买家在 SDK 提交 |
+| 组件选择已有卡 | 大于 0 | 传 `customerId`，不传 `payment_consent` | 买家选卡后提交 |
+| 支付并绑卡 | 大于 0 | `customerId` + `CIT`，不传 `consentToken` | 买家提交新卡 |
+| 纯绑卡 | 0 | `customerId` + `CIT`，不传 `consentToken` 或 `checkout.buttonType` | 买家提交新卡并验证 |
+| MIT 首次授权并支付 | 大于 0 | `customerId` + `MIT`，不传 `consentToken` | 买家提交新卡 |
+| 已有 Consent 直接支付 | 大于 0 | `customerId` + 与首次绑定一致的 `CIT/MIT` + 有效 `consentToken` | `createIntent` 建单时发起 |
+
+MIT 零金额请求会被拒绝。当前仅支持 `final_auth`，不支持预授权或后续请款；`SUBSCRIBE` 仅为按钮文案，不创建自动周期扣款计划。
+
+金额使用最小货币单位的 JSON 整数，例如 SGD 10.00 传 `1000`；`"1000"`、`1000.0` 和 `1e3` 均不可用。商品合计不决定实际扣款金额。
+
+## 三种凭据的边界
+
+| 值 | 保存与使用方式 |
+| --- | --- |
+| `apiKey` | 仅商户服务端用于请求签名 |
+| `paymentIntentToken` | 当前 PI 的浏览器 Session 凭据，交给 SDK；不记录到日志或分析工具 |
+| `consentToken` | 商户服务端保存的绑定引用，用于后续支付；不得下发浏览器 |
+
+首次绑定的引用可能晚于支付成功就绪。查单尚无 `consentToken` 时，继续查询原 PI；不要重新绑卡。SDK 的 `savedCardId` 是当前 Session 的选卡引用，不能替代跨订单使用的 `consentToken`。
+
+## 状态、重试与通知
+
+| `data.status` | 商户处理 |
+| --- | --- |
+| `REQUIRES_PAYMENT_METHOD` | 等待买家提交，或上次尝试已失败或关闭；结合最新尝试判断后续操作 |
+| `REQUIRES_CUSTOMER_ACTION` | 交给 SDK 完成认证 |
+| `PENDING` | 继续查原 PI，不重复扣款 |
+| `SUCCEEDED` | 正金额支付目标完成；零金额表示卡验证目标完成 |
+
+`code=0` 表示请求正常处理，HTTP 200 和前端 `ended` 事件均不能单独证明支付成功。动作位于 `latest_payment_attempt.nextAction`，商户查单不会执行 3DS Continue；认证由 SDK 承接。
+
+网络重试沿用原 `merchantId`、`requestId` 和 `merchantOrderId`。同 `requestId` 重放返回原 PI，不更改参数或再次扣款；原 Token 不会刷新或延长有效期。直扣返回 `292009`、`500` 或超时时，也可能已经建单或发起扣款，先查询原订单。
+
+成功通知使用 `eventType=PAYMENT_SUCCEEDED`，按 `eventId` 幂等处理；验签和业务处理成功后返回 HTTP 200、纯文本 `success`。目前没有自动重投保证，也不发送失败或退款事件，需要保留主动查单能力。通知验签的第一行为完整商户通知 URL，与主动请求的签名路径不同。
+
+<CardGroup cols={2}>
+  <Card title="前端 SDK 接入" icon="code" href="/embedded-checkout-sdk">
+    查看初始化、事件、生命周期和 HTML、Vue、React 示例。
+  </Card>
+  <Card title="创建支付意图" icon="book-open" href="/api-reference/嵌入式收银台/创建嵌入式支付意图">
+    查看完整建单字段、条件必填项与幂等规则。
+  </Card>
+  <Card title="查询支付状态" icon="magnifying-glass" href="/api-reference/嵌入式收银台/查询嵌入式支付状态">
+    按支付意图 ID 或商户订单号确认结果。
+  </Card>
+  <Card title="调试签名请求" icon="terminal" href="/api-tester?operationId=createIntent">
+    选择 Checkout 测试或生产环境生成签名和 cURL。
+  </Card>
+</CardGroup>
