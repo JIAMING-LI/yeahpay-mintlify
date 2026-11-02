@@ -1,6 +1,9 @@
 ---
 title: "Signature rules and examples"
 description: "Generate a YeahPay API request signature and send the unchanged raw JSON body"
+zh-CN_link: "/signature"
+en_link: "/en/signature"
+zh-Hant_link: "/zh-hk/signature"
 ---
 
 Generate a new signature for every request. The signature covers the request path, common parameters, raw request body, and `apiKey`.
@@ -31,36 +34,23 @@ signature = Base64(SHA-512(UTF-8(signText)))
 
 ## Signing URL
 
-Use the request path without the protocol, hostname, query parameters, or transport gateway prefix.
-
-Test environment example:
+Use the actual request path without the protocol, hostname, query string, or transport gateway prefix.
 
 ```text
-Request URL:
-https://t-acquire-business.lepass.cn/gw/abroad-business-acceptance-open-api/order/unifiedOrder
+Sandbox request:
+https://open-api.yeahpay.net/acceptance/sandbox/consent-payment/customers/query
 
 Signing URL:
-/abroad-business-acceptance-open-api/order/unifiedOrder
-```
+/sandbox/consent-payment/customers/query
 
-<Note>
-  `/gw`, `/gwp`, and `/acceptance` are transport gateway prefixes and are not included in the signature. If your merchant environment uses another gateway path, use the verification path provided by YeahPay.
-</Note>
-
-Unified and Embedded Checkout use separate service endpoints. Keep `/checkout` in both test and production signing paths:
-
-```text
-Request URL:
-https://t-acquire-business.lepass.cn/gwp/checkout/openapi/v2/createIntent
-
-Production request URL:
+Production PaymentIntent request:
 https://open-api.yeahpay.net/gwp/checkout/openapi/v2/createIntent
 
 Signing URL:
 /checkout/openapi/v2/createIntent
 ```
 
-For [`queryIntentStatus`](/en/api-reference/embedded-checkout/query-embedded-payment-status), the signing URL is `/checkout/openapi/v2/queryIntentStatus`. For Unified Checkout it is `/checkout/openapi/v2/getRedirectUrl`. The sandbox endpoint remains pending confirmation and cannot be inferred from the acceptance sandbox URL.
+Remove the leading gateway segment `/acceptance` or `/gwp` once and retain the rest. For sandbox PaymentIntent requests, `/acceptance/sandbox/openapi/v2/createIntent` becomes `/sandbox/openapi/v2/createIntent`. Select the environment in the [signed request tester](/en/api-tester) to obtain the matching path.
 
 ## Generate and send a request
 
@@ -87,8 +77,8 @@ For [`queryIntentStatus`](/en/api-reference/embedded-checkout/query-embedded-pay
     import { createHash, randomUUID } from "node:crypto";
 
     const baseUrl =
-      "https://t-acquire-business.lepass.cn/gw/abroad-business-acceptance-open-api";
-    const path = "/order/unifiedOrder";
+      "https://open-api.yeahpay.net";
+    const path = "/acceptance/sandbox/consent-payment/customers/query";
     const appId = process.env.YEAHPAY_APP_ID;
     const apiKey = process.env.YEAHPAY_API_KEY;
     const version = "1.0";
@@ -96,22 +86,18 @@ For [`queryIntentStatus`](/en/api-reference/embedded-checkout/query-embedded-pay
     const nonce = randomUUID().replaceAll("-", "");
 
     const body = {
-      payWay: "PayNowPay",
       merchantId: "YOUR_MERCHANT_ID",
-      thirdOrderId: `ORDER_${timestamp}`,
-      amount: 100,
-      currency: "SGD",
-      jspayFlag: "NATIVE",
+      merchantCustomerId: "YOUR_CUSTOMER_REFERENCE",
     };
 
     // Serialize once. Signing and sending must use the same string.
     const rawBody = JSON.stringify(body);
 
     function buildSignUrl(requestBaseUrl, requestPath) {
-      const basePath = new URL(requestBaseUrl).pathname
+      const basePath = new URL(`${requestBaseUrl.replace(/\/+$/, "")}/${requestPath.replace(/^\/+/, "")}`).pathname
         .replace(/^\/(?:gw|gwp|acceptance)(?=\/)/, "")
         .replace(/\/+$/, "");
-      return `${basePath}/${requestPath.replace(/^\/+/, "")}`;
+      return basePath;
     }
 
     const signUrl = buildSignUrl(baseUrl, path);
@@ -162,8 +148,8 @@ For [`queryIntentStatus`](/en/api-reference/embedded-checkout/query-embedded-pay
     import java.util.UUID;
 
     String baseUrl =
-        "https://t-acquire-business.lepass.cn/gw/abroad-business-acceptance-open-api";
-    String path = "/order/unifiedOrder";
+        "https://open-api.yeahpay.net";
+    String path = "/acceptance/sandbox/consent-payment/customers/query";
     String appId = System.getenv("YEAHPAY_APP_ID");
     String apiKey = System.getenv("YEAHPAY_API_KEY");
     String version = "1.0";
@@ -172,10 +158,10 @@ For [`queryIntentStatus`](/en/api-reference/embedded-checkout/query-embedded-pay
 
     // Signing and sending must use exactly the same rawBody.
     String rawBody = """
-        {"payWay":"PayNowPay","merchantId":"YOUR_MERCHANT_ID","thirdOrderId":"ORDER_001","amount":100,"currency":"SGD","jspayFlag":"NATIVE"}
+        {"merchantId":"YOUR_MERCHANT_ID","merchantCustomerId":"YOUR_CUSTOMER_REFERENCE"}
         """.strip();
 
-    String basePath = URI.create(baseUrl).getPath();
+    String basePath = URI.create(baseUrl.replaceAll("/+$", "") + path).getPath();
     if (basePath.startsWith("/gw/")) {
         basePath = basePath.substring("/gw".length());
     } else if (basePath.startsWith("/gwp/")) {
@@ -183,8 +169,7 @@ For [`queryIntentStatus`](/en/api-reference/embedded-checkout/query-embedded-pay
     } else if (basePath.startsWith("/acceptance/")) {
         basePath = basePath.substring("/acceptance".length());
     }
-    String signUrl = basePath.replaceAll("/+$", "")
-        + "/" + path.replaceAll("^/+", "");
+    String signUrl = basePath.replaceAll("/+$", "");
 
     String signText = String.join(
         "\n", signUrl, appId, timestamp, version, nonce, rawBody, apiKey);

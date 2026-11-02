@@ -35,13 +35,14 @@
                 "pages": [
                   "unified-checkout",
                   "embedded-checkout",
-                  "payment-link",
-                  "subscription-payment"
+                  "payment-link"
                 ]
               },
               {
-                "group": "嵌入式接入",
-                "pages": ["embedded-checkout-sdk"]
+                "group": "API",
+                "pages": [
+                  "embedded-checkout-sdk"
+                ]
               }
             ]
           },
@@ -50,6 +51,50 @@
             "openapi": {
               "source": "openapi.json",
               "directory": "api-reference"
+            }
+          }
+        ]
+      },
+      {
+        "language": "zh-Hant",
+        "tabs": [
+          {
+            "tab": "快速開始",
+            "groups": [
+              {
+                "group": "接入指南",
+                "pages": [
+                  "zh-hk/index",
+                  "zh-hk/signature",
+                  "zh-hk/api-tester"
+                ]
+              }
+            ]
+          },
+          {
+            "tab": "產品介紹",
+            "groups": [
+              {
+                "group": "支付產品",
+                "pages": [
+                  "zh-hk/unified-checkout",
+                  "zh-hk/embedded-checkout",
+                  "zh-hk/payment-link"
+                ]
+              },
+              {
+                "group": "API",
+                "pages": [
+                  "zh-hk/embedded-checkout-sdk"
+                ]
+              }
+            ]
+          },
+          {
+            "tab": "API文件",
+            "openapi": {
+              "source": "openapi-zh-hk.json",
+              "directory": "zh-hk/api-reference"
             }
           }
         ]
@@ -78,13 +123,14 @@
                 "pages": [
                   "en/unified-checkout",
                   "en/embedded-checkout",
-                  "en/payment-link",
-                  "en/subscription-payment"
+                  "en/payment-link"
                 ]
               },
               {
-                "group": "Embedded integration",
-                "pages": ["en/embedded-checkout-sdk"]
+                "group": "API",
+                "pages": [
+                  "en/embedded-checkout-sdk"
+                ]
               }
             ]
           },
@@ -151,6 +197,27 @@
     {
       "source": "/en/pc-checkout",
       "destination": "/en/unified-checkout"
+    },
+    {
+      "source": "/api-reference/嵌入式收银台/创建嵌入式支付意图",
+      "destination": "/api-reference/支付意图/创建支付意图"
+    },
+    {
+      "source": "/api-reference/嵌入式收银台/查询嵌入式支付状态",
+      "destination": "/api-reference/支付意图/查询支付意图"
+    },
+    {
+      "source": "/en/api-reference/embedded-checkout/create-embedded-paymentintent",
+      "destination": "/en/api-reference/payment-intents/create-paymentintent"
+    },
+    {
+      "source": "/en/api-reference/embedded-checkout/query-embedded-payment-status",
+      "destination": "/en/api-reference/payment-intents/query-paymentintent"
     }
-  ]
+  ],
+  "api": {
+    "playground": {
+      "url": "full"
+    }
+  }
 }

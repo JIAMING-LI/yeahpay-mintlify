@@ -1,0 +1,208 @@
+---
+title: "簽名規則與示例"
+description: "產生 YeahPay API 請求簽名並發送未經修改的原始 JSON"
+sidebarTitle: "簽名規則與示例"
+zh-CN_link: "/signature"
+en_link: "/en/signature"
+zh-Hant_link: "/zh-hk/signature"
+---
+
+每個請求都必須產生獨立簽名。簽名使用請求路徑、公共參數、原始請求體和 `apiKey` 計算。
+
+## 簽名原文
+
+按以下順序連接字段。每個字段之間使用一個 ASCII 換行符 `\n`（`0x0A`），最後一個字段後不再追加換行符。
+
+```text
+signUrl
+appId
+timestamp
+version
+nonce
+rawBody
+apiKey
+```
+
+計算方式：
+
+```text
+signature = Base64(SHA-512(UTF-8(signText)))
+```
+
+<Warning>
+  `rawBody` 必須是實際發送的原始 JSON 字符串。簽名後不能再次序列化、格式化、調整字段順序或改變空格。
+</Warning>
+
+## 簽名 URL
+
+簽名使用實際請求路徑，不包含協議、域名、查詢參數和傳輸層網關前綴。
+
+```text
+沙盒請求地址：
+https://open-api.yeahpay.net/acceptance/sandbox/consent-payment/customers/query
+
+簽名 URL：
+/sandbox/consent-payment/customers/query
+
+生產支付意圖請求地址：
+https://open-api.yeahpay.net/gwp/checkout/openapi/v2/createIntent
+
+簽名 URL：
+/checkout/openapi/v2/createIntent
+```
+
+僅去掉開頭的網關段 `/acceptance` 或 `/gwp`，保留後續路徑。支付意圖沙盒請求 `/acceptance/sandbox/openapi/v2/createIntent` 對應簽名路徑 `/sandbox/openapi/v2/createIntent`。在[簽名測試工具](/zh-hk/api-tester)選擇環境即可取得對應路徑。
+
+## 產生步驟
+
+<Steps>
+  <Step title="固定原始請求體">
+    將業務對象序列化為緊湊 JSON，並保存為 `rawBody`。
+  </Step>
+  <Step title="準備公共參數">
+    產生 13 位毫秒 `timestamp` 和本次請求唯一的 `nonce`。`version` 使用 `1.0`。
+  </Step>
+  <Step title="構造簽名原文">
+    按規定順序使用 `\n` 連接七個字段。
+  </Step>
+  <Step title="計算並發送">
+    計算 SHA-512，轉換為標準 Base64，並將結果放入 `signature` Header。請求 Body 直接發送之前保存的 `rawBody`。
+  </Step>
+</Steps>
+
+## 示例程式碼
+
+<Tabs>
+  <Tab title="JavaScript">
+    ```javascript
+    import { createHash, randomUUID } from "node:crypto";
+
+    const baseUrl =
+      "https://open-api.yeahpay.net";
+    const path = "/acceptance/sandbox/consent-payment/customers/query";
+    const appId = process.env.YEAHPAY_APP_ID;
+    const apiKey = process.env.YEAHPAY_API_KEY;
+    const version = "1.0";
+    const timestamp = Date.now().toString();
+    const nonce = randomUUID().replaceAll("-", "");
+
+    const body = {
+      merchantId: "YOUR_MERCHANT_ID",
+      merchantCustomerId: "YOUR_CUSTOMER_REFERENCE",
+    };
+
+    // 只序列化一次：簽名和發送必須使用同一個字符串。
+    const rawBody = JSON.stringify(body);
+
+    function buildSignUrl(requestBaseUrl, requestPath) {
+      const basePath = new URL(`${requestBaseUrl.replace(/\/+$/, "")}/${requestPath.replace(/^\/+/, "")}`).pathname
+        .replace(/^\/(?:gw|gwp|acceptance)(?=\/)/, "")
+        .replace(/\/+$/, "");
+      return basePath;
+    }
+
+    const signUrl = buildSignUrl(baseUrl, path);
+    const signText = [
+      signUrl,
+      appId,
+      timestamp,
+      version,
+      nonce,
+      rawBody,
+      apiKey,
+    ].join("\n");
+
+    const signature = createHash("sha512")
+      .update(signText, "utf8")
+      .digest("base64");
+
+    const response = await fetch(`${baseUrl}${path}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept-Language": "zh-CN",
+        "Accept-Timezone": "Asia/Shanghai",
+        appId,
+        version,
+        timestamp,
+        nonce,
+        algorithm: "SHA-512",
+        signature,
+      },
+      body: rawBody,
+    });
+
+    console.log(response.status, await response.text());
+    ```
+  </Tab>
+  <Tab title="Java">
+    ```java
+    import java.net.URI;
+    import java.net.http.HttpClient;
+    import java.net.http.HttpRequest;
+    import java.net.http.HttpResponse;
+    import java.nio.charset.StandardCharsets;
+    import java.security.MessageDigest;
+    import java.time.Instant;
+    import java.util.Base64;
+    import java.util.UUID;
+
+    String baseUrl =
+        "https://open-api.yeahpay.net";
+    String path = "/acceptance/sandbox/consent-payment/customers/query";
+    String appId = System.getenv("YEAHPAY_APP_ID");
+    String apiKey = System.getenv("YEAHPAY_API_KEY");
+    String version = "1.0";
+    String timestamp = String.valueOf(Instant.now().toEpochMilli());
+    String nonce = UUID.randomUUID().toString().replace("-", "");
+
+    // 簽名和發送必須使用完全相同的 rawBody。
+    String rawBody = """
+        {"merchantId":"YOUR_MERCHANT_ID","merchantCustomerId":"YOUR_CUSTOMER_REFERENCE"}
+        """.strip();
+
+    String basePath = URI.create(baseUrl.replaceAll("/+$", "") + path).getPath();
+    if (basePath.startsWith("/gw/")) {
+        basePath = basePath.substring("/gw".length());
+    } else if (basePath.startsWith("/gwp/")) {
+        basePath = basePath.substring("/gwp".length());
+    } else if (basePath.startsWith("/acceptance/")) {
+        basePath = basePath.substring("/acceptance".length());
+    }
+    String signUrl = basePath.replaceAll("/+$", "");
+
+    String signText = String.join(
+        "\n", signUrl, appId, timestamp, version, nonce, rawBody, apiKey);
+    byte[] digest = MessageDigest.getInstance("SHA-512")
+        .digest(signText.getBytes(StandardCharsets.UTF_8));
+    String signature = Base64.getEncoder().encodeToString(digest);
+
+    HttpRequest request = HttpRequest.newBuilder(
+            URI.create(baseUrl.replaceAll("/+$", "") + path))
+        .header("Content-Type", "application/json")
+        .header("appId", appId)
+        .header("version", version)
+        .header("timestamp", timestamp)
+        .header("nonce", nonce)
+        .header("algorithm", "SHA-512")
+        .header("signature", signature)
+        .POST(HttpRequest.BodyPublishers.ofString(rawBody, StandardCharsets.UTF_8))
+        .build();
+
+    HttpResponse<String> response = HttpClient.newHttpClient().send(
+        request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+    System.out.println(response.statusCode() + " " + response.body());
+    ```
+  </Tab>
+</Tabs>
+
+## 常見簽名錯誤
+
+| 問題 | 處理方式 |
+| --- | --- |
+| 把完整請求 URL 用於簽名 | 只使用 YeahPay 驗簽路徑，不包含協議和域名 |
+| 把 `/gw` 或 `/acceptance` 加入簽名 | 去掉傳輸層網關前綴 |
+| 簽名後重新序列化 JSON | 保存並複用同一個 `rawBody` |
+| 使用秒級時間戳 | 使用 13 位毫秒時間戳 |
+| 使用十六進制 SHA-512 | 使用標準 Base64 編碼 |
+| 把 `apiKey` 放進請求 Header | `apiKey` 只參與簽名，不能發送 |

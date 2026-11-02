@@ -1,6 +1,9 @@
 ---
 title: "Payment Links"
 description: "Create shareable payment links, manage products, and receive successful payment notifications"
+zh-CN_link: "/payment-link"
+en_link: "/en/payment-link"
+zh-Hant_link: "/zh-hk/payment-link"
 ---
 
 Payment Links support fixed amounts and product-based orders. Create a link and share its returned `paymentUrl` with buyers.
@@ -9,7 +12,7 @@ Payment Links support fixed amounts and product-based orders. Create a link and 
 
 - Ask the platform to enable Payment Links; requests return `210004` when the feature is not enabled.
 - Register your merchant server's outbound IP addresses in the allowlist. Unauthorized requests may be rejected at the gateway.
-- Use your merchant `appId` and API key with the acceptance endpoints in [Get Started](/en) and the [SHA-512 signing rules](/en/signature). Every request body must include a `merchantId` matching the merchant bound to the application.
+- Use your merchant `appId` and API key with the API domain in [Get Started](/en) and the [SHA-512 signing rules](/en/signature). Every request body must include a `merchantId` matching the merchant bound to the application.
 
 Request amounts are in cents and time fields use **Unix timestamps in seconds**. The signing header `timestamp` uses milliseconds. Business success code is `0`.
 

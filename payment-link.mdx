@@ -1,6 +1,9 @@
 ---
 title: "支付链接"
 description: "通过 API 创建可分享的收款链接，管理商品并接收收款结果"
+zh-CN_link: "/payment-link"
+en_link: "/en/payment-link"
+zh-Hant_link: "/zh-hk/payment-link"
 ---
 
 Payment Link 支持指定金额收款和商品组单。商户创建链接后，将返回的 `paymentUrl` 分享给买家完成付款。
@@ -9,7 +12,7 @@ Payment Link 支持指定金额收款和商品组单。商户创建链接后，�
 
 - 向平台开通支付链接功能，未开通时返回 `210004`。
 - 提供商户服务端的出口 IP 并完成白名单配置，未授权请求可能在网关被拒绝。
-- 使用商户后台的 `appId` 和 API key，沿用[快速开始](/)中的 acceptance 入口及[SHA-512 签名规则](/signature)。每个请求体都须传与应用绑定商户一致的 `merchantId`。
+- 使用商户后台的 `appId` 和 API key，沿用[快速开始](/)中的 API 域名及[SHA-512 签名规则](/signature)。每个请求体都须传与应用绑定商户一致的 `merchantId`。
 
 请求金额单位为分，时间字段使用**秒级 Unix 时间戳**；签名 Header 的 `timestamp` 使用毫秒。接口业务成功码为 `0`。
 

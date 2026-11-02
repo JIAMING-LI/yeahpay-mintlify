@@ -1,22 +1,21 @@
 ---
 title: "Get Started"
 description: "Learn the YeahPay API environments, authentication parameters, and integration flow"
+zh-CN_link: "/"
+en_link: "/en"
+zh-Hant_link: "/zh-hk"
 ---
 
 YeahPay provides payment, query, refund, and checkout APIs over HTTPS with JSON payloads. Before you start, request an `appId` and `apiKey` from YeahPay.
 
 ## Environment URLs
 
-The table below lists acceptance Base URLs for customer management and existing transaction APIs. Unified and Embedded Checkout use separate [Checkout endpoints](/en/embedded-checkout#environments-and-signing), with production Base URL `https://open-api.yeahpay.net/gwp/checkout`.
+API domain: `https://open-api.yeahpay.net`.
 
-| Environment | Base URL | Usage |
-| --- | --- | --- |
-| Test | `https://t-acquire-business.lepass.cn/gw/abroad-business-acceptance-open-api` | Development and integration testing |
-| Sandbox | `https://open-api.yeahpay.net/acceptance/sandbox` | Sandbox integration testing |
-| Production | `https://open-api.yeahpay.net/acceptance/acceptance-open-api` | Live transactions |
+Use Sandbox for integration and Production for live transactions, with the matching application credentials. Select the environment on each API page and use its complete request path or generated cURL.
 
 <Warning>
-  Each environment uses different `appId` and `apiKey` values. When you switch environments, update both the Base URL and its credentials.
+  Sandbox and Production use different credentials. Switch both the API environment path and its `appId` and `apiKey`.
 </Warning>
 
 ## Common request headers
@@ -42,8 +41,8 @@ All API requests use `POST` and `application/json`.
 ## Integration flow
 
 <Steps>
-  <Step title="Request test credentials">
-    Get an `appId` and `apiKey` for the test environment. Store them securely in your server-side configuration.
+  <Step title="Request sandbox credentials">
+    Get an `appId` and `apiKey` for the sandbox environment. Store them securely in your server-side configuration.
   </Step>
   <Step title="Generate the signature">
     Serialize the request body once. Use the same raw JSON string to calculate the signature and send the request. See [Signature rules and examples](/en/signature).
@@ -52,7 +51,7 @@ All API requests use `POST` and `application/json`.
     Verify payments, queries, reversal transactions, and asynchronous notifications. After processing a payment or refund notification successfully, return `success` as the response body.
   </Step>
   <Step title="Switch to production">
-    Change the Base URL to `https://open-api.yeahpay.net/acceptance/acceptance-open-api` and use the production credentials. Do not reuse test credentials.
+    Keep the API domain `https://open-api.yeahpay.net`, select the production path documented for the operation, and use production credentials. Do not reuse sandbox credentials.
   </Step>
 </Steps>
 
@@ -60,7 +59,7 @@ All API requests use `POST` and `application/json`.
   <Card title="Signature rules and examples" icon="key" href="/en/signature">
     Review the signing text, URL rules, and JavaScript and Java examples.
   </Card>
-  <Card title="API reference" icon="code" href="/en/api-reference/qr-code-transactions/merchant-presented-qr-order-customer-scans-merchant-qr-code">
+  <Card title="API reference" icon="code" href="/en/api-reference/unified-checkout/get-unified-checkout-url">
     Review request fields, payloads, and response schemas.
   </Card>
 </CardGroup>

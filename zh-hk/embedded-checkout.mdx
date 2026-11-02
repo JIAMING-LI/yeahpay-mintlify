@@ -1,0 +1,95 @@
+---
+title: "嵌入式收銀台"
+description: "在商戶網頁內嵌入 YeahPay Checkout，由伺服器端建立支付意圖並確認支付結果"
+zh-CN_link: "/embedded-checkout"
+en_link: "/en/embedded-checkout"
+zh-Hant_link: "/zh-hk/embedded-checkout"
+---
+
+嵌入式收銀台使用支付意圖（PaymentIntent）管理本次支付，並通過 JavaScript SDK 在商戶網頁中掛載 YeahPay iframe。買家在收銀台內輸入卡資料、選擇已有卡並完成必要認證，商戶伺服器端負責建立支付意圖、簽名和確認結果。
+
+<Note>
+  本指南按商戶伺服器端 API V1.5 和瀏覽器 SDK V1.0 整理。伺服器端使用所選 API 環境的應用憑證；SDK 腳本和初始化值單獨見 SDK 接入指南。
+</Note>
+
+## 接入流程
+
+<Steps>
+  <Step title="商戶伺服器端建立支付意圖">
+    使用唯一的 `merchantOrderId` 和本次建單的 `requestId`，簽名調用[建立支付意圖](/zh-hk/api-reference/支付意圖/建立支付意圖)。普通正金額新卡支付可以不傳 `customerId`；綁卡、展示已有卡或已有授權直接支付時，先通過現有[建立客戶介面](/zh-hk/api-reference/訂閱支付/建立客戶)準備平台客戶。
+  </Step>
+  <Step title="前端掛載 SDK">
+    伺服器端只將當前支付的 `paymentIntentId` 和 `paymentIntentToken` 交給前端。前端按 [SDK 接入指南](/zh-hk/embedded-checkout-sdk)建立、監聽並掛載收銀台。
+  </Step>
+  <Step title="買家完成支付或認證">
+    普通新卡和首次綁卡由買家在 SDK 中提交。已有 Consent 直接支付在 `createIntent` 時已發起，SDK 用原 Token 查詢狀態並承接認證。
+  </Step>
+  <Step title="伺服器端確認業務結果">
+    驗證成功通知的簽名並冪等處理，或調用[查詢支付意圖](/zh-hk/api-reference/支付意圖/查詢支付意圖)。前端事件和瀏覽器回跳僅用於頁面展示。
+  </Step>
+</Steps>
+
+## 環境與簽名
+
+API 域名：`https://open-api.yeahpay.net`。在[建立支付意圖](/zh-hk/api-reference/支付意圖/建立支付意圖)和[查詢支付意圖](/zh-hk/api-reference/支付意圖/查詢支付意圖)頁面選擇沙盒或生產環境，介面文件與[簽名測試工具](/zh-hk/api-tester?operationId=createIntent)提供該環境的完整請求路徑。客戶管理使用同一域名及其介面頁面列出的路徑。
+
+伺服器端沿用[公共簽名請求頭與規則](/zh-hk/signature)。`Accept-Timezone` 指定同步響應記錄時間的時區；沒有偏移量的時間字符串不可自行補 `Z`。
+
+前端 SDK 沒有沙盒選項，實際支持的 `test`、`pro` 與商戶 API 環境選擇分別配置，見[嵌入式 SDK 接入](/zh-hk/embedded-checkout-sdk)。
+
+## 支付與綁卡場景
+
+`paymentInitiator` 和 `consentToken` 位於 `payment_consent` 對象中。
+
+| 場景 | 金額 | 客戶與授權參數 | 發起時機 |
+| --- | --- | --- | --- |
+| 普通新卡支付 | 大於 0 | `customerId` 可選，不傳 `payment_consent` | 買家在 SDK 提交 |
+| 組件選擇已有卡 | 大於 0 | 傳 `customerId`，不傳 `payment_consent` | 買家選卡後提交 |
+| 支付並綁卡 | 大於 0 | `customerId` + `CIT`，不傳 `consentToken` | 買家提交新卡 |
+| 純綁卡 | 0 | `customerId` + `CIT`，不傳 `consentToken` 或 `checkout.buttonType` | 買家提交新卡並驗證 |
+| MIT 首次授權並支付 | 大於 0 | `customerId` + `MIT`，不傳 `consentToken` | 買家提交新卡 |
+| 已有 Consent 直接支付 | 大於 0 | `customerId` + 與首次綁定一致的 `CIT/MIT` + 有效 `consentToken` | `createIntent` 建單時發起 |
+
+MIT 零金額請求會被拒絕。當前僅支持 `final_auth`，不支持預授權或後續請款；`SUBSCRIBE` 僅為按鈕文案，不建立自動週期扣款計劃。
+
+金額使用最小貨幣單位的 JSON 整數，例如 SGD 10.00 傳 `1000`；`"1000"`、`1000.0` 和 `1e3` 均不可用。商品合計不決定實際扣款金額。
+
+## 三種憑據的邊界
+
+| 值 | 保存與使用方式 |
+| --- | --- |
+| `apiKey` | 僅商戶伺服器端用於請求簽名 |
+| `paymentIntentToken` | 當前 PI 的瀏覽器 Session 憑據，交給 SDK；不記錄到日誌或分析工具 |
+| `consentToken` | 商戶伺服器端保存的綁定引用，用於後續支付；不得下發瀏覽器 |
+
+首次綁定的引用可能晚於支付成功就緒。查單尚無 `consentToken` 時，繼續查詢原 PI；不要重新綁卡。SDK 的 `savedCardId` 是當前 Session 的選卡引用，不能替代跨訂單使用的 `consentToken`。
+
+## 狀態、重試與通知
+
+| `data.status` | 商戶處理 |
+| --- | --- |
+| `REQUIRES_PAYMENT_METHOD` | 等待買家提交，或上次嘗試已失敗或關閉；結合最新嘗試判斷後續操作 |
+| `REQUIRES_CUSTOMER_ACTION` | 交給 SDK 完成認證 |
+| `PENDING` | 繼續查原 PI，不重複扣款 |
+| `SUCCEEDED` | 正金額支付目標完成；零金額表示卡驗證目標完成 |
+
+`code=0` 表示請求正常處理，HTTP 200 和前端 `ended` 事件均不能單獨證明支付成功。動作位於 `latest_payment_attempt.nextAction`，商戶查單不會執行 3DS Continue；認證由 SDK 承接。
+
+網絡重試沿用原 `merchantId`、`requestId` 和 `merchantOrderId`。同 `requestId` 重放返回原 PI，不更改參數或再次扣款；原 Token 不會刷新或延長有效期。直扣返回 `292009`、`500` 或超時時，也可能已經建單或發起扣款，先查詢原訂單。
+
+成功通知使用 `eventType=PAYMENT_SUCCEEDED`，按 `eventId` 冪等處理；驗簽和業務處理成功後返回 HTTP 200、純文本 `success`。目前沒有自動重投保證，也不發送失敗或退款事件，需要保留主動查單能力。通知驗簽的第一行為完整商戶通知 URL，與主動請求的簽名路徑不同。
+
+<CardGroup cols={2}>
+  <Card title="嵌入式 SDK 接入" icon="code" href="/zh-hk/embedded-checkout-sdk">
+    查看初始化、事件、生命週期和 HTML、Vue、React 示例。
+  </Card>
+  <Card title="建立支付意圖" icon="book-open" href="/zh-hk/api-reference/支付意圖/建立支付意圖">
+    查看完整建單字段、條件必填項與冪等規則。
+  </Card>
+  <Card title="查詢支付狀態" icon="magnifying-glass" href="/zh-hk/api-reference/支付意圖/查詢支付意圖">
+    按支付意圖 ID 或商戶訂單號確認結果。
+  </Card>
+  <Card title="除錯簽名請求" icon="terminal" href="/zh-hk/api-tester?operationId=createIntent">
+    選擇沙盒或生產環境產生簽名和 cURL。
+  </Card>
+</CardGroup>

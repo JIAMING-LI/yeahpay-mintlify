@@ -1,0 +1,12 @@
+{
+  "name": "yeahpay-documentation",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "docs:generate": "node scripts/build-openapi-en.mjs && node scripts/build-zh-hk.mjs && node scripts/sync-signed-api-playground.mjs --write",
+    "docs:check": "node scripts/check-api-environments.mjs --public && node scripts/build-zh-hk.mjs --check && node scripts/sync-signed-api-playground.mjs --check"
+  },
+  "devDependencies": {
+    "opencc-js": "1.0.5"
+  }
+}

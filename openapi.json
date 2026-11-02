@@ -7,8 +7,14 @@
   },
   "servers": [
     {
-      "url": "https://t-acquire-business.lepass.cn/gw/abroad-business-acceptance-open-api",
-      "description": "测试环境"
+      "url": "https://open-api.yeahpay.net/acceptance/sandbox",
+      "description": "沙箱环境",
+      "x-environment": "sandbox"
+    },
+    {
+      "url": "https://open-api.yeahpay.net/acceptance/acceptance-open-api",
+      "description": "生产环境",
+      "x-environment": "production"
     }
   ],
   "tags": [
@@ -17,8 +23,8 @@
       "description": "创建支付意图（PaymentIntent）并返回托管收银台地址"
     },
     {
-      "name": "嵌入式收银台",
-      "description": "商户服务端创建和查询嵌入式支付意图；配合前端 SDK 使用"
+      "name": "支付意图",
+      "description": "商户服务端创建和查询支付意图，供嵌入式收银台等接入方式使用"
     },
     {
       "name": "支付链接",
@@ -31,10 +37,6 @@
     {
       "name": "撤销-退款",
       "description": "统一撤销或退款"
-    },
-    {
-      "name": "扫码交易",
-      "description": "主扫、被扫、查询、关闭和退款查询"
     },
     {
       "name": "线上预授权刷卡交易",
@@ -57,7 +59,12 @@
         "description": "创建支付意图并返回统一收银台地址。",
         "operationId": "getRedirectUrl",
         "x-mint": {
-          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=getRedirectUrl\">使用此接口参数生成请求签名和 cURL。</Card>"
+          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=getRedirectUrl\">使用此接口参数生成请求签名和 cURL。</Card>",
+          "metadata": {
+            "zh-CN_link": "/api-reference/%E7%BB%9F%E4%B8%80%E6%94%B6%E9%93%B6%E5%8F%B0/%E8%8E%B7%E5%8F%96%E7%BB%9F%E4%B8%80%E6%94%B6%E9%93%B6%E5%8F%B0%E5%9C%B0%E5%9D%80",
+            "en_link": "/en/api-reference/unified-checkout/get-unified-checkout-url",
+            "zh-Hant_link": "/zh-hk/api-reference/%E7%B5%B1%E4%B8%80%E6%94%B6%E9%8A%80%E5%8F%B0/%E5%8F%96%E5%BE%97%E7%B5%B1%E4%B8%80%E6%94%B6%E9%8A%80%E5%8F%B0%E5%9C%B0%E5%9D%80"
+          }
         },
         "parameters": [
           {
@@ -118,13 +125,13 @@
         },
         "servers": [
           {
-            "url": "https://t-acquire-business.lepass.cn/gwp/checkout",
-            "description": "Checkout 测试环境",
-            "x-environment": "test"
+            "url": "https://open-api.yeahpay.net/acceptance/sandbox",
+            "description": "沙箱环境",
+            "x-environment": "sandbox"
           },
           {
             "url": "https://open-api.yeahpay.net/gwp/checkout",
-            "description": "Checkout 生产环境",
+            "description": "生产环境",
             "x-environment": "production"
           }
         ]
@@ -133,20 +140,20 @@
     "/openapi/v2/createIntent": {
       "post": {
         "tags": [
-          "嵌入式收银台"
+          "支付意图"
         ],
-        "summary": "创建嵌入式支付意图",
+        "summary": "创建支付意图",
         "description": "创建嵌入式支付意图，返回支付意图 ID 和 SDK Session Token。",
         "operationId": "createIntent",
         "servers": [
           {
-            "url": "https://t-acquire-business.lepass.cn/gwp/checkout",
-            "description": "Checkout 测试环境",
-            "x-environment": "test"
+            "url": "https://open-api.yeahpay.net/acceptance/sandbox",
+            "description": "沙箱环境",
+            "x-environment": "sandbox"
           },
           {
             "url": "https://open-api.yeahpay.net/gwp/checkout",
-            "description": "Checkout 生产环境",
+            "description": "生产环境",
             "x-environment": "production"
           }
         ],
@@ -331,27 +338,32 @@
           }
         },
         "x-mint": {
-          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=createIntent\">使用此接口参数生成请求签名和 cURL。</Card>"
+          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=createIntent\">使用此接口参数生成请求签名和 cURL。</Card>",
+          "metadata": {
+            "zh-CN_link": "/api-reference/%E6%94%AF%E4%BB%98%E6%84%8F%E5%9B%BE/%E5%88%9B%E5%BB%BA%E6%94%AF%E4%BB%98%E6%84%8F%E5%9B%BE",
+            "en_link": "/en/api-reference/payment-intents/create-paymentintent",
+            "zh-Hant_link": "/zh-hk/api-reference/%E6%94%AF%E4%BB%98%E6%84%8F%E5%9C%96/%E5%BB%BA%E7%AB%8B%E6%94%AF%E4%BB%98%E6%84%8F%E5%9C%96"
+          }
         }
       }
     },
     "/openapi/v2/queryIntentStatus": {
       "post": {
         "tags": [
-          "嵌入式收银台"
+          "支付意图"
         ],
-        "summary": "查询嵌入式支付状态",
+        "summary": "查询支付意图",
         "description": "按支付意图 ID 或商户订单号查询支付状态与绑定结果。",
         "operationId": "queryIntentStatus",
         "servers": [
           {
-            "url": "https://t-acquire-business.lepass.cn/gwp/checkout",
-            "description": "Checkout 测试环境",
-            "x-environment": "test"
+            "url": "https://open-api.yeahpay.net/acceptance/sandbox",
+            "description": "沙箱环境",
+            "x-environment": "sandbox"
           },
           {
             "url": "https://open-api.yeahpay.net/gwp/checkout",
-            "description": "Checkout 生产环境",
+            "description": "生产环境",
             "x-environment": "production"
           }
         ],
@@ -470,7 +482,12 @@
           }
         },
         "x-mint": {
-          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=queryIntentStatus\">使用此接口参数生成请求签名和 cURL。</Card>"
+          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=queryIntentStatus\">使用此接口参数生成请求签名和 cURL。</Card>",
+          "metadata": {
+            "zh-CN_link": "/api-reference/%E6%94%AF%E4%BB%98%E6%84%8F%E5%9B%BE/%E6%9F%A5%E8%AF%A2%E6%94%AF%E4%BB%98%E6%84%8F%E5%9B%BE",
+            "en_link": "/en/api-reference/payment-intents/query-paymentintent",
+            "zh-Hant_link": "/zh-hk/api-reference/%E6%94%AF%E4%BB%98%E6%84%8F%E5%9C%96/%E6%9F%A5%E8%A9%A2%E6%94%AF%E4%BB%98%E6%84%8F%E5%9C%96"
+          }
         }
       }
     },
@@ -543,7 +560,12 @@
           }
         },
         "x-mint": {
-          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=createConsentCustomer\">使用此接口参数生成请求签名和 cURL。</Card>"
+          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=createConsentCustomer\">使用此接口参数生成请求签名和 cURL。</Card>",
+          "metadata": {
+            "zh-CN_link": "/api-reference/%E8%AE%A2%E9%98%85%E6%94%AF%E4%BB%98/%E5%88%9B%E5%BB%BA%E5%AE%A2%E6%88%B7",
+            "en_link": "/en/api-reference/subscription-payments/create-customer",
+            "zh-Hant_link": "/zh-hk/api-reference/%E8%A8%82%E9%96%B1%E6%94%AF%E4%BB%98/%E5%BB%BA%E7%AB%8B%E5%AE%A2%E6%88%B6"
+          }
         }
       }
     },
@@ -613,7 +635,12 @@
           }
         },
         "x-mint": {
-          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=updateConsentCustomer\">使用此接口参数生成请求签名和 cURL。</Card>"
+          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=updateConsentCustomer\">使用此接口参数生成请求签名和 cURL。</Card>",
+          "metadata": {
+            "zh-CN_link": "/api-reference/%E8%AE%A2%E9%98%85%E6%94%AF%E4%BB%98/%E6%9B%B4%E6%96%B0%E5%AE%A2%E6%88%B7",
+            "en_link": "/en/api-reference/subscription-payments/update-customer",
+            "zh-Hant_link": "/zh-hk/api-reference/%E8%A8%82%E9%96%B1%E6%94%AF%E4%BB%98/%E6%9B%B4%E6%96%B0%E5%AE%A2%E6%88%B6"
+          }
         }
       }
     },
@@ -683,7 +710,12 @@
           }
         },
         "x-mint": {
-          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=queryConsentCustomer\">使用此接口参数生成请求签名和 cURL。</Card>"
+          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=queryConsentCustomer\">使用此接口参数生成请求签名和 cURL。</Card>",
+          "metadata": {
+            "zh-CN_link": "/api-reference/%E8%AE%A2%E9%98%85%E6%94%AF%E4%BB%98/%E6%9F%A5%E8%AF%A2%E5%AE%A2%E6%88%B7",
+            "en_link": "/en/api-reference/subscription-payments/query-customer",
+            "zh-Hant_link": "/zh-hk/api-reference/%E8%A8%82%E9%96%B1%E6%94%AF%E4%BB%98/%E6%9F%A5%E8%A9%A2%E5%AE%A2%E6%88%B6"
+          }
         }
       }
     },
@@ -753,7 +785,12 @@
           }
         },
         "x-mint": {
-          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=queryCustomerConsents\">使用此接口参数生成请求签名和 cURL。</Card>"
+          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=queryCustomerConsents\">使用此接口参数生成请求签名和 cURL。</Card>",
+          "metadata": {
+            "zh-CN_link": "/api-reference/%E8%AE%A2%E9%98%85%E6%94%AF%E4%BB%98/%E6%9F%A5%E8%AF%A2%E5%AE%A2%E6%88%B7%E6%8E%88%E6%9D%83",
+            "en_link": "/en/api-reference/subscription-payments/query-customer-consents",
+            "zh-Hant_link": "/zh-hk/api-reference/%E8%A8%82%E9%96%B1%E6%94%AF%E4%BB%98/%E6%9F%A5%E8%A9%A2%E5%AE%A2%E6%88%B6%E6%8E%88%E6%AC%8A"
+          }
         }
       }
     },
@@ -823,7 +860,12 @@
           }
         },
         "x-mint": {
-          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=queryConsent\">使用此接口参数生成请求签名和 cURL。</Card>"
+          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=queryConsent\">使用此接口参数生成请求签名和 cURL。</Card>",
+          "metadata": {
+            "zh-CN_link": "/api-reference/%E8%AE%A2%E9%98%85%E6%94%AF%E4%BB%98/%E6%9F%A5%E8%AF%A2%E6%8E%88%E6%9D%83",
+            "en_link": "/en/api-reference/subscription-payments/query-consent",
+            "zh-Hant_link": "/zh-hk/api-reference/%E8%A8%82%E9%96%B1%E6%94%AF%E4%BB%98/%E6%9F%A5%E8%A9%A2%E6%8E%88%E6%AC%8A"
+          }
         }
       }
     },
@@ -893,7 +935,12 @@
           }
         },
         "x-mint": {
-          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=cancelConsent\">使用此接口参数生成请求签名和 cURL。</Card>"
+          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=cancelConsent\">使用此接口参数生成请求签名和 cURL。</Card>",
+          "metadata": {
+            "zh-CN_link": "/api-reference/%E8%AE%A2%E9%98%85%E6%94%AF%E4%BB%98/%E5%8F%96%E6%B6%88%E6%8E%88%E6%9D%83",
+            "en_link": "/en/api-reference/subscription-payments/cancel-consent",
+            "zh-Hant_link": "/zh-hk/api-reference/%E8%A8%82%E9%96%B1%E6%94%AF%E4%BB%98/%E5%8F%96%E6%B6%88%E6%8E%88%E6%AC%8A"
+          }
         }
       }
     },
@@ -963,7 +1010,12 @@
           }
         },
         "x-mint": {
-          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=activateConsent\">使用此接口参数生成请求签名和 cURL。</Card>"
+          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=activateConsent\">使用此接口参数生成请求签名和 cURL。</Card>",
+          "metadata": {
+            "zh-CN_link": "/api-reference/%E8%AE%A2%E9%98%85%E6%94%AF%E4%BB%98/%E9%87%8D%E6%96%B0%E5%90%AF%E7%94%A8%E6%8E%88%E6%9D%83",
+            "en_link": "/en/api-reference/subscription-payments/reactivate-consent",
+            "zh-Hant_link": "/zh-hk/api-reference/%E8%A8%82%E9%96%B1%E6%94%AF%E4%BB%98/%E9%87%8D%E6%96%B0%E5%95%93%E7%94%A8%E6%8E%88%E6%AC%8A"
+          }
         }
       }
     },
@@ -1033,7 +1085,12 @@
           }
         },
         "x-mint": {
-          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=createConsentCharge\">使用此接口参数生成请求签名和 cURL。</Card>"
+          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=createConsentCharge\">使用此接口参数生成请求签名和 cURL。</Card>",
+          "metadata": {
+            "zh-CN_link": "/api-reference/%E8%AE%A2%E9%98%85%E6%94%AF%E4%BB%98/%E5%8F%91%E8%B5%B7%E5%90%8E%E7%BB%AD%E6%89%A3%E6%AC%BE",
+            "en_link": "/en/api-reference/subscription-payments/initiate-subsequent-charge",
+            "zh-Hant_link": "/zh-hk/api-reference/%E8%A8%82%E9%96%B1%E6%94%AF%E4%BB%98/%E7%99%BC%E8%B5%B7%E5%BE%8C%E7%BA%8C%E6%89%A3%E6%AC%BE"
+          }
         }
       }
     },
@@ -1103,7 +1160,12 @@
           }
         },
         "x-mint": {
-          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=listConsentCharges\">使用此接口参数生成请求签名和 cURL。</Card>"
+          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=listConsentCharges\">使用此接口参数生成请求签名和 cURL。</Card>",
+          "metadata": {
+            "zh-CN_link": "/api-reference/%E8%AE%A2%E9%98%85%E6%94%AF%E4%BB%98/%E6%9F%A5%E8%AF%A2%E6%89%A3%E6%AC%BE%E5%88%97%E8%A1%A8",
+            "en_link": "/en/api-reference/subscription-payments/list-charges",
+            "zh-Hant_link": "/zh-hk/api-reference/%E8%A8%82%E9%96%B1%E6%94%AF%E4%BB%98/%E6%9F%A5%E8%A9%A2%E6%89%A3%E6%AC%BE%E5%88%97%E8%A1%A8"
+          }
         }
       }
     },
@@ -1115,7 +1177,12 @@
         "summary": "统一撤销或退款",
         "operationId": "reversalOperation",
         "x-mint": {
-          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=reversalOperation\">使用此接口参数生成请求签名和 cURL。</Card>"
+          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=reversalOperation\">使用此接口参数生成请求签名和 cURL。</Card>",
+          "metadata": {
+            "zh-CN_link": "/api-reference/%E6%92%A4%E9%94%80-%E9%80%80%E6%AC%BE/%E7%BB%9F%E4%B8%80%E6%92%A4%E9%94%80%E6%88%96%E9%80%80%E6%AC%BE",
+            "en_link": "/en/api-reference/reversal-and-refund/unified-reversal-or-refund",
+            "zh-Hant_link": "/zh-hk/api-reference/%E6%92%A4%E9%8A%B7-%E9%80%80%E6%AC%BE/%E7%B5%B1%E4%B8%80%E6%92%A4%E9%8A%B7%E6%88%96%E9%80%80%E6%AC%BE"
+          }
         },
         "parameters": [
           {
@@ -1176,420 +1243,6 @@
         }
       }
     },
-    "/order/unifiedOrder": {
-      "post": {
-        "tags": [
-          "扫码交易"
-        ],
-        "summary": "主扫（消费者扫商户收款码、线上支付）",
-        "operationId": "unifiedOrder",
-        "x-mint": {
-          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=unifiedOrder\">使用此接口参数生成请求签名和 cURL。</Card>"
-        },
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/VersionHeader"
-          },
-          {
-            "$ref": "#/components/parameters/TimestampHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AlgorithmHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AppIdHeader"
-          },
-          {
-            "$ref": "#/components/parameters/NonceHeader"
-          },
-          {
-            "$ref": "#/components/parameters/SignatureHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AcceptLanguageHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AcceptTimezoneHeader"
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UnifiedOrderRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "请求成功",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UnifiedOrderResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "请求参数错误"
-          },
-          "401": {
-            "description": "签名验证失败或身份认证失败"
-          },
-          "500": {
-            "description": "服务端错误"
-          }
-        }
-      }
-    },
-    "/order/queryOrder": {
-      "post": {
-        "tags": [
-          "扫码交易"
-        ],
-        "summary": "支付查询（扫码、刷卡）",
-        "operationId": "queryOrder",
-        "x-mint": {
-          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=queryOrder\">使用此接口参数生成请求签名和 cURL。</Card>"
-        },
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/VersionHeader"
-          },
-          {
-            "$ref": "#/components/parameters/TimestampHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AlgorithmHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AppIdHeader"
-          },
-          {
-            "$ref": "#/components/parameters/NonceHeader"
-          },
-          {
-            "$ref": "#/components/parameters/SignatureHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AcceptLanguageHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AcceptTimezoneHeader"
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/OrderLookupRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "请求成功",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/QueryOrderResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "请求参数错误"
-          },
-          "401": {
-            "description": "签名验证失败或身份认证失败"
-          },
-          "500": {
-            "description": "服务端错误"
-          }
-        }
-      }
-    },
-    "/order/microPay": {
-      "post": {
-        "tags": [
-          "扫码交易"
-        ],
-        "summary": "被扫（商户扫消费者付款码）",
-        "operationId": "microPay",
-        "x-mint": {
-          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=microPay\">使用此接口参数生成请求签名和 cURL。</Card>"
-        },
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/VersionHeader"
-          },
-          {
-            "$ref": "#/components/parameters/TimestampHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AlgorithmHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AppIdHeader"
-          },
-          {
-            "$ref": "#/components/parameters/NonceHeader"
-          },
-          {
-            "$ref": "#/components/parameters/SignatureHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AcceptLanguageHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AcceptTimezoneHeader"
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/MicroPayRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "请求成功",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MicroPayResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "请求参数错误"
-          },
-          "401": {
-            "description": "签名验证失败或身份认证失败"
-          },
-          "500": {
-            "description": "服务端错误"
-          }
-        }
-      }
-    },
-    "/order/closeOrder": {
-      "post": {
-        "tags": [
-          "扫码交易"
-        ],
-        "summary": "订单关闭或撤销",
-        "operationId": "closeOrder",
-        "x-mint": {
-          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=closeOrder\">使用此接口参数生成请求签名和 cURL。</Card>"
-        },
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/VersionHeader"
-          },
-          {
-            "$ref": "#/components/parameters/TimestampHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AlgorithmHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AppIdHeader"
-          },
-          {
-            "$ref": "#/components/parameters/NonceHeader"
-          },
-          {
-            "$ref": "#/components/parameters/SignatureHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AcceptLanguageHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AcceptTimezoneHeader"
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/OrderLookupRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "请求成功",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CloseOrderResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "请求参数错误"
-          },
-          "401": {
-            "description": "签名验证失败或身份认证失败"
-          },
-          "500": {
-            "description": "服务端错误"
-          }
-        }
-      }
-    },
-    "/order/unifiedRefund": {
-      "post": {
-        "tags": [
-          "扫码交易"
-        ],
-        "summary": "统一退款",
-        "operationId": "unifiedRefund",
-        "x-mint": {
-          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=unifiedRefund\">使用此接口参数生成请求签名和 cURL。</Card>"
-        },
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/VersionHeader"
-          },
-          {
-            "$ref": "#/components/parameters/TimestampHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AlgorithmHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AppIdHeader"
-          },
-          {
-            "$ref": "#/components/parameters/NonceHeader"
-          },
-          {
-            "$ref": "#/components/parameters/SignatureHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AcceptLanguageHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AcceptTimezoneHeader"
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UnifiedRefundRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "请求成功",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UnifiedRefundResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "请求参数错误"
-          },
-          "401": {
-            "description": "签名验证失败或身份认证失败"
-          },
-          "500": {
-            "description": "服务端错误"
-          }
-        }
-      }
-    },
-    "/order/queryRefund": {
-      "post": {
-        "tags": [
-          "扫码交易"
-        ],
-        "summary": "退款查询（扫码、刷卡）",
-        "operationId": "queryRefund",
-        "x-mint": {
-          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=queryRefund\">使用此接口参数生成请求签名和 cURL。</Card>"
-        },
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/VersionHeader"
-          },
-          {
-            "$ref": "#/components/parameters/TimestampHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AlgorithmHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AppIdHeader"
-          },
-          {
-            "$ref": "#/components/parameters/NonceHeader"
-          },
-          {
-            "$ref": "#/components/parameters/SignatureHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AcceptLanguageHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AcceptTimezoneHeader"
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/QueryRefundRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "请求成功",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/QueryRefundResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "请求参数错误"
-          },
-          "401": {
-            "description": "签名验证失败或身份认证失败"
-          },
-          "500": {
-            "description": "服务端错误"
-          }
-        }
-      }
-    },
     "/cardOrder/preAuthCompleteOnline": {
       "post": {
         "tags": [
@@ -1599,7 +1252,12 @@
         "description": "预授权完成接口（open-api服务）",
         "operationId": "preAuthCompleteOnline",
         "x-mint": {
-          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=preAuthCompleteOnline\">使用此接口参数生成请求签名和 cURL。</Card>"
+          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=preAuthCompleteOnline\">使用此接口参数生成请求签名和 cURL。</Card>",
+          "metadata": {
+            "zh-CN_link": "/api-reference/%E7%BA%BF%E4%B8%8A%E9%A2%84%E6%8E%88%E6%9D%83%E5%88%B7%E5%8D%A1%E4%BA%A4%E6%98%93/%E9%A2%84%E6%8E%88%E6%9D%83%E5%AE%8C%E6%88%90",
+            "en_link": "/en/api-reference/online-pre-authorization-card-transactions/complete-pre-authorization",
+            "zh-Hant_link": "/zh-hk/api-reference/%E7%B7%9A%E4%B8%8A%E9%A0%90%E6%8E%88%E6%AC%8A%E5%88%B7%E5%8D%A1%E4%BA%A4%E6%98%93/%E9%A0%90%E6%8E%88%E6%AC%8A%E5%AE%8C%E6%88%90"
+          }
         },
         "parameters": [
           {
@@ -1669,7 +1327,12 @@
         "description": "预授权完成撤销接口（open-api服务）",
         "operationId": "preAuthCompleteCancelOnline",
         "x-mint": {
-          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=preAuthCompleteCancelOnline\">使用此接口参数生成请求签名和 cURL。</Card>"
+          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=preAuthCompleteCancelOnline\">使用此接口参数生成请求签名和 cURL。</Card>",
+          "metadata": {
+            "zh-CN_link": "/api-reference/%E7%BA%BF%E4%B8%8A%E9%A2%84%E6%8E%88%E6%9D%83%E5%88%B7%E5%8D%A1%E4%BA%A4%E6%98%93/%E9%A2%84%E6%8E%88%E6%9D%83%E5%AE%8C%E6%88%90%E6%92%A4%E9%94%80",
+            "en_link": "/en/api-reference/online-pre-authorization-card-transactions/cancel-pre-authorization-completion",
+            "zh-Hant_link": "/zh-hk/api-reference/%E7%B7%9A%E4%B8%8A%E9%A0%90%E6%8E%88%E6%AC%8A%E5%88%B7%E5%8D%A1%E4%BA%A4%E6%98%93/%E9%A0%90%E6%8E%88%E6%AC%8A%E5%AE%8C%E6%88%90%E6%92%A4%E9%8A%B7"
+          }
         },
         "parameters": [
           {
@@ -1739,7 +1402,12 @@
         "description": "结算请款接口（open-api服务）",
         "operationId": "batchSettleOnline",
         "x-mint": {
-          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=batchSettleOnline\">使用此接口参数生成请求签名和 cURL。</Card>"
+          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=batchSettleOnline\">使用此接口参数生成请求签名和 cURL。</Card>",
+          "metadata": {
+            "zh-CN_link": "/api-reference/%E7%BA%BF%E4%B8%8A%E9%A2%84%E6%8E%88%E6%9D%83%E5%88%B7%E5%8D%A1%E4%BA%A4%E6%98%93/%E7%BB%93%E7%AE%97%E8%AF%B7%E6%AC%BE",
+            "en_link": "/en/api-reference/online-pre-authorization-card-transactions/batch-settlement",
+            "zh-Hant_link": "/zh-hk/api-reference/%E7%B7%9A%E4%B8%8A%E9%A0%90%E6%8E%88%E6%AC%8A%E5%88%B7%E5%8D%A1%E4%BA%A4%E6%98%93/%E7%B5%90%E7%AE%97%E8%AB%8B%E6%AC%BE"
+          }
         },
         "parameters": [
           {
@@ -1809,7 +1477,12 @@
         "description": "请款查询接口（open-api服务）",
         "operationId": "settleQuery",
         "x-mint": {
-          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=settleQuery\">使用此接口参数生成请求签名和 cURL。</Card>"
+          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=settleQuery\">使用此接口参数生成请求签名和 cURL。</Card>",
+          "metadata": {
+            "zh-CN_link": "/api-reference/%E7%BA%BF%E4%B8%8A%E9%A2%84%E6%8E%88%E6%9D%83%E5%88%B7%E5%8D%A1%E4%BA%A4%E6%98%93/%E8%AF%B7%E6%AC%BE%E6%9F%A5%E8%AF%A2",
+            "en_link": "/en/api-reference/online-pre-authorization-card-transactions/settlement-query",
+            "zh-Hant_link": "/zh-hk/api-reference/%E7%B7%9A%E4%B8%8A%E9%A0%90%E6%8E%88%E6%AC%8A%E5%88%B7%E5%8D%A1%E4%BA%A4%E6%98%93/%E8%AB%8B%E6%AC%BE%E6%9F%A5%E8%A9%A2"
+          }
         },
         "parameters": [
           {
@@ -1964,9 +1637,9 @@
         "operationId": "createPaymentLink",
         "servers": [
           {
-            "url": "https://t-acquire-business.lepass.cn/gw/abroad-business-acceptance-open-api",
-            "description": "测试环境",
-            "x-environment": "test"
+            "url": "https://open-api.yeahpay.net/acceptance/sandbox",
+            "description": "沙箱环境",
+            "x-environment": "sandbox"
           },
           {
             "url": "https://open-api.yeahpay.net/acceptance/acceptance-open-api",
@@ -2005,7 +1678,12 @@
           }
         ],
         "x-mint": {
-          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=createPaymentLink\">使用此接口参数生成请求签名和 cURL。</Card>"
+          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=createPaymentLink\">使用此接口参数生成请求签名和 cURL。</Card>",
+          "metadata": {
+            "zh-CN_link": "/api-reference/%E6%94%AF%E4%BB%98%E9%93%BE%E6%8E%A5/%E5%88%9B%E5%BB%BA%E6%94%AF%E4%BB%98%E9%93%BE%E6%8E%A5",
+            "en_link": "/en/api-reference/payment-links/create-payment-link",
+            "zh-Hant_link": "/zh-hk/api-reference/%E6%94%AF%E4%BB%98%E9%80%A3%E7%B5%90/%E5%BB%BA%E7%AB%8B%E6%94%AF%E4%BB%98%E9%80%A3%E7%B5%90"
+          }
         }
       }
     },
@@ -2089,9 +1767,9 @@
         "operationId": "queryPaymentLinks",
         "servers": [
           {
-            "url": "https://t-acquire-business.lepass.cn/gw/abroad-business-acceptance-open-api",
-            "description": "测试环境",
-            "x-environment": "test"
+            "url": "https://open-api.yeahpay.net/acceptance/sandbox",
+            "description": "沙箱环境",
+            "x-environment": "sandbox"
           },
           {
             "url": "https://open-api.yeahpay.net/acceptance/acceptance-open-api",
@@ -2130,7 +1808,12 @@
           }
         ],
         "x-mint": {
-          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=queryPaymentLinks\">使用此接口参数生成请求签名和 cURL。</Card>"
+          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=queryPaymentLinks\">使用此接口参数生成请求签名和 cURL。</Card>",
+          "metadata": {
+            "zh-CN_link": "/api-reference/%E6%94%AF%E4%BB%98%E9%93%BE%E6%8E%A5/%E5%88%86%E9%A1%B5%E6%9F%A5%E8%AF%A2%E6%94%AF%E4%BB%98%E9%93%BE%E6%8E%A5",
+            "en_link": "/en/api-reference/payment-links/list-payment-links",
+            "zh-Hant_link": "/zh-hk/api-reference/%E6%94%AF%E4%BB%98%E9%80%A3%E7%B5%90/%E5%88%86%E9%A0%81%E6%9F%A5%E8%A9%A2%E6%94%AF%E4%BB%98%E9%80%A3%E7%B5%90"
+          }
         }
       }
     },
@@ -2185,9 +1868,9 @@
         "operationId": "getPaymentLinkDetail",
         "servers": [
           {
-            "url": "https://t-acquire-business.lepass.cn/gw/abroad-business-acceptance-open-api",
-            "description": "测试环境",
-            "x-environment": "test"
+            "url": "https://open-api.yeahpay.net/acceptance/sandbox",
+            "description": "沙箱环境",
+            "x-environment": "sandbox"
           },
           {
             "url": "https://open-api.yeahpay.net/acceptance/acceptance-open-api",
@@ -2226,7 +1909,12 @@
           }
         ],
         "x-mint": {
-          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=getPaymentLinkDetail\">使用此接口参数生成请求签名和 cURL。</Card>"
+          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=getPaymentLinkDetail\">使用此接口参数生成请求签名和 cURL。</Card>",
+          "metadata": {
+            "zh-CN_link": "/api-reference/%E6%94%AF%E4%BB%98%E9%93%BE%E6%8E%A5/%E6%9F%A5%E8%AF%A2%E6%94%AF%E4%BB%98%E9%93%BE%E6%8E%A5%E8%AF%A6%E6%83%85",
+            "en_link": "/en/api-reference/payment-links/get-payment-link-details",
+            "zh-Hant_link": "/zh-hk/api-reference/%E6%94%AF%E4%BB%98%E9%80%A3%E7%B5%90/%E6%9F%A5%E8%A9%A2%E6%94%AF%E4%BB%98%E9%80%A3%E7%B5%90%E8%A9%B3%E6%83%85"
+          }
         }
       }
     },
@@ -2295,9 +1983,9 @@
         "operationId": "modifyPaymentLink",
         "servers": [
           {
-            "url": "https://t-acquire-business.lepass.cn/gw/abroad-business-acceptance-open-api",
-            "description": "测试环境",
-            "x-environment": "test"
+            "url": "https://open-api.yeahpay.net/acceptance/sandbox",
+            "description": "沙箱环境",
+            "x-environment": "sandbox"
           },
           {
             "url": "https://open-api.yeahpay.net/acceptance/acceptance-open-api",
@@ -2336,7 +2024,12 @@
           }
         ],
         "x-mint": {
-          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=modifyPaymentLink\">使用此接口参数生成请求签名和 cURL。</Card>"
+          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=modifyPaymentLink\">使用此接口参数生成请求签名和 cURL。</Card>",
+          "metadata": {
+            "zh-CN_link": "/api-reference/%E6%94%AF%E4%BB%98%E9%93%BE%E6%8E%A5/%E4%BF%AE%E6%94%B9%E6%94%AF%E4%BB%98%E9%93%BE%E6%8E%A5",
+            "en_link": "/en/api-reference/payment-links/modify-payment-link",
+            "zh-Hant_link": "/zh-hk/api-reference/%E6%94%AF%E4%BB%98%E9%80%A3%E7%B5%90/%E4%BF%AE%E6%94%B9%E6%94%AF%E4%BB%98%E9%80%A3%E7%B5%90"
+          }
         }
       }
     },
@@ -2393,9 +2086,9 @@
         "operationId": "createPaymentLinkProduct",
         "servers": [
           {
-            "url": "https://t-acquire-business.lepass.cn/gw/abroad-business-acceptance-open-api",
-            "description": "测试环境",
-            "x-environment": "test"
+            "url": "https://open-api.yeahpay.net/acceptance/sandbox",
+            "description": "沙箱环境",
+            "x-environment": "sandbox"
           },
           {
             "url": "https://open-api.yeahpay.net/acceptance/acceptance-open-api",
@@ -2434,7 +2127,12 @@
           }
         ],
         "x-mint": {
-          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=createPaymentLinkProduct\">使用此接口参数生成请求签名和 cURL。</Card>"
+          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=createPaymentLinkProduct\">使用此接口参数生成请求签名和 cURL。</Card>",
+          "metadata": {
+            "zh-CN_link": "/api-reference/%E6%94%AF%E4%BB%98%E9%93%BE%E6%8E%A5/%E5%88%9B%E5%BB%BA%E6%94%AF%E4%BB%98%E9%93%BE%E6%8E%A5%E5%95%86%E5%93%81",
+            "en_link": "/en/api-reference/payment-links/create-payment-link-product",
+            "zh-Hant_link": "/zh-hk/api-reference/%E6%94%AF%E4%BB%98%E9%80%A3%E7%B5%90/%E5%BB%BA%E7%AB%8B%E6%94%AF%E4%BB%98%E9%80%A3%E7%B5%90%E5%95%86%E5%93%81"
+          }
         }
       }
     },
@@ -2507,9 +2205,9 @@
         "operationId": "queryPaymentLinkProducts",
         "servers": [
           {
-            "url": "https://t-acquire-business.lepass.cn/gw/abroad-business-acceptance-open-api",
-            "description": "测试环境",
-            "x-environment": "test"
+            "url": "https://open-api.yeahpay.net/acceptance/sandbox",
+            "description": "沙箱环境",
+            "x-environment": "sandbox"
           },
           {
             "url": "https://open-api.yeahpay.net/acceptance/acceptance-open-api",
@@ -2548,7 +2246,12 @@
           }
         ],
         "x-mint": {
-          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=queryPaymentLinkProducts\">使用此接口参数生成请求签名和 cURL。</Card>"
+          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=queryPaymentLinkProducts\">使用此接口参数生成请求签名和 cURL。</Card>",
+          "metadata": {
+            "zh-CN_link": "/api-reference/%E6%94%AF%E4%BB%98%E9%93%BE%E6%8E%A5/%E5%88%86%E9%A1%B5%E6%9F%A5%E8%AF%A2%E6%94%AF%E4%BB%98%E9%93%BE%E6%8E%A5%E5%95%86%E5%93%81",
+            "en_link": "/en/api-reference/payment-links/list-payment-link-products",
+            "zh-Hant_link": "/zh-hk/api-reference/%E6%94%AF%E4%BB%98%E9%80%A3%E7%B5%90/%E5%88%86%E9%A0%81%E6%9F%A5%E8%A9%A2%E6%94%AF%E4%BB%98%E9%80%A3%E7%B5%90%E5%95%86%E5%93%81"
+          }
         }
       }
     },
@@ -2600,9 +2303,9 @@
         "operationId": "getPaymentLinkProductDetail",
         "servers": [
           {
-            "url": "https://t-acquire-business.lepass.cn/gw/abroad-business-acceptance-open-api",
-            "description": "测试环境",
-            "x-environment": "test"
+            "url": "https://open-api.yeahpay.net/acceptance/sandbox",
+            "description": "沙箱环境",
+            "x-environment": "sandbox"
           },
           {
             "url": "https://open-api.yeahpay.net/acceptance/acceptance-open-api",
@@ -2641,7 +2344,12 @@
           }
         ],
         "x-mint": {
-          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=getPaymentLinkProductDetail\">使用此接口参数生成请求签名和 cURL。</Card>"
+          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=getPaymentLinkProductDetail\">使用此接口参数生成请求签名和 cURL。</Card>",
+          "metadata": {
+            "zh-CN_link": "/api-reference/%E6%94%AF%E4%BB%98%E9%93%BE%E6%8E%A5/%E6%9F%A5%E8%AF%A2%E6%94%AF%E4%BB%98%E9%93%BE%E6%8E%A5%E5%95%86%E5%93%81%E8%AF%A6%E6%83%85",
+            "en_link": "/en/api-reference/payment-links/get-payment-link-product-details",
+            "zh-Hant_link": "/zh-hk/api-reference/%E6%94%AF%E4%BB%98%E9%80%A3%E7%B5%90/%E6%9F%A5%E8%A9%A2%E6%94%AF%E4%BB%98%E9%80%A3%E7%B5%90%E5%95%86%E5%93%81%E8%A9%B3%E6%83%85"
+          }
         }
       }
     },
@@ -2709,9 +2417,9 @@
         "operationId": "modifyPaymentLinkProduct",
         "servers": [
           {
-            "url": "https://t-acquire-business.lepass.cn/gw/abroad-business-acceptance-open-api",
-            "description": "测试环境",
-            "x-environment": "test"
+            "url": "https://open-api.yeahpay.net/acceptance/sandbox",
+            "description": "沙箱环境",
+            "x-environment": "sandbox"
           },
           {
             "url": "https://open-api.yeahpay.net/acceptance/acceptance-open-api",
@@ -2750,7 +2458,12 @@
           }
         ],
         "x-mint": {
-          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=modifyPaymentLinkProduct\">使用此接口参数生成请求签名和 cURL。</Card>"
+          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=modifyPaymentLinkProduct\">使用此接口参数生成请求签名和 cURL。</Card>",
+          "metadata": {
+            "zh-CN_link": "/api-reference/%E6%94%AF%E4%BB%98%E9%93%BE%E6%8E%A5/%E4%BF%AE%E6%94%B9%E6%94%AF%E4%BB%98%E9%93%BE%E6%8E%A5%E5%95%86%E5%93%81",
+            "en_link": "/en/api-reference/payment-links/modify-payment-link-product",
+            "zh-Hant_link": "/zh-hk/api-reference/%E6%94%AF%E4%BB%98%E9%80%A3%E7%B5%90/%E4%BF%AE%E6%94%B9%E6%94%AF%E4%BB%98%E9%80%A3%E7%B5%90%E5%95%86%E5%93%81"
+          }
         }
       }
     },
@@ -2847,9 +2560,9 @@
         "operationId": "uploadPaymentLinkImage",
         "servers": [
           {
-            "url": "https://t-acquire-business.lepass.cn/gw/abroad-business-acceptance-open-api",
-            "description": "测试环境",
-            "x-environment": "test"
+            "url": "https://open-api.yeahpay.net/acceptance/sandbox",
+            "description": "沙箱环境",
+            "x-environment": "sandbox"
           },
           {
             "url": "https://open-api.yeahpay.net/acceptance/acceptance-open-api",
@@ -2888,7 +2601,12 @@
           }
         ],
         "x-mint": {
-          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=uploadPaymentLinkImage\">使用此接口参数生成请求签名和 cURL。</Card>"
+          "content": "<Card title=\"在线签名调试\" href=\"/api-tester?operationId=uploadPaymentLinkImage\">使用此接口参数生成请求签名和 cURL。</Card>",
+          "metadata": {
+            "zh-CN_link": "/api-reference/%E6%94%AF%E4%BB%98%E9%93%BE%E6%8E%A5/%E4%B8%8A%E4%BC%A0%E6%94%AF%E4%BB%98%E9%93%BE%E6%8E%A5%E5%95%86%E5%93%81%E5%9B%BE%E7%89%87",
+            "en_link": "/en/api-reference/payment-links/upload-payment-link-product-image",
+            "zh-Hant_link": "/zh-hk/api-reference/%E6%94%AF%E4%BB%98%E9%80%A3%E7%B5%90/%E4%B8%8A%E5%82%B3%E6%94%AF%E4%BB%98%E9%80%A3%E7%B5%90%E5%95%86%E5%93%81%E5%9C%96%E7%89%87"
+          }
         }
       }
     }
@@ -2941,6 +2659,13 @@
               }
             }
           }
+        },
+        "x-mint": {
+          "metadata": {
+            "zh-CN_link": "/api-reference/%E6%94%AF%E4%BB%98%E7%BB%93%E6%9E%9C%E9%80%9A%E7%9F%A5",
+            "en_link": "/en/api-reference/payment-result-notification",
+            "zh-Hant_link": "/zh-hk/api-reference/%E6%94%AF%E4%BB%98%E7%B5%90%E6%9E%9C%E9%80%9A%E7%9F%A5"
+          }
         }
       }
     },
@@ -2990,6 +2715,13 @@
                 }
               }
             }
+          }
+        },
+        "x-mint": {
+          "metadata": {
+            "zh-CN_link": "/api-reference/%E9%80%80%E6%AC%BE%E7%BB%93%E6%9E%9C%E9%80%9A%E7%9F%A5",
+            "en_link": "/en/api-reference/refund-result-notification",
+            "zh-Hant_link": "/zh-hk/api-reference/%E9%80%80%E6%AC%BE%E7%B5%90%E6%9E%9C%E9%80%9A%E7%9F%A5"
           }
         }
       }
@@ -3120,7 +2852,14 @@
           {
             "$ref": "#/components/parameters/SignatureHeader"
           }
-        ]
+        ],
+        "x-mint": {
+          "metadata": {
+            "zh-CN_link": "/api-reference/%E6%94%AF%E4%BB%98%E9%93%BE%E6%8E%A5/%E6%94%AF%E4%BB%98%E9%93%BE%E6%8E%A5%E6%94%B6%E6%AC%BE%E6%88%90%E5%8A%9F%E9%80%9A%E7%9F%A5",
+            "en_link": "/en/api-reference/payment-links/payment-link-paid-notification",
+            "zh-Hant_link": "/zh-hk/api-reference/%E6%94%AF%E4%BB%98%E9%80%A3%E7%B5%90/%E6%94%AF%E4%BB%98%E9%80%A3%E7%B5%90%E6%94%B6%E6%AC%BE%E6%88%90%E5%8A%9F%E9%80%9A%E7%9F%A5"
+          }
+        }
       }
     }
   },
@@ -4010,1027 +3749,6 @@
               }
             }
           }
-        ]
-      },
-      "UnifiedOrderRequest": {
-        "type": "object",
-        "properties": {
-          "payWay": {
-            "type": "string",
-            "description": "支付方式",
-            "enum": [
-              "WXZF",
-              "ZFBZF",
-              "PayNowPay",
-              "LiquidPay",
-              "DashPay",
-              "GrabPay"
-            ]
-          },
-          "merchantId": {
-            "type": "string",
-            "description": "商户号"
-          },
-          "thirdOrderId": {
-            "type": "string",
-            "description": "商户订单号"
-          },
-          "amount": {
-            "type": "integer",
-            "description": "订单金额，单位为最小货币单位",
-            "format": "int64",
-            "minimum": 1
-          },
-          "currency": {
-            "type": "string",
-            "description": "币种",
-            "enum": [
-              "SGD"
-            ]
-          },
-          "jspayFlag": {
-            "type": "string",
-            "description": "交易类型",
-            "enum": [
-              "NATIVE",
-              "JSAPI",
-              "MICROPAY",
-              "APP",
-              "APPLET",
-              "H5Pay",
-              "ONLINE_CARD"
-            ]
-          },
-          "subAppid": {
-            "type": "string",
-            "description": "子商户 App ID。字段名按源文档保留。"
-          },
-          "subOpenid": {
-            "type": "string",
-            "description": "子商户用户标识"
-          },
-          "openid": {
-            "type": "string",
-            "description": "用户标识"
-          },
-          "clientIp": {
-            "type": "string",
-            "description": "客户端 IP"
-          },
-          "body": {
-            "type": "string",
-            "description": "商品描述"
-          },
-          "attach": {
-            "type": "string",
-            "description": "附加数据"
-          },
-          "posNo": {
-            "type": "string",
-            "description": "POS 编号"
-          },
-          "extendBusinessParams": {
-            "type": "string",
-            "description": "扩展业务参数，JSON 字符串"
-          },
-          "limitPay": {
-            "type": "string",
-            "description": "限制支付方式",
-            "enum": [
-              "NAVERPAY",
-              "TOSSPAY",
-              "TINABA",
-              "MPAY",
-              "ALIPAY_CN",
-              "ALIPAY_HK",
-              "KAKAOPAY",
-              "TNG",
-              "GCASH",
-              "TRUEMONEY"
-            ]
-          },
-          "orderExpiration": {
-            "type": "string",
-            "description": "订单过期时间"
-          },
-          "region": {
-            "type": "string",
-            "description": "地区"
-          },
-          "phoneType": {
-            "type": "string",
-            "description": "手机类型"
-          },
-          "jumpUrl": {
-            "type": "string",
-            "description": "支付完成跳转地址",
-            "format": "uri"
-          },
-          "notifyUrl": {
-            "type": "string",
-            "description": "支付结果通知地址",
-            "format": "uri"
-          },
-          "subject": {
-            "type": "string",
-            "description": "交易描述，部分支付方式使用"
-          },
-          "sellerId": {
-            "type": "string",
-            "description": "卖家标识，部分支付宝场景使用"
-          },
-          "orderGmtCreate": {
-            "type": "string",
-            "description": "订单创建时间，北京时间，格式 yyyy-MM-dd HH:mm:ss"
-          },
-          "orderValidTime": {
-            "type": "string",
-            "description": "订单有效时间，单位为秒；与 orderGmtCreate 配合使用"
-          }
-        },
-        "required": [
-          "payWay",
-          "merchantId",
-          "thirdOrderId",
-          "amount",
-          "currency",
-          "jspayFlag"
-        ]
-      },
-      "UnifiedOrderResponse": {
-        "type": "object",
-        "properties": {
-          "code": {
-            "oneOf": [
-              {
-                "type": "string",
-                "examples": [
-                  "200"
-                ]
-              },
-              {
-                "type": "integer",
-                "examples": [
-                  0
-                ]
-              }
-            ],
-            "description": "业务结果码。普通交易示例以字符串返回；收银台示例以数字 0 返回，因此兼容两种来源格式。"
-          },
-          "message": {
-            "type": "string",
-            "description": "结果描述"
-          },
-          "data": {
-            "type": "object",
-            "properties": {
-              "amount": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "订单金额"
-              },
-              "costTime": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "处理耗时"
-              },
-              "currency": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "币种"
-              },
-              "leshuaOrderId": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "YeahPay 订单号"
-              },
-              "merchantId": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "商户号"
-              },
-              "tdCode": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "二维码。字段名按源文档保留。"
-              },
-              "thirdOrderId": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "商户订单号"
-              },
-              "payInfo": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "支付信息"
-              },
-              "channelOrderId": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "渠道订单号"
-              }
-            }
-          }
-        },
-        "required": [
-          "code"
-        ]
-      },
-      "OrderLookupRequest": {
-        "type": "object",
-        "properties": {
-          "merchantId": {
-            "type": "string",
-            "description": "商户号"
-          },
-          "thirdOrderId": {
-            "type": "string",
-            "description": "商户订单号。与 leshuaOrderId 至少填写一个。"
-          },
-          "leshuaOrderId": {
-            "type": "string",
-            "description": "YeahPay 订单号。与 thirdOrderId 至少填写一个。"
-          }
-        },
-        "required": [
-          "merchantId"
-        ],
-        "anyOf": [
-          {
-            "required": [
-              "thirdOrderId"
-            ]
-          },
-          {
-            "required": [
-              "leshuaOrderId"
-            ]
-          }
-        ]
-      },
-      "QueryOrderResponse": {
-        "type": "object",
-        "properties": {
-          "code": {
-            "oneOf": [
-              {
-                "type": "string",
-                "examples": [
-                  "200"
-                ]
-              },
-              {
-                "type": "integer",
-                "examples": [
-                  0
-                ]
-              }
-            ],
-            "description": "业务结果码。普通交易示例以字符串返回；收银台示例以数字 0 返回，因此兼容两种来源格式。"
-          },
-          "message": {
-            "type": "string",
-            "description": "结果描述"
-          },
-          "data": {
-            "type": "object",
-            "properties": {
-              "amount": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "订单金额"
-              },
-              "buyerPayAmount": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "买家支付金额"
-              },
-              "buyerPayCurrency": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "买家支付币种"
-              },
-              "buyerPayRate": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "买家支付汇率"
-              },
-              "channelOrderId": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "渠道订单号"
-              },
-              "costTime": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "处理耗时"
-              },
-              "currency": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "订单币种"
-              },
-              "leshuaOrderId": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "YeahPay 订单号"
-              },
-              "merchantId": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "商户号"
-              },
-              "payTime": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "支付时间"
-              },
-              "payWay": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "支付方式"
-              },
-              "status": {
-                "type": "string",
-                "description": "订单状态",
-                "enum": [
-                  "0",
-                  "2",
-                  "6",
-                  "8",
-                  "10",
-                  "11",
-                  "12"
-                ],
-                "x-enum-descriptions": {
-                  "0": "未支付",
-                  "2": "支付成功",
-                  "6": "已关闭",
-                  "8": "退款中",
-                  "10": "退款成功",
-                  "11": "退款失败",
-                  "12": "支付处理中"
-                }
-              },
-              "subMerchantId": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "子商户号"
-              },
-              "thirdOrderId": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "商户订单号"
-              },
-              "mppInfo": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "MPP 信息"
-              },
-              "orderSettleStatus": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "订单结算状态"
-              },
-              "cardType": {
-                "type": [
-                  "integer",
-                  "null"
-                ],
-                "description": "卡类型"
-              },
-              "cardNativeFlag": {
-                "type": [
-                  "integer",
-                  "null"
-                ],
-                "description": "本地卡标识"
-              },
-              "encryptCardId": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "加密卡号"
-              },
-              "maskCardId": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "掩码卡号"
-              }
-            }
-          }
-        },
-        "required": [
-          "code"
-        ]
-      },
-      "MicroPayRequest": {
-        "type": "object",
-        "properties": {
-          "merchantId": {
-            "type": "string",
-            "description": "商户号"
-          },
-          "thirdOrderId": {
-            "type": "string",
-            "description": "商户订单号"
-          },
-          "amount": {
-            "type": "integer",
-            "description": "订单金额，单位为最小货币单位",
-            "format": "int64",
-            "minimum": 1
-          },
-          "currency": {
-            "type": "string",
-            "description": "币种",
-            "enum": [
-              "SGD"
-            ]
-          },
-          "authCode": {
-            "type": "string",
-            "description": "用户付款码"
-          },
-          "clientIp": {
-            "type": "string",
-            "description": "客户端 IP"
-          },
-          "body": {
-            "type": "string",
-            "description": "商品描述"
-          },
-          "attach": {
-            "type": "string",
-            "description": "附加数据"
-          },
-          "posNo": {
-            "type": "string",
-            "description": "POS 编号"
-          },
-          "notifyUrl": {
-            "type": "string",
-            "description": "支付结果通知地址",
-            "format": "uri"
-          }
-        },
-        "required": [
-          "merchantId",
-          "thirdOrderId",
-          "amount",
-          "currency",
-          "authCode"
-        ]
-      },
-      "MicroPayResponse": {
-        "type": "object",
-        "properties": {
-          "code": {
-            "oneOf": [
-              {
-                "type": "string",
-                "examples": [
-                  "200"
-                ]
-              },
-              {
-                "type": "integer",
-                "examples": [
-                  0
-                ]
-              }
-            ],
-            "description": "业务结果码。普通交易示例以字符串返回；收银台示例以数字 0 返回，因此兼容两种来源格式。"
-          },
-          "message": {
-            "type": "string",
-            "description": "结果描述"
-          },
-          "data": {
-            "type": "object",
-            "properties": {
-              "channelCode": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "渠道结果码"
-              },
-              "costTime": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "处理耗时"
-              },
-              "leshuaOrderId": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "YeahPay 订单号"
-              },
-              "merchantId": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "商户号"
-              },
-              "payWay": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "支付方式"
-              },
-              "status": {
-                "type": "string",
-                "description": "订单状态",
-                "enum": [
-                  "0",
-                  "2",
-                  "6",
-                  "8",
-                  "10",
-                  "11",
-                  "12"
-                ],
-                "x-enum-descriptions": {
-                  "0": "未支付",
-                  "2": "支付成功",
-                  "6": "已关闭",
-                  "8": "退款中",
-                  "10": "退款成功",
-                  "11": "退款失败",
-                  "12": "支付处理中"
-                }
-              },
-              "subMerchantId": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "子商户号"
-              },
-              "thirdOrderId": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "商户订单号"
-              },
-              "channelOrderId": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "渠道订单号"
-              },
-              "buyerPayAmount": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "买家支付金额"
-              },
-              "buyerPayCurrency": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "买家支付币种"
-              },
-              "mppInfo": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "MPP 信息"
-              },
-              "amount": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "订单金额"
-              },
-              "currency": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "订单币种"
-              }
-            }
-          }
-        },
-        "required": [
-          "code"
-        ]
-      },
-      "CloseOrderResponse": {
-        "type": "object",
-        "properties": {
-          "code": {
-            "oneOf": [
-              {
-                "type": "string",
-                "examples": [
-                  "200"
-                ]
-              },
-              {
-                "type": "integer",
-                "examples": [
-                  0
-                ]
-              }
-            ],
-            "description": "业务结果码。普通交易示例以字符串返回；收银台示例以数字 0 返回，因此兼容两种来源格式。"
-          },
-          "message": {
-            "type": "string",
-            "description": "结果描述"
-          },
-          "data": {
-            "type": "object",
-            "properties": {
-              "leshuaOrderId": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "YeahPay 订单号"
-              },
-              "merchantId": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "商户号"
-              },
-              "status": {
-                "type": "string",
-                "description": "订单状态",
-                "enum": [
-                  "0",
-                  "2",
-                  "6",
-                  "8",
-                  "10",
-                  "11",
-                  "12"
-                ],
-                "x-enum-descriptions": {
-                  "0": "未支付",
-                  "2": "支付成功",
-                  "6": "已关闭",
-                  "8": "退款中",
-                  "10": "退款成功",
-                  "11": "退款失败",
-                  "12": "支付处理中"
-                }
-              },
-              "thirdOrderId": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "商户订单号"
-              }
-            }
-          }
-        },
-        "required": [
-          "code"
-        ]
-      },
-      "UnifiedRefundRequest": {
-        "type": "object",
-        "properties": {
-          "merchantId": {
-            "type": "string",
-            "description": "商户号",
-            "minLength": 1
-          },
-          "thirdOrderId": {
-            "type": "string",
-            "description": "商户订单号"
-          },
-          "leshuaOrderId": {
-            "type": "string",
-            "description": "YeahPay 原订单号"
-          },
-          "merchantRefundId": {
-            "type": "string",
-            "description": "商户退款单号",
-            "minLength": 1
-          },
-          "refundAmount": {
-            "type": "integer",
-            "format": "int64",
-            "description": "退款金额"
-          },
-          "posNo": {
-            "type": "string",
-            "description": "POS 编号"
-          },
-          "notifyUrl": {
-            "type": "string",
-            "format": "uri",
-            "description": "退款结果通知地址"
-          }
-        },
-        "required": [
-          "merchantId",
-          "merchantRefundId",
-          "refundAmount"
-        ]
-      },
-      "UnifiedRefundResponse": {
-        "type": "object",
-        "properties": {
-          "code": {
-            "type": "integer",
-            "description": "业务结果码，0 表示请求成功"
-          },
-          "message": {
-            "type": "string",
-            "description": "结果描述"
-          },
-          "traceId": {
-            "type": "string",
-            "description": "链路追踪 ID"
-          },
-          "data": {
-            "type": "object",
-            "properties": {
-              "attach": {
-                "type": "string",
-                "description": "附加数据"
-              },
-              "thirdOrderId": {
-                "type": "string",
-                "description": "商户订单号"
-              },
-              "merchantId": {
-                "type": "string",
-                "description": "商户号"
-              },
-              "leshuaOrderId": {
-                "type": "string",
-                "description": "YeahPay 订单号"
-              },
-              "merchantRefundId": {
-                "type": "string",
-                "description": "商户退款单号"
-              },
-              "leshuaRefundId": {
-                "type": "string",
-                "description": "YeahPay 退款单号"
-              },
-              "costTime": {
-                "type": "string",
-                "description": "处理耗时"
-              },
-              "status": {
-                "type": "string",
-                "description": "订单状态"
-              },
-              "orderBalance": {
-                "type": "string",
-                "description": "订单余额"
-              },
-              "refundAmount": {
-                "type": "string",
-                "description": "退款金额"
-              }
-            }
-          }
-        },
-        "required": [
-          "code",
-          "message"
-        ]
-      },
-      "QueryRefundRequest": {
-        "type": "object",
-        "properties": {
-          "merchantId": {
-            "type": "string",
-            "description": "商户号"
-          },
-          "merchantRefundId": {
-            "type": "string",
-            "description": "商户退款单号；三个订单标识至少填写一个"
-          },
-          "thirdOrderId": {
-            "type": "string",
-            "description": "商户订单号；三个订单标识至少填写一个"
-          },
-          "leshuaOrderId": {
-            "type": "string",
-            "description": "YeahPay 订单号；三个订单标识至少填写一个"
-          }
-        },
-        "required": [
-          "merchantId"
-        ],
-        "anyOf": [
-          {
-            "required": [
-              "thirdOrderId"
-            ],
-            "properties": {
-              "thirdOrderId": {
-                "minLength": 1
-              }
-            }
-          },
-          {
-            "required": [
-              "leshuaOrderId"
-            ],
-            "properties": {
-              "leshuaOrderId": {
-                "minLength": 1
-              }
-            }
-          },
-          {
-            "required": [
-              "merchantRefundId"
-            ],
-            "properties": {
-              "merchantRefundId": {
-                "minLength": 1
-              }
-            }
-          }
-        ],
-        "description": "thirdOrderId、leshuaOrderId、merchantRefundId 至少填写一个"
-      },
-      "QueryRefundResponse": {
-        "type": "object",
-        "properties": {
-          "code": {
-            "oneOf": [
-              {
-                "type": "string",
-                "examples": [
-                  "200"
-                ]
-              },
-              {
-                "type": "integer",
-                "examples": [
-                  0
-                ]
-              }
-            ],
-            "description": "业务结果码。普通交易示例以字符串返回；收银台示例以数字 0 返回，因此兼容两种来源格式。"
-          },
-          "message": {
-            "type": "string",
-            "description": "结果描述"
-          },
-          "data": {
-            "type": "object",
-            "properties": {
-              "amount": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "原订单金额"
-              },
-              "costTime": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "处理耗时"
-              },
-              "currency": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "币种"
-              },
-              "leshuaOrderId": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "YeahPay 订单号"
-              },
-              "leshuaRefundId": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "YeahPay 退款单号"
-              },
-              "merchantId": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "商户号"
-              },
-              "merchantRefundId": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "商户退款单号"
-              },
-              "refundAmount": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "退款金额"
-              },
-              "refundTime": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "退款时间"
-              },
-              "status": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "退款状态"
-              },
-              "thirdOrderId": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "商户订单号"
-              }
-            }
-          }
-        },
-        "required": [
-          "code"
         ]
       },
       "ReversalOperationRequest": {
@@ -8295,7 +7013,7 @@
     "文档标题为 2.1，但修订记录最新一项写作 2.0.1。",
     "生产环境地址由用户确认为 https://open-api.yeahpay.net/acceptance/acceptance-open-api/。",
     "公共参数表规定 version=1.0，而签名示例使用 2.0；本规范采用公共参数表。",
-    "Checkout 生产入口由用户确认为 https://open-api.yeahpay.net/gwp/checkout，沙箱入口待确认。"
+    "商户 API 统一使用 open-api.yeahpay.net；沙箱入口前缀为 /acceptance/sandbox，接口后缀与生产一致。"
   ],
   "x-embedded-checkout-source": "embedded-checkout-merchant-api-v1.5.md",
   "x-payment-link-source": "payment-link-openapi-v2.yaml"

@@ -3,6 +3,12 @@ import { readFile, writeFile } from "node:fs/promises";
 const source = JSON.parse(await readFile(new URL("../openapi.json", import.meta.url), "utf8"));
 
 const translations = new Map(Object.entries({
+  "沙箱环境": "Sandbox",
+  "商户 API 统一使用 open-api.yeahpay.net；沙箱入口前缀为 /acceptance/sandbox，接口后缀与生产一致。": "Merchant APIs use open-api.yeahpay.net. The sandbox prefix is /acceptance/sandbox, followed by the same operation suffix as production.",
+  "支付意图": "Payment Intents",
+  "创建支付意图": "Create PaymentIntent",
+  "查询支付意图": "Query PaymentIntent",
+  "商户服务端创建和查询支付意图，供嵌入式收银台等接入方式使用": "Create and query PaymentIntents from the merchant server for Embedded Checkout and other integration methods",
   "请求版本，固定为 1.0": "Request version, fixed to 1.0",
   "统一退款": "Unified refund",
   "交易描述，部分支付方式使用": "Transaction description, used by some payment methods",

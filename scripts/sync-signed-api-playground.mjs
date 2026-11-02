@@ -9,6 +9,7 @@ if (!new Set(["--check", "--write"]).has(mode)) {
 const rootUrl = new URL("../", import.meta.url);
 const zhSpecUrl = new URL("openapi.json", rootUrl);
 const enSpecUrl = new URL("openapi-en.json", rootUrl);
+const hkSpecUrl = new URL("openapi-zh-hk.json", rootUrl);
 const componentUrl = new URL("snippets/signed-api-playground.jsx", rootUrl);
 const startMarker = "  // BEGIN AUTO-GENERATED OPENAPI OPERATIONS";
 const endMarker = "  // END AUTO-GENERATED OPENAPI OPERATIONS";
@@ -17,6 +18,7 @@ const methods = ["get", "post", "put", "patch", "delete"];
 const parse = async (url) => JSON.parse(await readFile(url, "utf8"));
 const zhSpec = await parse(zhSpecUrl);
 const enSpec = await parse(enSpecUrl);
+const hkSpec = await parse(hkSpecUrl).catch(error => { if (error.code === "ENOENT") return null; throw error; });
 const component = await readFile(componentUrl, "utf8");
 
 function resolveRef(spec, input) {
@@ -96,13 +98,35 @@ function operationEntries(spec) {
   return entries;
 }
 
+function localizedEntries(spec) {
+  return [...operationEntries(spec), ...Object.entries(spec.webhooks ?? {}).flatMap(([path, item]) =>
+    methods.filter(method => item[method]?.operationId).map(method => ({ path, method, operation: item[method] })))];
+}
+
+// Explicit counterparts keep the language selector available across translated tab names.
+const localizedSpecs = [["zh-CN", "", zhSpec], ["en", "/en", enSpec], ...(hkSpec ? [["zh-Hant", "/zh-hk", hkSpec]] : [])];
+const localizedRoutes = new Map();
+const slug = value => value.toLowerCase().replaceAll(" ", "-");
+for (const [language, prefix, spec] of localizedSpecs) {
+  for (const { operation } of localizedEntries(spec)) {
+    const links = localizedRoutes.get(operation.operationId) ?? {};
+    links[`${language}_link`] = encodeURI(`${prefix}/api-reference/${operation.tags?.[0] ? `${slug(operation.tags[0])}/` : ""}${slug(operation.summary)}`);
+    localizedRoutes.set(operation.operationId, links);
+  }
+}
+for (const [, , spec] of localizedSpecs) {
+  for (const { operation } of localizedEntries(spec)) {
+    operation["x-mint"] = { ...(operation["x-mint"] ?? {}), metadata: { ...(operation["x-mint"]?.metadata ?? {}), ...localizedRoutes.get(operation.operationId) } };
+  }
+}
+
 function addTesterLinks(spec, locale) {
   for (const { operation } of operationEntries(spec)) {
-    const hrefPrefix = locale === "zh" ? "/api-tester" : "/en/api-tester";
-    const title = locale === "zh" ? "在线签名调试" : "Signed request tester";
+    const hrefPrefix = locale === "zh" ? "/api-tester" : locale === "zh-HK" ? "/zh-hk/api-tester" : "/en/api-tester";
+    const title = locale === "zh" ? "在线签名调试" : locale === "zh-HK" ? "網上簽名測試" : "Signed request tester";
     const body = locale === "zh"
       ? "使用此接口参数生成请求签名和 cURL。"
-      : "Generate the signature and cURL for this operation.";
+      : locale === "zh-HK" ? "使用此介面參數產生請求簽名和 cURL。" : "Generate the signature and cURL for this operation.";
     operation["x-mint"] = {
       ...(operation["x-mint"] ?? {}),
       content: `<Card title="${title}" href="${hrefPrefix}?operationId=${operation.operationId}">${body}</Card>`,
@@ -112,16 +136,19 @@ function addTesterLinks(spec, locale) {
 
 addTesterLinks(zhSpec, "zh");
 addTesterLinks(enSpec, "en");
+if (hkSpec) addTesterLinks(hkSpec, "zh-HK");
 
 const definitions = operationEntries(zhSpec).map(({ path, method, operation }) => {
   const enOperation = enSpec.paths?.[path]?.[method];
+  const hkOperation = hkSpec?.paths?.[path]?.[method];
+  if (hkSpec && !hkOperation?.operationId) throw new Error(`Hong Kong OpenAPI is missing ${method.toUpperCase()} ${path}`);
   if (!enOperation?.operationId) {
     throw new Error(`English OpenAPI is missing ${method.toUpperCase()} ${path}`);
   }
   const requestSchema = operation.requestBody?.content?.["application/json"]?.schema ?? {
     type: "object",
   };
-  const overrideServers = operation.servers ?? zhSpec.paths[path].servers;
+  const overrideServers = operation.servers ?? zhSpec.paths[path].servers ?? zhSpec.servers;
   const serverUrls = overrideServers && Object.fromEntries(overrideServers.map((server) => {
     if (!["test", "sandbox", "production"].includes(server["x-environment"])) {
       throw new Error(`An environment is required for the server override on ${operation.operationId}`);
@@ -134,6 +161,7 @@ const definitions = operationEntries(zhSpec).map(({ path, method, operation }) =
     path,
     summaryZh: operation.summary ?? operation.operationId,
     summaryEn: enOperation.summary ?? enOperation.operationId,
+    ...(hkOperation ? { summaryHk: hkOperation.summary ?? hkOperation.operationId } : {}),
     ...(serverUrls ? { serverUrls } : {}),
     sampleBody: sampleValue(zhSpec, requestSchema, "body"),
   };
@@ -164,12 +192,15 @@ const expectedComponent =
   component.slice(endIndex + endMarker.length);
 const expectedZhSpec = `${JSON.stringify(zhSpec, null, 2)}\n`;
 const expectedEnSpec = `${JSON.stringify(enSpec, null, 2)}\n`;
+const expectedHkSpec = hkSpec ? `${JSON.stringify(hkSpec, null, 2)}\n` : null;
 const currentZhSpec = await readFile(zhSpecUrl, "utf8");
 const currentEnSpec = await readFile(enSpecUrl, "utf8");
+const currentHkSpec = hkSpec ? await readFile(hkSpecUrl, "utf8") : null;
 const drift = [];
 if (component !== expectedComponent) drift.push("snippets/signed-api-playground.jsx");
 if (currentZhSpec !== expectedZhSpec) drift.push("openapi.json x-mint links");
 if (currentEnSpec !== expectedEnSpec) drift.push("openapi-en.json x-mint links");
+if (currentHkSpec !== expectedHkSpec) drift.push("openapi-zh-hk.json x-mint links");
 
 if (mode === "--check") {
   if (drift.length > 0) {
@@ -182,6 +213,7 @@ if (mode === "--check") {
   if (component !== expectedComponent) await writeFile(componentUrl, expectedComponent);
   if (currentZhSpec !== expectedZhSpec) await writeFile(zhSpecUrl, expectedZhSpec);
   if (currentEnSpec !== expectedEnSpec) await writeFile(enSpecUrl, expectedEnSpec);
+  if (currentHkSpec !== expectedHkSpec) await writeFile(hkSpecUrl, expectedHkSpec);
   console.log(drift.length > 0
     ? `Synchronized generated OpenAPI artifacts (${fingerprint}): ${drift.join(", ")}`
     : `Generated OpenAPI artifacts already synchronized (${fingerprint}).`);

@@ -1,19 +1,22 @@
 ---
 title: "嵌入式收银台"
 description: "在商户网页内嵌入 YeahPay Checkout，由服务端创建支付意图并确认支付结果"
+zh-CN_link: "/embedded-checkout"
+en_link: "/en/embedded-checkout"
+zh-Hant_link: "/zh-hk/embedded-checkout"
 ---
 
-嵌入式收银台通过 JavaScript SDK 在商户网页中挂载 YeahPay iframe。买家在收银台内输入卡信息、选择已有卡并完成必要认证，商户服务端负责建单、签名和确认结果。
+嵌入式收银台使用支付意图（PaymentIntent）管理本次支付，并通过 JavaScript SDK 在商户网页中挂载 YeahPay iframe。买家在收银台内输入卡信息、选择已有卡并完成必要认证，商户服务端负责创建支付意图、签名和确认结果。
 
 <Note>
-  本指南按商户服务端 API V1.5 和浏览器 SDK V1.0 整理。测试与生产入口如下，沙箱入口待确认；切换环境时使用对应的应用凭证、SDK 脚本和 SDK `env`。
+  本指南按商户服务端 API V1.5 和浏览器 SDK V1.0 整理。服务端使用所选 API 环境的应用凭证；SDK 脚本和初始化值单独见 SDK 接入指南。
 </Note>
 
 ## 接入流程
 
 <Steps>
   <Step title="商户服务端创建支付意图">
-    使用唯一的 `merchantOrderId` 和本次建单的 `requestId`，签名调用[创建嵌入式支付意图](/api-reference/嵌入式收银台/创建嵌入式支付意图)。普通正金额新卡支付可以不传 `customerId`；绑卡、展示已有卡或已有授权直接支付时，先通过现有[创建客户接口](/api-reference/订阅支付/创建客户)准备平台客户。
+    使用唯一的 `merchantOrderId` 和本次建单的 `requestId`，签名调用[创建支付意图](/api-reference/支付意图/创建支付意图)。普通正金额新卡支付可以不传 `customerId`；绑卡、展示已有卡或已有授权直接支付时，先通过现有[创建客户接口](/api-reference/订阅支付/创建客户)准备平台客户。
   </Step>
   <Step title="前端挂载 SDK">
     服务端只将当前支付的 `paymentIntentId` 和 `paymentIntentToken` 交给前端。前端按 [SDK 接入指南](/embedded-checkout-sdk)创建、监听并挂载收银台。
@@ -22,30 +25,17 @@ description: "在商户网页内嵌入 YeahPay Checkout，由服务端创建支�
     普通新卡和首次绑卡由买家在 SDK 中提交。已有 Consent 直接支付在 `createIntent` 时已发起，SDK 用原 Token 查询状态并承接认证。
   </Step>
   <Step title="服务端确认业务结果">
-    验证成功通知的签名并幂等处理，或调用[查询嵌入式支付状态](/api-reference/嵌入式收银台/查询嵌入式支付状态)。前端事件和浏览器回跳仅用于页面展示。
+    验证成功通知的签名并幂等处理，或调用[查询支付意图](/api-reference/支付意图/查询支付意图)。前端事件和浏览器回跳仅用于页面展示。
   </Step>
 </Steps>
 
 ## 环境与签名
 
-| 环境 | Checkout 商户 API Base URL | SDK `env` |
-| --- | --- | --- |
-| 测试 | `https://t-acquire-business.lepass.cn/gwp/checkout` | `test` |
-| 生产 | `https://open-api.yeahpay.net/gwp/checkout` | `pro` |
-| 沙箱 | 待确认 | 待确认 |
+API 域名：`https://open-api.yeahpay.net`。在[创建支付意图](/api-reference/支付意图/创建支付意图)和[查询支付意图](/api-reference/支付意图/查询支付意图)页面选择沙箱或生产环境，接口文档与[签名调试工具](/api-tester?operationId=createIntent)提供该环境的完整请求路径。客户管理使用同一域名及其接口页面列出的路径。
 
-客户管理继续使用[快速开始中的 acceptance 地址](/)，测试 Base URL 为 `https://t-acquire-business.lepass.cn/gw/abroad-business-acceptance-open-api`。测试与生产 SDK 脚本见[前端 SDK 接入](/embedded-checkout-sdk#引入-sdk)。
+服务端沿用[公共签名请求头与规则](/signature)。`Accept-Timezone` 指定同步响应记录时间的时区；没有偏移量的时间字符串不可自行补 `Z`。
 
-| 操作 | 请求路径，接在 Checkout Base URL 后 | 签名首行 |
-| --- | --- | --- |
-| `createIntent` | `/openapi/v2/createIntent` | `/checkout/openapi/v2/createIntent` |
-| `queryIntentStatus` | `/openapi/v2/queryIntentStatus` | `/checkout/openapi/v2/queryIntentStatus` |
-
-服务端沿用[公共请求头与签名规则](/signature)：`appId`、`version=1.0`、`timestamp`、`nonce`、`algorithm=SHA-512` 和 `signature`。签名首行不包含域名或 `/gwp`，但保留 `/checkout`。`Accept-Timezone` 可指定同步响应记录时间的时区；没有偏移量的时间字符串不可自行补 `Z`。
-
-<Warning>
-  客户管理和 Checkout 使用不同的服务前缀。不要将 Checkout 接口拼接到 acceptance Base URL；[签名调试工具](/api-tester?operationId=createIntent)按所选环境使用上述 Checkout 入口，签名首行始终保留 `/checkout`。
-</Warning>
+前端 SDK 没有沙箱选项，实际支持的 `test`、`pro` 与商户 API 环境选择分别配置，见[嵌入式 SDK 接入](/embedded-checkout-sdk)。
 
 ## 支付与绑卡场景
 
@@ -90,16 +80,16 @@ MIT 零金额请求会被拒绝。当前仅支持 `final_auth`，不支持预授
 成功通知使用 `eventType=PAYMENT_SUCCEEDED`，按 `eventId` 幂等处理；验签和业务处理成功后返回 HTTP 200、纯文本 `success`。目前没有自动重投保证，也不发送失败或退款事件，需要保留主动查单能力。通知验签的第一行为完整商户通知 URL，与主动请求的签名路径不同。
 
 <CardGroup cols={2}>
-  <Card title="前端 SDK 接入" icon="code" href="/embedded-checkout-sdk">
+  <Card title="嵌入式 SDK 接入" icon="code" href="/embedded-checkout-sdk">
     查看初始化、事件、生命周期和 HTML、Vue、React 示例。
   </Card>
-  <Card title="创建支付意图" icon="book-open" href="/api-reference/嵌入式收银台/创建嵌入式支付意图">
+  <Card title="创建支付意图" icon="book-open" href="/api-reference/支付意图/创建支付意图">
     查看完整建单字段、条件必填项与幂等规则。
   </Card>
-  <Card title="查询支付状态" icon="magnifying-glass" href="/api-reference/嵌入式收银台/查询嵌入式支付状态">
+  <Card title="查询支付状态" icon="magnifying-glass" href="/api-reference/支付意图/查询支付意图">
     按支付意图 ID 或商户订单号确认结果。
   </Card>
   <Card title="调试签名请求" icon="terminal" href="/api-tester?operationId=createIntent">
-    选择 Checkout 测试或生产环境生成签名和 cURL。
+    选择沙箱或生产环境生成签名和 cURL。
   </Card>
 </CardGroup>

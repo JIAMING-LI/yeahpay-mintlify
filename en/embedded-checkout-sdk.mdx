@@ -1,10 +1,13 @@
 ---
-title: "Embedded Checkout Frontend Integration"
-sidebarTitle: "Frontend SDK guide"
+title: "Embedded SDK Integration"
+sidebarTitle: "Embedded SDK Integration"
 description: "Mount YeahPay Checkout with the JavaScript SDK and manage its lifecycle in HTML, Vue 3, and React"
+zh-CN_link: "/embedded-checkout-sdk"
+en_link: "/en/embedded-checkout-sdk"
+zh-Hant_link: "/zh-hk/embedded-checkout-sdk"
 ---
 
-This guide is for merchant website developers and follows browser SDK V1.0. Your server creates payments and confirms results; see the [integration flow](/en/embedded-checkout). Examples use the test SDK and `env: 'test'`. For production, switch to the production script, `env: 'pro'`, and production application credentials. The Checkout sandbox endpoint is pending confirmation.
+This guide is for merchant website developers and follows browser SDK V1.0. Your server creates payments and confirms results; see the [integration flow](/en/embedded-checkout). Examples use the production SDK and `env: 'pro'`. The frontend SDK has no sandbox option; do not use `sandbox` as an SDK initialization value. SDK scripts and application credentials must match the SDK environment.
 
 ## Load the SDK
 
@@ -16,7 +19,7 @@ The SDK is distributed as a script, without an npm package. Load it in your page
 | Production | `https://payment.yeahpay.net/checkout/yeahpay-checkout-sdk/checkoutSDK.js` | `pro` |
 
 ```html
-<script src="https://t-payment.yeahpay.net/checkout/yeahpay-checkout-sdk/checkoutSDK.js"></script>
+<script src="https://payment.yeahpay.net/checkout/yeahpay-checkout-sdk/checkoutSDK.js"></script>
 ```
 
 Access it through `window.YeahPayCheckoutSDK`. In Vue/React Vite projects, use the root `index.html`; with Create React App, use `public/index.html`. For SSR frameworks, load through the framework's client-side script mechanism and wait for completion before initializing. Do not access `window` on the server.
@@ -27,8 +30,8 @@ Reference the official script directly to receive fixes; do not mirror or proxy 
 
 ```javascript
 const sdk = window.YeahPayCheckoutSDK.init({
-  appId: 'YOUR_TEST_APP_ID',
-  env: 'test',
+  appId: 'YOUR_PRODUCTION_APP_ID',
+  env: 'pro',
   debug: false,
 })
 
@@ -46,7 +49,7 @@ element.on('ended', (payload) => {
 element.mount(document.getElementById('yeahpay-checkout'))
 ```
 
-`paymentIntentId` and `paymentIntentToken` come from a successful server-side [createIntent](/en/api-reference/embedded-checkout/create-embedded-paymentintent) response. Send only these two values to the frontend. Do not forward the entire response, which may contain `consentToken`.
+`paymentIntentId` and `paymentIntentToken` come from a successful server-side [createIntent](/en/api-reference/payment-intents/create-paymentintent) response. Send only these two values to the frontend. Do not forward the entire response, which may contain `consentToken`.
 
 | Initialization option | Required | Description |
 | --- | --- | --- |
@@ -100,8 +103,8 @@ export function getCheckoutSDK() {
   }
   if (!instance) {
     instance = window.YeahPayCheckoutSDK.init({
-      appId: 'YOUR_TEST_APP_ID',
-      env: 'test',
+      appId: 'YOUR_PRODUCTION_APP_ID',
+      env: 'pro',
       debug: false,
     })
   }
@@ -123,7 +126,7 @@ export function getCheckoutSDK() {
       <body>
         <p id="checkout-message" role="status">Loading Checkout</p>
         <div id="yeahpay-checkout" style="min-height: 720px"></div>
-        <script src="https://t-payment.yeahpay.net/checkout/yeahpay-checkout-sdk/checkoutSDK.js"></script>
+        <script src="https://payment.yeahpay.net/checkout/yeahpay-checkout-sdk/checkoutSDK.js"></script>
         <script>
           let element
           const message = document.getElementById('checkout-message')
@@ -134,7 +137,7 @@ export function getCheckoutSDK() {
               if (!response.ok) throw new Error('Session request failed')
               const { paymentIntentId, paymentIntentToken } = await response.json()
               const sdk = window.YeahPayCheckoutSDK.init({
-                appId: 'YOUR_TEST_APP_ID', env: 'test', debug: false,
+                appId: 'YOUR_PRODUCTION_APP_ID', env: 'pro', debug: false,
               })
               element = sdk.createElement('checkout', { paymentIntentId, paymentIntentToken })
               element.on('load', () => { message.textContent = '' })
@@ -228,7 +231,7 @@ export function getCheckoutSDK() {
 
 ## Confirm results and handle expired Sessions
 
-Your server confirms results through the [merchant POST query API](/en/api-reference/embedded-checkout/query-embedded-payment-status) or a verified success notification. This API uses merchant signing and differs from the SDK's internal Token-authenticated GET query. Browsers must not call merchant signing APIs directly.
+Your server confirms results through the [merchant POST query API](/en/api-reference/payment-intents/query-paymentintent) or a verified success notification. This API uses merchant signing and differs from the SDK's internal Token-authenticated GET query. Browsers must not call merchant signing APIs directly.
 
 `paymentIntentToken` defaults to 24 hours of validity, subject to the actual Session. Expiry does not mean the PI expired or the payment failed. Creation replays do not replace the Token or extend its lifetime. Query the original PI before deciding what to do next, rather than starting another charge because of a frontend error.
 
@@ -252,10 +255,10 @@ Replace `PAYMENT_DEVICE_UUID` with a unique random value for this payment attemp
 Under V1.5, **only a positive-amount CIT direct charge with an active `consentToken`** can include top-level `deviceId` in the server's `createIntent` request. Its value must match the page's `data-order-session-id`. Omit it for ordinary payments, initial bindings, and MIT. The merchant field is not `device_id`. Supply it during creation, before the charge starts; it cannot be added afterward with an SDK Token.
 
 <CardGroup cols={2}>
-  <Card title="Create Embedded PaymentIntent" icon="book-open" href="/en/api-reference/embedded-checkout/create-embedded-paymentintent">
+  <Card title="Create PaymentIntent" icon="book-open" href="/en/api-reference/payment-intents/create-paymentintent">
     Server-side fields, scenarios, and conditional validation.
   </Card>
-  <Card title="Query Embedded Payment Status" icon="magnifying-glass" href="/en/api-reference/embedded-checkout/query-embedded-payment-status">
+  <Card title="Query PaymentIntent" icon="magnifying-glass" href="/en/api-reference/payment-intents/query-paymentintent">
     Confirm payment and binding results and recover from uncertain outcomes.
   </Card>
 </CardGroup>

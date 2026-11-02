@@ -1,15 +1,15 @@
 # YeahPay API 文档站
 
-本仓库用于维护 YeahPay API 的 Mintlify 文档站。站点同时提供中文和英文接入指南、OpenAPI 3.1 API Reference、SHA-512 签名说明，以及可生成签名和 cURL 的在线接口调试工具。
+本仓库用于维护 YeahPay API 的 Mintlify 文档站。站点提供简体中文、香港繁体中文和英文接入指南、OpenAPI 3.1 API Reference、SHA-512 签名说明，以及可生成签名和 cURL 的在线接口调试工具。
 
-当前 OpenAPI 规范版本为 `2.1`，内容包括统一收银台、嵌入式收银台建单与查单、支付链接、扫码交易、统一撤销或退款、支付结果通知和退款结果通知等接口。嵌入式接口按商户 API V1.5 整理，前端接入页按浏览器 SDK V1.0 整理；支付链接按开放 API V2 整理，包含链接、商品、图片上传和收款成功通知。
+当前 OpenAPI 规范版本为 `2.1`，内容包括统一收银台、嵌入式收银台建单与查单、支付链接、统一撤销或退款、支付结果通知和退款结果通知等接口。嵌入式接口按商户 API V1.5 整理，前端接入页按浏览器 SDK V1.0 整理；支付链接按开放 API V2 整理，包含链接、商品、图片上传和收款成功通知。
 
 ## 主要能力
 
-- 中文和英文双语文档导航。
+- 简体中文、香港繁体中文和英文三语文档导航。
 - 根据 OpenAPI 自动生成 API Reference。
 - 在线生成请求签名和 cURL。
-- 自动保持中文 OpenAPI、英文 OpenAPI 和签名调试组件同步。
+- 自动保持中文 OpenAPI、英文与香港繁体规范、香港繁体页面和签名调试组件同步。
 - 为 Codex 和 Claude Code 提供相同的 `sanity-check` skill 与 hook 约束。
 
 ## 环境要求
@@ -41,6 +41,12 @@ pnpm add -g mint
 mint --version
 ```
 
+安装锁定的文档构建依赖（香港繁体转换使用 OpenCC）：
+
+```bash
+npm ci --ignore-scripts
+```
+
 ## 本地预览
 
 在仓库根目录运行：
@@ -59,13 +65,16 @@ mint validate
 
 ## OpenAPI 维护流程
 
-`openapi.json` 是唯一可编辑的 API 定义文件。英文规范和签名调试组件均由脚本生成。
+`openapi.json` 是唯一可编辑的 API 定义文件。`openapi-en.json`、`openapi-zh-hk.json` 和签名调试组件中的生成块均由脚本维护。`zh-hk/` 页面从根目录简体页面生成，不直接编辑。
 
 修改 `openapi.json` 后，按顺序执行：
 
 ```bash
 node scripts/build-openapi-en.mjs
+node scripts/build-zh-hk.mjs
 node scripts/sync-signed-api-playground.mjs --write
+node scripts/check-api-environments.mjs --public
+node scripts/build-zh-hk.mjs --check
 node scripts/sync-signed-api-playground.mjs --check
 mint validate
 ```
@@ -76,11 +85,29 @@ mint validate
 openapi.json
     ├── scripts/build-openapi-en.mjs
     │       └── openapi-en.json
+    ├── scripts/build-zh-hk.mjs
+    │       ├── openapi-zh-hk.json
+    │       ├── zh-hk/*.mdx
+    │       └── 签名调试组件的香港繁体界面文案
     └── scripts/sync-signed-api-playground.mjs
             └── snippets/signed-api-playground.jsx 中的生成块
 ```
 
 英文 OpenAPI 不是通过在线翻译服务生成的。`scripts/build-openapi-en.mjs` 使用仓库内维护的中英文映射表递归翻译字段值。如果生成结果仍包含未翻译的中文，脚本会直接失败；新增或修改中文文案时，需要同时维护对应的英文映射。
+
+香港繁体生成使用锁定版本的 OpenCC 香港转换及术语表，只转换说明文字和导航；保护代码、参数名、枚举、示例值和真实接口路径。商户 API 环境配置以 OpenAPI 为准，前端 SDK 的 `test/pro` 单独维护，不增加 SDK 沙箱选项。
+
+各页面的 `zh-CN_link`、`zh-Hant_link` 和 `en_link` 指向同一内容的三语版本。API 页面对应链接由同步脚本写入 `x-mint.metadata`，新增指南页面时也应补齐对应链接。
+
+环境迁移前后运行同一脚本，基线文件放在仓库外：
+
+```bash
+node scripts/check-api-environments.mjs --record=/tmp/yeahpay-api-before.json
+# 完成环境改造后对照生产 URL、签名路径和接口契约：
+node scripts/check-api-environments.mjs --public --baseline=/tmp/yeahpay-api-before.json
+```
+
+脚本使用虚拟凭据执行实际签名函数，不发送交易请求。日常可运行 `npm run docs:generate` 重建产物，运行 `npm run docs:check` 检查同步与环境。
 
 ## Sanity Check
 

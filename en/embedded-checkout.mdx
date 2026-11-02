@@ -1,19 +1,22 @@
 ---
 title: "Embedded Checkout"
 description: "Embed YeahPay Checkout in your website, with server-side PaymentIntent creation and result confirmation"
+zh-CN_link: "/embedded-checkout"
+en_link: "/en/embedded-checkout"
+zh-Hant_link: "/zh-hk/embedded-checkout"
 ---
 
-Embedded Checkout uses a JavaScript SDK to mount a YeahPay iframe inside your website. Buyers enter card details, select saved cards, and complete authentication in Checkout. Your server creates payments, signs requests, and confirms results.
+Embedded Checkout uses a PaymentIntent to manage each payment and a JavaScript SDK to mount a YeahPay iframe inside your website. Buyers enter card details, select saved cards, and complete authentication in Checkout. Your server creates PaymentIntents, signs requests, and confirms results.
 
 <Note>
-  This guide follows merchant API V1.5 and browser SDK V1.0. Test and production endpoints are listed below; the sandbox endpoint is pending confirmation. Use the matching application credentials, SDK script, and SDK `env` when switching environments.
+  This guide follows merchant API V1.5 and browser SDK V1.0. Use the credentials for your selected merchant API environment. SDK scripts and initialization values are documented separately in the SDK guide.
 </Note>
 
 ## Integration flow
 
 <Steps>
   <Step title="Create a PaymentIntent on your server">
-    Use a unique `merchantOrderId` and a `requestId` for this creation request, then sign and call [Create Embedded PaymentIntent](/en/api-reference/embedded-checkout/create-embedded-paymentintent). Ordinary positive-amount new-card payments can omit `customerId`. For binding, saved-card display, or existing-Consent direct charges, first prepare a platform customer through the existing [Create customer API](/en/api-reference/subscription-payments/create-customer).
+    Use a unique `merchantOrderId` and a `requestId` for this creation request, then sign and call [Create PaymentIntent](/en/api-reference/payment-intents/create-paymentintent). Ordinary positive-amount new-card payments can omit `customerId`. For binding, saved-card display, or existing-Consent direct charges, first prepare a platform customer through the existing [Create customer API](/en/api-reference/subscription-payments/create-customer).
   </Step>
   <Step title="Mount the SDK on your frontend">
     Send only the current payment's `paymentIntentId` and `paymentIntentToken` to the frontend. Follow the [SDK guide](/en/embedded-checkout-sdk) to create the element, register events, and mount Checkout.
@@ -22,30 +25,17 @@ Embedded Checkout uses a JavaScript SDK to mount a YeahPay iframe inside your we
     Buyers submit ordinary new-card payments and initial bindings in the SDK. An existing-Consent direct charge starts during `createIntent`; the SDK uses the original Token to query its status and handle authentication.
   </Step>
   <Step title="Confirm results on your server">
-    Verify and process success notifications idempotently, or call [Query Embedded Payment Status](/en/api-reference/embedded-checkout/query-embedded-payment-status). Frontend events and browser redirects only control the user experience.
+    Verify and process success notifications idempotently, or call [Query PaymentIntent](/en/api-reference/payment-intents/query-paymentintent). Frontend events and browser redirects only control the user experience.
   </Step>
 </Steps>
 
 ## Environments and signing
 
-| Environment | Checkout merchant API Base URL | SDK `env` |
-| --- | --- | --- |
-| Test | `https://t-acquire-business.lepass.cn/gwp/checkout` | `test` |
-| Production | `https://open-api.yeahpay.net/gwp/checkout` | `pro` |
-| Sandbox | Pending confirmation | Pending confirmation |
+API domain: `https://open-api.yeahpay.net`. Select Sandbox or Production on [Create PaymentIntent](/en/api-reference/payment-intents/create-paymentintent) and [Query PaymentIntent](/en/api-reference/payment-intents/query-paymentintent); the API reference and [signed request tester](/en/api-tester?operationId=createIntent) provide the complete path for each environment. Customer APIs use the same domain and their own documented paths.
 
-Customer management continues to use the [acceptance URLs in Get Started](/en). Its test Base URL is `https://t-acquire-business.lepass.cn/gw/abroad-business-acceptance-open-api`. For test and production SDK scripts, see the [frontend SDK guide](/en/embedded-checkout-sdk#load-the-sdk).
+Use the [common signing headers and rules](/en/signature). `Accept-Timezone` controls synchronous record timestamps; do not append `Z` to a time string without an offset.
 
-| Operation | Path appended to the Checkout Base URL | First signing line |
-| --- | --- | --- |
-| `createIntent` | `/openapi/v2/createIntent` | `/checkout/openapi/v2/createIntent` |
-| `queryIntentStatus` | `/openapi/v2/queryIntentStatus` | `/checkout/openapi/v2/queryIntentStatus` |
-
-Use the [common signing rules](/en/signature) and headers: `appId`, `version=1.0`, `timestamp`, `nonce`, `algorithm=SHA-512`, and `signature`. The first signing line excludes the domain and `/gwp` but retains `/checkout`. `Accept-Timezone` can select the timezone for synchronous record timestamps; do not append `Z` to a value without an offset.
-
-<Warning>
-  Customer management and Checkout use different service prefixes. Do not append Checkout operations to the acceptance Base URL. The [signed request tester](/en/api-tester?operationId=createIntent) uses the selected Checkout environment. Its first signing line always retains `/checkout`.
-</Warning>
+The frontend SDK has no sandbox option. Its supported `test` and `pro` values are separate from the merchant API environment selector. See [Embedded SDK Integration](/en/embedded-checkout-sdk).
 
 ## Payment and binding scenarios
 
@@ -90,16 +80,16 @@ Reuse the original `merchantId`, `requestId`, and `merchantOrderId` for network 
 Success notifications use `eventType=PAYMENT_SUCCEEDED`; deduplicate by `eventId`. After verification and successful processing, respond with HTTP 200 and plain-text `success`. Automatic redelivery is not guaranteed, and failure or refund events are not sent, so retain active querying. Notification verification uses the full merchant notification URL as its first signing line, unlike the path used for outgoing API requests.
 
 <CardGroup cols={2}>
-  <Card title="Frontend SDK guide" icon="code" href="/en/embedded-checkout-sdk">
+  <Card title="Embedded SDK Integration" icon="code" href="/en/embedded-checkout-sdk">
     Initialization, events, lifecycle, and HTML, Vue, and React examples.
   </Card>
-  <Card title="Create PaymentIntent" icon="book-open" href="/en/api-reference/embedded-checkout/create-embedded-paymentintent">
+  <Card title="Create PaymentIntent" icon="book-open" href="/en/api-reference/payment-intents/create-paymentintent">
     Creation fields, conditional requirements, and idempotency rules.
   </Card>
-  <Card title="Query payment status" icon="magnifying-glass" href="/en/api-reference/embedded-checkout/query-embedded-payment-status">
+  <Card title="Query payment status" icon="magnifying-glass" href="/en/api-reference/payment-intents/query-paymentintent">
     Confirm results by PaymentIntent ID or merchant order ID.
   </Card>
   <Card title="Test a signed request" icon="terminal" href="/en/api-tester?operationId=createIntent">
-    Select Checkout test or production to generate signatures and cURL.
+    Select Sandbox or Production to generate signatures and cURL.
   </Card>
 </CardGroup>

@@ -1,10 +1,13 @@
 ---
-title: "嵌入式收银台前端接入"
-sidebarTitle: "前端 SDK 接入"
+title: "嵌入式 SDK 接入"
+sidebarTitle: "嵌入式 SDK 接入"
 description: "通过 YeahPay Checkout SDK 挂载收银台，并在 HTML、Vue 3 和 React 中管理其生命周期"
+zh-CN_link: "/embedded-checkout-sdk"
+en_link: "/en/embedded-checkout-sdk"
+zh-Hant_link: "/zh-hk/embedded-checkout-sdk"
 ---
 
-本页面向商户网页开发者，按浏览器 SDK V1.0 整理。支付建单和最终结果确认由商户服务端完成，见[嵌入式接入流程](/embedded-checkout)。以下示例使用测试 SDK 和 `env: 'test'`；正式接入时切换生产脚本、`env: 'pro'` 及生产应用凭证。Checkout 沙箱入口待确认。
+本页面向商户网页开发者，按浏览器 SDK V1.0 整理。支付建单和最终结果确认由商户服务端完成，见[嵌入式接入流程](/embedded-checkout)。以下示例使用生产 SDK 和 `env: 'pro'`。前端 SDK 没有沙箱选项，不要将商户 API 的 `sandbox` 直接作为 SDK 初始化值；脚本和应用凭证须与 SDK 环境对应。
 
 ## 引入 SDK
 
@@ -16,7 +19,7 @@ SDK 通过脚本标签分发，没有 npm 包。先在页面 HTML 中加载脚�
 | 生产 | `https://payment.yeahpay.net/checkout/yeahpay-checkout-sdk/checkoutSDK.js` | `pro` |
 
 ```html
-<script src="https://t-payment.yeahpay.net/checkout/yeahpay-checkout-sdk/checkoutSDK.js"></script>
+<script src="https://payment.yeahpay.net/checkout/yeahpay-checkout-sdk/checkoutSDK.js"></script>
 ```
 
 加载后通过 `window.YeahPayCheckoutSDK` 访问。Vue/React 的 Vite 项目可放在根目录 `index.html`，Create React App 放在 `public/index.html`。SSR 框架须使用客户端脚本加载机制，等待脚本加载完成后再初始化；不要在服务端访问 `window`。
@@ -27,8 +30,8 @@ SDK 通过脚本标签分发，没有 npm 包。先在页面 HTML 中加载脚�
 
 ```javascript
 const sdk = window.YeahPayCheckoutSDK.init({
-  appId: 'YOUR_TEST_APP_ID',
-  env: 'test',
+  appId: 'YOUR_PRODUCTION_APP_ID',
+  env: 'pro',
   debug: false,
 })
 
@@ -46,7 +49,7 @@ element.on('ended', (payload) => {
 element.mount(document.getElementById('yeahpay-checkout'))
 ```
 
-`paymentIntentId` 和 `paymentIntentToken` 来自商户服务端调用 [createIntent](/api-reference/嵌入式收银台/创建嵌入式支付意图) 的成功响应。服务端只将这两个值下发给前端，不要将整份响应（可能包含 `consentToken`）透传浏览器。
+`paymentIntentId` 和 `paymentIntentToken` 来自商户服务端调用 [createIntent](/api-reference/支付意图/创建支付意图) 的成功响应。服务端只将这两个值下发给前端，不要将整份响应（可能包含 `consentToken`）透传浏览器。
 
 | 初始化参数 | 必填 | 说明 |
 | --- | --- | --- |
@@ -100,8 +103,8 @@ export function getCheckoutSDK() {
   }
   if (!instance) {
     instance = window.YeahPayCheckoutSDK.init({
-      appId: 'YOUR_TEST_APP_ID',
-      env: 'test',
+      appId: 'YOUR_PRODUCTION_APP_ID',
+      env: 'pro',
       debug: false,
     })
   }
@@ -123,7 +126,7 @@ export function getCheckoutSDK() {
       <body>
         <p id="checkout-message" role="status">正在加载收银台</p>
         <div id="yeahpay-checkout" style="min-height: 720px"></div>
-        <script src="https://t-payment.yeahpay.net/checkout/yeahpay-checkout-sdk/checkoutSDK.js"></script>
+        <script src="https://payment.yeahpay.net/checkout/yeahpay-checkout-sdk/checkoutSDK.js"></script>
         <script>
           let element
           const message = document.getElementById('checkout-message')
@@ -134,7 +137,7 @@ export function getCheckoutSDK() {
               if (!response.ok) throw new Error('Session request failed')
               const { paymentIntentId, paymentIntentToken } = await response.json()
               const sdk = window.YeahPayCheckoutSDK.init({
-                appId: 'YOUR_TEST_APP_ID', env: 'test', debug: false,
+                appId: 'YOUR_PRODUCTION_APP_ID', env: 'pro', debug: false,
               })
               element = sdk.createElement('checkout', { paymentIntentId, paymentIntentToken })
               element.on('load', () => { message.textContent = '' })
@@ -228,7 +231,7 @@ export function getCheckoutSDK() {
 
 ## 结果确认与会话失效
 
-商户服务端通过[商户 POST 查单接口](/api-reference/嵌入式收银台/查询嵌入式支付状态)或验签后的成功通知确认结果。此接口使用商户签名，与 SDK 内部使用 Token 的 GET 查单不同，浏览器不要直接调用商户签名接口。
+商户服务端通过[商户 POST 查单接口](/api-reference/支付意图/查询支付意图)或验签后的成功通知确认结果。此接口使用商户签名，与 SDK 内部使用 Token 的 GET 查单不同，浏览器不要直接调用商户签名接口。
 
 `paymentIntentToken` 默认有效 24 小时，以实际 Session 为准。失效不表示 PI 已过期或支付失败；重放建单不会换 Token 或延长有效期。应先查询原 PI，确认结果后再决定业务后续操作，避免因前端错误重新发起另一笔扣款。
 
@@ -252,10 +255,10 @@ SDK 负责 3DS 查询和 Continue。已有 Consent 直接支付在建单时已�
 按 V1.5，**仅正金额 CIT + 有效 `consentToken` 的直扣**可由商户后端在 `createIntent` 顶层传 `deviceId`，值与页面 `data-order-session-id` 一致。普通支付、首次绑定和 MIT 不传此字段；不是 `device_id`。设备值必须在建单时传入，不能等扣款发起后再用 SDK Token 补传。
 
 <CardGroup cols={2}>
-  <Card title="创建嵌入式支付意图" icon="book-open" href="/api-reference/嵌入式收银台/创建嵌入式支付意图">
+  <Card title="创建支付意图" icon="book-open" href="/api-reference/支付意图/创建支付意图">
     查看服务端字段、场景和条件校验。
   </Card>
-  <Card title="查询嵌入式支付状态" icon="magnifying-glass" href="/api-reference/嵌入式收银台/查询嵌入式支付状态">
+  <Card title="查询支付意图" icon="magnifying-glass" href="/api-reference/支付意图/查询支付意图">
     确认支付和绑定结果，处理超时与状态恢复。
   </Card>
 </CardGroup>

@@ -7,8 +7,14 @@
   },
   "servers": [
     {
-      "url": "https://t-acquire-business.lepass.cn/gw/abroad-business-acceptance-open-api",
-      "description": "Test environment"
+      "url": "https://open-api.yeahpay.net/acceptance/sandbox",
+      "description": "Sandbox",
+      "x-environment": "sandbox"
+    },
+    {
+      "url": "https://open-api.yeahpay.net/acceptance/acceptance-open-api",
+      "description": "Production environment",
+      "x-environment": "production"
     }
   ],
   "tags": [
@@ -17,8 +23,8 @@
       "description": "Create a PaymentIntent and return the hosted Checkout URL"
     },
     {
-      "name": "Embedded Checkout",
-      "description": "Merchant-server creation and querying of embedded PaymentIntents for use with the frontend SDK"
+      "name": "Payment Intents",
+      "description": "Create and query PaymentIntents from the merchant server for Embedded Checkout and other integration methods"
     },
     {
       "name": "Payment Links",
@@ -31,10 +37,6 @@
     {
       "name": "Reversal and refund",
       "description": "Unified reversal or refund"
-    },
-    {
-      "name": "QR code transactions",
-      "description": "Merchant-presented QR, customer-presented QR, query, close, and refund query operations"
     },
     {
       "name": "Online Pre-Authorization Card Transactions",
@@ -57,7 +59,12 @@
         "description": "Create a PaymentIntent and return the Unified Checkout URL.",
         "operationId": "getRedirectUrl",
         "x-mint": {
-          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=getRedirectUrl\">Generate the signature and cURL for this operation.</Card>"
+          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=getRedirectUrl\">Generate the signature and cURL for this operation.</Card>",
+          "metadata": {
+            "zh-CN_link": "/api-reference/%E7%BB%9F%E4%B8%80%E6%94%B6%E9%93%B6%E5%8F%B0/%E8%8E%B7%E5%8F%96%E7%BB%9F%E4%B8%80%E6%94%B6%E9%93%B6%E5%8F%B0%E5%9C%B0%E5%9D%80",
+            "en_link": "/en/api-reference/unified-checkout/get-unified-checkout-url",
+            "zh-Hant_link": "/zh-hk/api-reference/%E7%B5%B1%E4%B8%80%E6%94%B6%E9%8A%80%E5%8F%B0/%E5%8F%96%E5%BE%97%E7%B5%B1%E4%B8%80%E6%94%B6%E9%8A%80%E5%8F%B0%E5%9C%B0%E5%9D%80"
+          }
         },
         "parameters": [
           {
@@ -118,13 +125,13 @@
         },
         "servers": [
           {
-            "url": "https://t-acquire-business.lepass.cn/gwp/checkout",
-            "description": "Checkout test environment",
-            "x-environment": "test"
+            "url": "https://open-api.yeahpay.net/acceptance/sandbox",
+            "description": "Sandbox",
+            "x-environment": "sandbox"
           },
           {
             "url": "https://open-api.yeahpay.net/gwp/checkout",
-            "description": "Checkout production environment",
+            "description": "Production environment",
             "x-environment": "production"
           }
         ]
@@ -133,20 +140,20 @@
     "/openapi/v2/createIntent": {
       "post": {
         "tags": [
-          "Embedded Checkout"
+          "Payment Intents"
         ],
-        "summary": "Create Embedded PaymentIntent",
+        "summary": "Create PaymentIntent",
         "description": "Create an embedded PaymentIntent and return its ID and SDK Session Token.",
         "operationId": "createIntent",
         "servers": [
           {
-            "url": "https://t-acquire-business.lepass.cn/gwp/checkout",
-            "description": "Checkout test environment",
-            "x-environment": "test"
+            "url": "https://open-api.yeahpay.net/acceptance/sandbox",
+            "description": "Sandbox",
+            "x-environment": "sandbox"
           },
           {
             "url": "https://open-api.yeahpay.net/gwp/checkout",
-            "description": "Checkout production environment",
+            "description": "Production environment",
             "x-environment": "production"
           }
         ],
@@ -331,27 +338,32 @@
           }
         },
         "x-mint": {
-          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=createIntent\">Generate the signature and cURL for this operation.</Card>"
+          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=createIntent\">Generate the signature and cURL for this operation.</Card>",
+          "metadata": {
+            "zh-CN_link": "/api-reference/%E6%94%AF%E4%BB%98%E6%84%8F%E5%9B%BE/%E5%88%9B%E5%BB%BA%E6%94%AF%E4%BB%98%E6%84%8F%E5%9B%BE",
+            "en_link": "/en/api-reference/payment-intents/create-paymentintent",
+            "zh-Hant_link": "/zh-hk/api-reference/%E6%94%AF%E4%BB%98%E6%84%8F%E5%9C%96/%E5%BB%BA%E7%AB%8B%E6%94%AF%E4%BB%98%E6%84%8F%E5%9C%96"
+          }
         }
       }
     },
     "/openapi/v2/queryIntentStatus": {
       "post": {
         "tags": [
-          "Embedded Checkout"
+          "Payment Intents"
         ],
-        "summary": "Query Embedded Payment Status",
+        "summary": "Query PaymentIntent",
         "description": "Query payment status and binding results by PaymentIntent ID or merchant order ID.",
         "operationId": "queryIntentStatus",
         "servers": [
           {
-            "url": "https://t-acquire-business.lepass.cn/gwp/checkout",
-            "description": "Checkout test environment",
-            "x-environment": "test"
+            "url": "https://open-api.yeahpay.net/acceptance/sandbox",
+            "description": "Sandbox",
+            "x-environment": "sandbox"
           },
           {
             "url": "https://open-api.yeahpay.net/gwp/checkout",
-            "description": "Checkout production environment",
+            "description": "Production environment",
             "x-environment": "production"
           }
         ],
@@ -470,7 +482,12 @@
           }
         },
         "x-mint": {
-          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=queryIntentStatus\">Generate the signature and cURL for this operation.</Card>"
+          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=queryIntentStatus\">Generate the signature and cURL for this operation.</Card>",
+          "metadata": {
+            "zh-CN_link": "/api-reference/%E6%94%AF%E4%BB%98%E6%84%8F%E5%9B%BE/%E6%9F%A5%E8%AF%A2%E6%94%AF%E4%BB%98%E6%84%8F%E5%9B%BE",
+            "en_link": "/en/api-reference/payment-intents/query-paymentintent",
+            "zh-Hant_link": "/zh-hk/api-reference/%E6%94%AF%E4%BB%98%E6%84%8F%E5%9C%96/%E6%9F%A5%E8%A9%A2%E6%94%AF%E4%BB%98%E6%84%8F%E5%9C%96"
+          }
         }
       }
     },
@@ -543,7 +560,12 @@
           }
         },
         "x-mint": {
-          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=createConsentCustomer\">Generate the signature and cURL for this operation.</Card>"
+          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=createConsentCustomer\">Generate the signature and cURL for this operation.</Card>",
+          "metadata": {
+            "zh-CN_link": "/api-reference/%E8%AE%A2%E9%98%85%E6%94%AF%E4%BB%98/%E5%88%9B%E5%BB%BA%E5%AE%A2%E6%88%B7",
+            "en_link": "/en/api-reference/subscription-payments/create-customer",
+            "zh-Hant_link": "/zh-hk/api-reference/%E8%A8%82%E9%96%B1%E6%94%AF%E4%BB%98/%E5%BB%BA%E7%AB%8B%E5%AE%A2%E6%88%B6"
+          }
         }
       }
     },
@@ -613,7 +635,12 @@
           }
         },
         "x-mint": {
-          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=updateConsentCustomer\">Generate the signature and cURL for this operation.</Card>"
+          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=updateConsentCustomer\">Generate the signature and cURL for this operation.</Card>",
+          "metadata": {
+            "zh-CN_link": "/api-reference/%E8%AE%A2%E9%98%85%E6%94%AF%E4%BB%98/%E6%9B%B4%E6%96%B0%E5%AE%A2%E6%88%B7",
+            "en_link": "/en/api-reference/subscription-payments/update-customer",
+            "zh-Hant_link": "/zh-hk/api-reference/%E8%A8%82%E9%96%B1%E6%94%AF%E4%BB%98/%E6%9B%B4%E6%96%B0%E5%AE%A2%E6%88%B6"
+          }
         }
       }
     },
@@ -683,7 +710,12 @@
           }
         },
         "x-mint": {
-          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=queryConsentCustomer\">Generate the signature and cURL for this operation.</Card>"
+          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=queryConsentCustomer\">Generate the signature and cURL for this operation.</Card>",
+          "metadata": {
+            "zh-CN_link": "/api-reference/%E8%AE%A2%E9%98%85%E6%94%AF%E4%BB%98/%E6%9F%A5%E8%AF%A2%E5%AE%A2%E6%88%B7",
+            "en_link": "/en/api-reference/subscription-payments/query-customer",
+            "zh-Hant_link": "/zh-hk/api-reference/%E8%A8%82%E9%96%B1%E6%94%AF%E4%BB%98/%E6%9F%A5%E8%A9%A2%E5%AE%A2%E6%88%B6"
+          }
         }
       }
     },
@@ -753,7 +785,12 @@
           }
         },
         "x-mint": {
-          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=queryCustomerConsents\">Generate the signature and cURL for this operation.</Card>"
+          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=queryCustomerConsents\">Generate the signature and cURL for this operation.</Card>",
+          "metadata": {
+            "zh-CN_link": "/api-reference/%E8%AE%A2%E9%98%85%E6%94%AF%E4%BB%98/%E6%9F%A5%E8%AF%A2%E5%AE%A2%E6%88%B7%E6%8E%88%E6%9D%83",
+            "en_link": "/en/api-reference/subscription-payments/query-customer-consents",
+            "zh-Hant_link": "/zh-hk/api-reference/%E8%A8%82%E9%96%B1%E6%94%AF%E4%BB%98/%E6%9F%A5%E8%A9%A2%E5%AE%A2%E6%88%B6%E6%8E%88%E6%AC%8A"
+          }
         }
       }
     },
@@ -823,7 +860,12 @@
           }
         },
         "x-mint": {
-          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=queryConsent\">Generate the signature and cURL for this operation.</Card>"
+          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=queryConsent\">Generate the signature and cURL for this operation.</Card>",
+          "metadata": {
+            "zh-CN_link": "/api-reference/%E8%AE%A2%E9%98%85%E6%94%AF%E4%BB%98/%E6%9F%A5%E8%AF%A2%E6%8E%88%E6%9D%83",
+            "en_link": "/en/api-reference/subscription-payments/query-consent",
+            "zh-Hant_link": "/zh-hk/api-reference/%E8%A8%82%E9%96%B1%E6%94%AF%E4%BB%98/%E6%9F%A5%E8%A9%A2%E6%8E%88%E6%AC%8A"
+          }
         }
       }
     },
@@ -893,7 +935,12 @@
           }
         },
         "x-mint": {
-          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=cancelConsent\">Generate the signature and cURL for this operation.</Card>"
+          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=cancelConsent\">Generate the signature and cURL for this operation.</Card>",
+          "metadata": {
+            "zh-CN_link": "/api-reference/%E8%AE%A2%E9%98%85%E6%94%AF%E4%BB%98/%E5%8F%96%E6%B6%88%E6%8E%88%E6%9D%83",
+            "en_link": "/en/api-reference/subscription-payments/cancel-consent",
+            "zh-Hant_link": "/zh-hk/api-reference/%E8%A8%82%E9%96%B1%E6%94%AF%E4%BB%98/%E5%8F%96%E6%B6%88%E6%8E%88%E6%AC%8A"
+          }
         }
       }
     },
@@ -963,7 +1010,12 @@
           }
         },
         "x-mint": {
-          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=activateConsent\">Generate the signature and cURL for this operation.</Card>"
+          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=activateConsent\">Generate the signature and cURL for this operation.</Card>",
+          "metadata": {
+            "zh-CN_link": "/api-reference/%E8%AE%A2%E9%98%85%E6%94%AF%E4%BB%98/%E9%87%8D%E6%96%B0%E5%90%AF%E7%94%A8%E6%8E%88%E6%9D%83",
+            "en_link": "/en/api-reference/subscription-payments/reactivate-consent",
+            "zh-Hant_link": "/zh-hk/api-reference/%E8%A8%82%E9%96%B1%E6%94%AF%E4%BB%98/%E9%87%8D%E6%96%B0%E5%95%93%E7%94%A8%E6%8E%88%E6%AC%8A"
+          }
         }
       }
     },
@@ -1033,7 +1085,12 @@
           }
         },
         "x-mint": {
-          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=createConsentCharge\">Generate the signature and cURL for this operation.</Card>"
+          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=createConsentCharge\">Generate the signature and cURL for this operation.</Card>",
+          "metadata": {
+            "zh-CN_link": "/api-reference/%E8%AE%A2%E9%98%85%E6%94%AF%E4%BB%98/%E5%8F%91%E8%B5%B7%E5%90%8E%E7%BB%AD%E6%89%A3%E6%AC%BE",
+            "en_link": "/en/api-reference/subscription-payments/initiate-subsequent-charge",
+            "zh-Hant_link": "/zh-hk/api-reference/%E8%A8%82%E9%96%B1%E6%94%AF%E4%BB%98/%E7%99%BC%E8%B5%B7%E5%BE%8C%E7%BA%8C%E6%89%A3%E6%AC%BE"
+          }
         }
       }
     },
@@ -1103,7 +1160,12 @@
           }
         },
         "x-mint": {
-          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=listConsentCharges\">Generate the signature and cURL for this operation.</Card>"
+          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=listConsentCharges\">Generate the signature and cURL for this operation.</Card>",
+          "metadata": {
+            "zh-CN_link": "/api-reference/%E8%AE%A2%E9%98%85%E6%94%AF%E4%BB%98/%E6%9F%A5%E8%AF%A2%E6%89%A3%E6%AC%BE%E5%88%97%E8%A1%A8",
+            "en_link": "/en/api-reference/subscription-payments/list-charges",
+            "zh-Hant_link": "/zh-hk/api-reference/%E8%A8%82%E9%96%B1%E6%94%AF%E4%BB%98/%E6%9F%A5%E8%A9%A2%E6%89%A3%E6%AC%BE%E5%88%97%E8%A1%A8"
+          }
         }
       }
     },
@@ -1115,7 +1177,12 @@
         "summary": "Unified reversal or refund",
         "operationId": "reversalOperation",
         "x-mint": {
-          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=reversalOperation\">Generate the signature and cURL for this operation.</Card>"
+          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=reversalOperation\">Generate the signature and cURL for this operation.</Card>",
+          "metadata": {
+            "zh-CN_link": "/api-reference/%E6%92%A4%E9%94%80-%E9%80%80%E6%AC%BE/%E7%BB%9F%E4%B8%80%E6%92%A4%E9%94%80%E6%88%96%E9%80%80%E6%AC%BE",
+            "en_link": "/en/api-reference/reversal-and-refund/unified-reversal-or-refund",
+            "zh-Hant_link": "/zh-hk/api-reference/%E6%92%A4%E9%8A%B7-%E9%80%80%E6%AC%BE/%E7%B5%B1%E4%B8%80%E6%92%A4%E9%8A%B7%E6%88%96%E9%80%80%E6%AC%BE"
+          }
         },
         "parameters": [
           {
@@ -1176,420 +1243,6 @@
         }
       }
     },
-    "/order/unifiedOrder": {
-      "post": {
-        "tags": [
-          "QR code transactions"
-        ],
-        "summary": "Merchant-presented QR order (customer scans merchant QR code)",
-        "operationId": "unifiedOrder",
-        "x-mint": {
-          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=unifiedOrder\">Generate the signature and cURL for this operation.</Card>"
-        },
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/VersionHeader"
-          },
-          {
-            "$ref": "#/components/parameters/TimestampHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AlgorithmHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AppIdHeader"
-          },
-          {
-            "$ref": "#/components/parameters/NonceHeader"
-          },
-          {
-            "$ref": "#/components/parameters/SignatureHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AcceptLanguageHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AcceptTimezoneHeader"
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UnifiedOrderRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Request successful",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UnifiedOrderResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request parameters"
-          },
-          "401": {
-            "description": "Signature verification or authentication failed"
-          },
-          "500": {
-            "description": "Server error"
-          }
-        }
-      }
-    },
-    "/order/queryOrder": {
-      "post": {
-        "tags": [
-          "QR code transactions"
-        ],
-        "summary": "Query payment (QR code or card)",
-        "operationId": "queryOrder",
-        "x-mint": {
-          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=queryOrder\">Generate the signature and cURL for this operation.</Card>"
-        },
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/VersionHeader"
-          },
-          {
-            "$ref": "#/components/parameters/TimestampHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AlgorithmHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AppIdHeader"
-          },
-          {
-            "$ref": "#/components/parameters/NonceHeader"
-          },
-          {
-            "$ref": "#/components/parameters/SignatureHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AcceptLanguageHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AcceptTimezoneHeader"
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/OrderLookupRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Request successful",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/QueryOrderResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request parameters"
-          },
-          "401": {
-            "description": "Signature verification or authentication failed"
-          },
-          "500": {
-            "description": "Server error"
-          }
-        }
-      }
-    },
-    "/order/microPay": {
-      "post": {
-        "tags": [
-          "QR code transactions"
-        ],
-        "summary": "Customer-presented QR payment (merchant scans customer code)",
-        "operationId": "microPay",
-        "x-mint": {
-          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=microPay\">Generate the signature and cURL for this operation.</Card>"
-        },
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/VersionHeader"
-          },
-          {
-            "$ref": "#/components/parameters/TimestampHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AlgorithmHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AppIdHeader"
-          },
-          {
-            "$ref": "#/components/parameters/NonceHeader"
-          },
-          {
-            "$ref": "#/components/parameters/SignatureHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AcceptLanguageHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AcceptTimezoneHeader"
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/MicroPayRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Request successful",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MicroPayResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request parameters"
-          },
-          "401": {
-            "description": "Signature verification or authentication failed"
-          },
-          "500": {
-            "description": "Server error"
-          }
-        }
-      }
-    },
-    "/order/closeOrder": {
-      "post": {
-        "tags": [
-          "QR code transactions"
-        ],
-        "summary": "Close or reverse an order",
-        "operationId": "closeOrder",
-        "x-mint": {
-          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=closeOrder\">Generate the signature and cURL for this operation.</Card>"
-        },
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/VersionHeader"
-          },
-          {
-            "$ref": "#/components/parameters/TimestampHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AlgorithmHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AppIdHeader"
-          },
-          {
-            "$ref": "#/components/parameters/NonceHeader"
-          },
-          {
-            "$ref": "#/components/parameters/SignatureHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AcceptLanguageHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AcceptTimezoneHeader"
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/OrderLookupRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Request successful",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CloseOrderResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request parameters"
-          },
-          "401": {
-            "description": "Signature verification or authentication failed"
-          },
-          "500": {
-            "description": "Server error"
-          }
-        }
-      }
-    },
-    "/order/unifiedRefund": {
-      "post": {
-        "tags": [
-          "QR code transactions"
-        ],
-        "summary": "Unified refund",
-        "operationId": "unifiedRefund",
-        "x-mint": {
-          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=unifiedRefund\">Generate the signature and cURL for this operation.</Card>"
-        },
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/VersionHeader"
-          },
-          {
-            "$ref": "#/components/parameters/TimestampHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AlgorithmHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AppIdHeader"
-          },
-          {
-            "$ref": "#/components/parameters/NonceHeader"
-          },
-          {
-            "$ref": "#/components/parameters/SignatureHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AcceptLanguageHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AcceptTimezoneHeader"
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UnifiedRefundRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Request successful",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UnifiedRefundResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request parameters"
-          },
-          "401": {
-            "description": "Signature verification or authentication failed"
-          },
-          "500": {
-            "description": "Server error"
-          }
-        }
-      }
-    },
-    "/order/queryRefund": {
-      "post": {
-        "tags": [
-          "QR code transactions"
-        ],
-        "summary": "Query refund (QR code or card)",
-        "operationId": "queryRefund",
-        "x-mint": {
-          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=queryRefund\">Generate the signature and cURL for this operation.</Card>"
-        },
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/VersionHeader"
-          },
-          {
-            "$ref": "#/components/parameters/TimestampHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AlgorithmHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AppIdHeader"
-          },
-          {
-            "$ref": "#/components/parameters/NonceHeader"
-          },
-          {
-            "$ref": "#/components/parameters/SignatureHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AcceptLanguageHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AcceptTimezoneHeader"
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/QueryRefundRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Request successful",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/QueryRefundResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request parameters"
-          },
-          "401": {
-            "description": "Signature verification or authentication failed"
-          },
-          "500": {
-            "description": "Server error"
-          }
-        }
-      }
-    },
     "/cardOrder/preAuthCompleteOnline": {
       "post": {
         "tags": [
@@ -1599,7 +1252,12 @@
         "description": "Pre-authorization completion API (open-api service)",
         "operationId": "preAuthCompleteOnline",
         "x-mint": {
-          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=preAuthCompleteOnline\">Generate the signature and cURL for this operation.</Card>"
+          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=preAuthCompleteOnline\">Generate the signature and cURL for this operation.</Card>",
+          "metadata": {
+            "zh-CN_link": "/api-reference/%E7%BA%BF%E4%B8%8A%E9%A2%84%E6%8E%88%E6%9D%83%E5%88%B7%E5%8D%A1%E4%BA%A4%E6%98%93/%E9%A2%84%E6%8E%88%E6%9D%83%E5%AE%8C%E6%88%90",
+            "en_link": "/en/api-reference/online-pre-authorization-card-transactions/complete-pre-authorization",
+            "zh-Hant_link": "/zh-hk/api-reference/%E7%B7%9A%E4%B8%8A%E9%A0%90%E6%8E%88%E6%AC%8A%E5%88%B7%E5%8D%A1%E4%BA%A4%E6%98%93/%E9%A0%90%E6%8E%88%E6%AC%8A%E5%AE%8C%E6%88%90"
+          }
         },
         "parameters": [
           {
@@ -1669,7 +1327,12 @@
         "description": "Pre-authorization completion cancellation API (open-api service)",
         "operationId": "preAuthCompleteCancelOnline",
         "x-mint": {
-          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=preAuthCompleteCancelOnline\">Generate the signature and cURL for this operation.</Card>"
+          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=preAuthCompleteCancelOnline\">Generate the signature and cURL for this operation.</Card>",
+          "metadata": {
+            "zh-CN_link": "/api-reference/%E7%BA%BF%E4%B8%8A%E9%A2%84%E6%8E%88%E6%9D%83%E5%88%B7%E5%8D%A1%E4%BA%A4%E6%98%93/%E9%A2%84%E6%8E%88%E6%9D%83%E5%AE%8C%E6%88%90%E6%92%A4%E9%94%80",
+            "en_link": "/en/api-reference/online-pre-authorization-card-transactions/cancel-pre-authorization-completion",
+            "zh-Hant_link": "/zh-hk/api-reference/%E7%B7%9A%E4%B8%8A%E9%A0%90%E6%8E%88%E6%AC%8A%E5%88%B7%E5%8D%A1%E4%BA%A4%E6%98%93/%E9%A0%90%E6%8E%88%E6%AC%8A%E5%AE%8C%E6%88%90%E6%92%A4%E9%8A%B7"
+          }
         },
         "parameters": [
           {
@@ -1739,7 +1402,12 @@
         "description": "Batch settlement API (open-api service)",
         "operationId": "batchSettleOnline",
         "x-mint": {
-          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=batchSettleOnline\">Generate the signature and cURL for this operation.</Card>"
+          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=batchSettleOnline\">Generate the signature and cURL for this operation.</Card>",
+          "metadata": {
+            "zh-CN_link": "/api-reference/%E7%BA%BF%E4%B8%8A%E9%A2%84%E6%8E%88%E6%9D%83%E5%88%B7%E5%8D%A1%E4%BA%A4%E6%98%93/%E7%BB%93%E7%AE%97%E8%AF%B7%E6%AC%BE",
+            "en_link": "/en/api-reference/online-pre-authorization-card-transactions/batch-settlement",
+            "zh-Hant_link": "/zh-hk/api-reference/%E7%B7%9A%E4%B8%8A%E9%A0%90%E6%8E%88%E6%AC%8A%E5%88%B7%E5%8D%A1%E4%BA%A4%E6%98%93/%E7%B5%90%E7%AE%97%E8%AB%8B%E6%AC%BE"
+          }
         },
         "parameters": [
           {
@@ -1809,7 +1477,12 @@
         "description": "Settlement query API (open-api service)",
         "operationId": "settleQuery",
         "x-mint": {
-          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=settleQuery\">Generate the signature and cURL for this operation.</Card>"
+          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=settleQuery\">Generate the signature and cURL for this operation.</Card>",
+          "metadata": {
+            "zh-CN_link": "/api-reference/%E7%BA%BF%E4%B8%8A%E9%A2%84%E6%8E%88%E6%9D%83%E5%88%B7%E5%8D%A1%E4%BA%A4%E6%98%93/%E8%AF%B7%E6%AC%BE%E6%9F%A5%E8%AF%A2",
+            "en_link": "/en/api-reference/online-pre-authorization-card-transactions/settlement-query",
+            "zh-Hant_link": "/zh-hk/api-reference/%E7%B7%9A%E4%B8%8A%E9%A0%90%E6%8E%88%E6%AC%8A%E5%88%B7%E5%8D%A1%E4%BA%A4%E6%98%93/%E8%AB%8B%E6%AC%BE%E6%9F%A5%E8%A9%A2"
+          }
         },
         "parameters": [
           {
@@ -1964,9 +1637,9 @@
         "operationId": "createPaymentLink",
         "servers": [
           {
-            "url": "https://t-acquire-business.lepass.cn/gw/abroad-business-acceptance-open-api",
-            "description": "Test environment",
-            "x-environment": "test"
+            "url": "https://open-api.yeahpay.net/acceptance/sandbox",
+            "description": "Sandbox",
+            "x-environment": "sandbox"
           },
           {
             "url": "https://open-api.yeahpay.net/acceptance/acceptance-open-api",
@@ -2005,7 +1678,12 @@
           }
         ],
         "x-mint": {
-          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=createPaymentLink\">Generate the signature and cURL for this operation.</Card>"
+          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=createPaymentLink\">Generate the signature and cURL for this operation.</Card>",
+          "metadata": {
+            "zh-CN_link": "/api-reference/%E6%94%AF%E4%BB%98%E9%93%BE%E6%8E%A5/%E5%88%9B%E5%BB%BA%E6%94%AF%E4%BB%98%E9%93%BE%E6%8E%A5",
+            "en_link": "/en/api-reference/payment-links/create-payment-link",
+            "zh-Hant_link": "/zh-hk/api-reference/%E6%94%AF%E4%BB%98%E9%80%A3%E7%B5%90/%E5%BB%BA%E7%AB%8B%E6%94%AF%E4%BB%98%E9%80%A3%E7%B5%90"
+          }
         }
       }
     },
@@ -2089,9 +1767,9 @@
         "operationId": "queryPaymentLinks",
         "servers": [
           {
-            "url": "https://t-acquire-business.lepass.cn/gw/abroad-business-acceptance-open-api",
-            "description": "Test environment",
-            "x-environment": "test"
+            "url": "https://open-api.yeahpay.net/acceptance/sandbox",
+            "description": "Sandbox",
+            "x-environment": "sandbox"
           },
           {
             "url": "https://open-api.yeahpay.net/acceptance/acceptance-open-api",
@@ -2130,7 +1808,12 @@
           }
         ],
         "x-mint": {
-          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=queryPaymentLinks\">Generate the signature and cURL for this operation.</Card>"
+          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=queryPaymentLinks\">Generate the signature and cURL for this operation.</Card>",
+          "metadata": {
+            "zh-CN_link": "/api-reference/%E6%94%AF%E4%BB%98%E9%93%BE%E6%8E%A5/%E5%88%86%E9%A1%B5%E6%9F%A5%E8%AF%A2%E6%94%AF%E4%BB%98%E9%93%BE%E6%8E%A5",
+            "en_link": "/en/api-reference/payment-links/list-payment-links",
+            "zh-Hant_link": "/zh-hk/api-reference/%E6%94%AF%E4%BB%98%E9%80%A3%E7%B5%90/%E5%88%86%E9%A0%81%E6%9F%A5%E8%A9%A2%E6%94%AF%E4%BB%98%E9%80%A3%E7%B5%90"
+          }
         }
       }
     },
@@ -2185,9 +1868,9 @@
         "operationId": "getPaymentLinkDetail",
         "servers": [
           {
-            "url": "https://t-acquire-business.lepass.cn/gw/abroad-business-acceptance-open-api",
-            "description": "Test environment",
-            "x-environment": "test"
+            "url": "https://open-api.yeahpay.net/acceptance/sandbox",
+            "description": "Sandbox",
+            "x-environment": "sandbox"
           },
           {
             "url": "https://open-api.yeahpay.net/acceptance/acceptance-open-api",
@@ -2226,7 +1909,12 @@
           }
         ],
         "x-mint": {
-          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=getPaymentLinkDetail\">Generate the signature and cURL for this operation.</Card>"
+          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=getPaymentLinkDetail\">Generate the signature and cURL for this operation.</Card>",
+          "metadata": {
+            "zh-CN_link": "/api-reference/%E6%94%AF%E4%BB%98%E9%93%BE%E6%8E%A5/%E6%9F%A5%E8%AF%A2%E6%94%AF%E4%BB%98%E9%93%BE%E6%8E%A5%E8%AF%A6%E6%83%85",
+            "en_link": "/en/api-reference/payment-links/get-payment-link-details",
+            "zh-Hant_link": "/zh-hk/api-reference/%E6%94%AF%E4%BB%98%E9%80%A3%E7%B5%90/%E6%9F%A5%E8%A9%A2%E6%94%AF%E4%BB%98%E9%80%A3%E7%B5%90%E8%A9%B3%E6%83%85"
+          }
         }
       }
     },
@@ -2295,9 +1983,9 @@
         "operationId": "modifyPaymentLink",
         "servers": [
           {
-            "url": "https://t-acquire-business.lepass.cn/gw/abroad-business-acceptance-open-api",
-            "description": "Test environment",
-            "x-environment": "test"
+            "url": "https://open-api.yeahpay.net/acceptance/sandbox",
+            "description": "Sandbox",
+            "x-environment": "sandbox"
           },
           {
             "url": "https://open-api.yeahpay.net/acceptance/acceptance-open-api",
@@ -2336,7 +2024,12 @@
           }
         ],
         "x-mint": {
-          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=modifyPaymentLink\">Generate the signature and cURL for this operation.</Card>"
+          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=modifyPaymentLink\">Generate the signature and cURL for this operation.</Card>",
+          "metadata": {
+            "zh-CN_link": "/api-reference/%E6%94%AF%E4%BB%98%E9%93%BE%E6%8E%A5/%E4%BF%AE%E6%94%B9%E6%94%AF%E4%BB%98%E9%93%BE%E6%8E%A5",
+            "en_link": "/en/api-reference/payment-links/modify-payment-link",
+            "zh-Hant_link": "/zh-hk/api-reference/%E6%94%AF%E4%BB%98%E9%80%A3%E7%B5%90/%E4%BF%AE%E6%94%B9%E6%94%AF%E4%BB%98%E9%80%A3%E7%B5%90"
+          }
         }
       }
     },
@@ -2393,9 +2086,9 @@
         "operationId": "createPaymentLinkProduct",
         "servers": [
           {
-            "url": "https://t-acquire-business.lepass.cn/gw/abroad-business-acceptance-open-api",
-            "description": "Test environment",
-            "x-environment": "test"
+            "url": "https://open-api.yeahpay.net/acceptance/sandbox",
+            "description": "Sandbox",
+            "x-environment": "sandbox"
           },
           {
             "url": "https://open-api.yeahpay.net/acceptance/acceptance-open-api",
@@ -2434,7 +2127,12 @@
           }
         ],
         "x-mint": {
-          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=createPaymentLinkProduct\">Generate the signature and cURL for this operation.</Card>"
+          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=createPaymentLinkProduct\">Generate the signature and cURL for this operation.</Card>",
+          "metadata": {
+            "zh-CN_link": "/api-reference/%E6%94%AF%E4%BB%98%E9%93%BE%E6%8E%A5/%E5%88%9B%E5%BB%BA%E6%94%AF%E4%BB%98%E9%93%BE%E6%8E%A5%E5%95%86%E5%93%81",
+            "en_link": "/en/api-reference/payment-links/create-payment-link-product",
+            "zh-Hant_link": "/zh-hk/api-reference/%E6%94%AF%E4%BB%98%E9%80%A3%E7%B5%90/%E5%BB%BA%E7%AB%8B%E6%94%AF%E4%BB%98%E9%80%A3%E7%B5%90%E5%95%86%E5%93%81"
+          }
         }
       }
     },
@@ -2507,9 +2205,9 @@
         "operationId": "queryPaymentLinkProducts",
         "servers": [
           {
-            "url": "https://t-acquire-business.lepass.cn/gw/abroad-business-acceptance-open-api",
-            "description": "Test environment",
-            "x-environment": "test"
+            "url": "https://open-api.yeahpay.net/acceptance/sandbox",
+            "description": "Sandbox",
+            "x-environment": "sandbox"
           },
           {
             "url": "https://open-api.yeahpay.net/acceptance/acceptance-open-api",
@@ -2548,7 +2246,12 @@
           }
         ],
         "x-mint": {
-          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=queryPaymentLinkProducts\">Generate the signature and cURL for this operation.</Card>"
+          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=queryPaymentLinkProducts\">Generate the signature and cURL for this operation.</Card>",
+          "metadata": {
+            "zh-CN_link": "/api-reference/%E6%94%AF%E4%BB%98%E9%93%BE%E6%8E%A5/%E5%88%86%E9%A1%B5%E6%9F%A5%E8%AF%A2%E6%94%AF%E4%BB%98%E9%93%BE%E6%8E%A5%E5%95%86%E5%93%81",
+            "en_link": "/en/api-reference/payment-links/list-payment-link-products",
+            "zh-Hant_link": "/zh-hk/api-reference/%E6%94%AF%E4%BB%98%E9%80%A3%E7%B5%90/%E5%88%86%E9%A0%81%E6%9F%A5%E8%A9%A2%E6%94%AF%E4%BB%98%E9%80%A3%E7%B5%90%E5%95%86%E5%93%81"
+          }
         }
       }
     },
@@ -2600,9 +2303,9 @@
         "operationId": "getPaymentLinkProductDetail",
         "servers": [
           {
-            "url": "https://t-acquire-business.lepass.cn/gw/abroad-business-acceptance-open-api",
-            "description": "Test environment",
-            "x-environment": "test"
+            "url": "https://open-api.yeahpay.net/acceptance/sandbox",
+            "description": "Sandbox",
+            "x-environment": "sandbox"
           },
           {
             "url": "https://open-api.yeahpay.net/acceptance/acceptance-open-api",
@@ -2641,7 +2344,12 @@
           }
         ],
         "x-mint": {
-          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=getPaymentLinkProductDetail\">Generate the signature and cURL for this operation.</Card>"
+          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=getPaymentLinkProductDetail\">Generate the signature and cURL for this operation.</Card>",
+          "metadata": {
+            "zh-CN_link": "/api-reference/%E6%94%AF%E4%BB%98%E9%93%BE%E6%8E%A5/%E6%9F%A5%E8%AF%A2%E6%94%AF%E4%BB%98%E9%93%BE%E6%8E%A5%E5%95%86%E5%93%81%E8%AF%A6%E6%83%85",
+            "en_link": "/en/api-reference/payment-links/get-payment-link-product-details",
+            "zh-Hant_link": "/zh-hk/api-reference/%E6%94%AF%E4%BB%98%E9%80%A3%E7%B5%90/%E6%9F%A5%E8%A9%A2%E6%94%AF%E4%BB%98%E9%80%A3%E7%B5%90%E5%95%86%E5%93%81%E8%A9%B3%E6%83%85"
+          }
         }
       }
     },
@@ -2709,9 +2417,9 @@
         "operationId": "modifyPaymentLinkProduct",
         "servers": [
           {
-            "url": "https://t-acquire-business.lepass.cn/gw/abroad-business-acceptance-open-api",
-            "description": "Test environment",
-            "x-environment": "test"
+            "url": "https://open-api.yeahpay.net/acceptance/sandbox",
+            "description": "Sandbox",
+            "x-environment": "sandbox"
           },
           {
             "url": "https://open-api.yeahpay.net/acceptance/acceptance-open-api",
@@ -2750,7 +2458,12 @@
           }
         ],
         "x-mint": {
-          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=modifyPaymentLinkProduct\">Generate the signature and cURL for this operation.</Card>"
+          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=modifyPaymentLinkProduct\">Generate the signature and cURL for this operation.</Card>",
+          "metadata": {
+            "zh-CN_link": "/api-reference/%E6%94%AF%E4%BB%98%E9%93%BE%E6%8E%A5/%E4%BF%AE%E6%94%B9%E6%94%AF%E4%BB%98%E9%93%BE%E6%8E%A5%E5%95%86%E5%93%81",
+            "en_link": "/en/api-reference/payment-links/modify-payment-link-product",
+            "zh-Hant_link": "/zh-hk/api-reference/%E6%94%AF%E4%BB%98%E9%80%A3%E7%B5%90/%E4%BF%AE%E6%94%B9%E6%94%AF%E4%BB%98%E9%80%A3%E7%B5%90%E5%95%86%E5%93%81"
+          }
         }
       }
     },
@@ -2847,9 +2560,9 @@
         "operationId": "uploadPaymentLinkImage",
         "servers": [
           {
-            "url": "https://t-acquire-business.lepass.cn/gw/abroad-business-acceptance-open-api",
-            "description": "Test environment",
-            "x-environment": "test"
+            "url": "https://open-api.yeahpay.net/acceptance/sandbox",
+            "description": "Sandbox",
+            "x-environment": "sandbox"
           },
           {
             "url": "https://open-api.yeahpay.net/acceptance/acceptance-open-api",
@@ -2888,7 +2601,12 @@
           }
         ],
         "x-mint": {
-          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=uploadPaymentLinkImage\">Generate the signature and cURL for this operation.</Card>"
+          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=uploadPaymentLinkImage\">Generate the signature and cURL for this operation.</Card>",
+          "metadata": {
+            "zh-CN_link": "/api-reference/%E6%94%AF%E4%BB%98%E9%93%BE%E6%8E%A5/%E4%B8%8A%E4%BC%A0%E6%94%AF%E4%BB%98%E9%93%BE%E6%8E%A5%E5%95%86%E5%93%81%E5%9B%BE%E7%89%87",
+            "en_link": "/en/api-reference/payment-links/upload-payment-link-product-image",
+            "zh-Hant_link": "/zh-hk/api-reference/%E6%94%AF%E4%BB%98%E9%80%A3%E7%B5%90/%E4%B8%8A%E5%82%B3%E6%94%AF%E4%BB%98%E9%80%A3%E7%B5%90%E5%95%86%E5%93%81%E5%9C%96%E7%89%87"
+          }
         }
       }
     }
@@ -2941,6 +2659,13 @@
               }
             }
           }
+        },
+        "x-mint": {
+          "metadata": {
+            "zh-CN_link": "/api-reference/%E6%94%AF%E4%BB%98%E7%BB%93%E6%9E%9C%E9%80%9A%E7%9F%A5",
+            "en_link": "/en/api-reference/payment-result-notification",
+            "zh-Hant_link": "/zh-hk/api-reference/%E6%94%AF%E4%BB%98%E7%B5%90%E6%9E%9C%E9%80%9A%E7%9F%A5"
+          }
         }
       }
     },
@@ -2990,6 +2715,13 @@
                 }
               }
             }
+          }
+        },
+        "x-mint": {
+          "metadata": {
+            "zh-CN_link": "/api-reference/%E9%80%80%E6%AC%BE%E7%BB%93%E6%9E%9C%E9%80%9A%E7%9F%A5",
+            "en_link": "/en/api-reference/refund-result-notification",
+            "zh-Hant_link": "/zh-hk/api-reference/%E9%80%80%E6%AC%BE%E7%B5%90%E6%9E%9C%E9%80%9A%E7%9F%A5"
           }
         }
       }
@@ -3120,7 +2852,14 @@
           {
             "$ref": "#/components/parameters/SignatureHeader"
           }
-        ]
+        ],
+        "x-mint": {
+          "metadata": {
+            "zh-CN_link": "/api-reference/%E6%94%AF%E4%BB%98%E9%93%BE%E6%8E%A5/%E6%94%AF%E4%BB%98%E9%93%BE%E6%8E%A5%E6%94%B6%E6%AC%BE%E6%88%90%E5%8A%9F%E9%80%9A%E7%9F%A5",
+            "en_link": "/en/api-reference/payment-links/payment-link-paid-notification",
+            "zh-Hant_link": "/zh-hk/api-reference/%E6%94%AF%E4%BB%98%E9%80%A3%E7%B5%90/%E6%94%AF%E4%BB%98%E9%80%A3%E7%B5%90%E6%94%B6%E6%AC%BE%E6%88%90%E5%8A%9F%E9%80%9A%E7%9F%A5"
+          }
+        }
       }
     }
   },
@@ -4010,1027 +3749,6 @@
               }
             }
           }
-        ]
-      },
-      "UnifiedOrderRequest": {
-        "type": "object",
-        "properties": {
-          "payWay": {
-            "type": "string",
-            "description": "Payment method",
-            "enum": [
-              "WXZF",
-              "ZFBZF",
-              "PayNowPay",
-              "LiquidPay",
-              "DashPay",
-              "GrabPay"
-            ]
-          },
-          "merchantId": {
-            "type": "string",
-            "description": "Merchant ID"
-          },
-          "thirdOrderId": {
-            "type": "string",
-            "description": "Merchant order number"
-          },
-          "amount": {
-            "type": "integer",
-            "description": "Order amount in the smallest currency unit",
-            "format": "int64",
-            "minimum": 1
-          },
-          "currency": {
-            "type": "string",
-            "description": "Currency",
-            "enum": [
-              "SGD"
-            ]
-          },
-          "jspayFlag": {
-            "type": "string",
-            "description": "Transaction type",
-            "enum": [
-              "NATIVE",
-              "JSAPI",
-              "MICROPAY",
-              "APP",
-              "APPLET",
-              "H5Pay",
-              "ONLINE_CARD"
-            ]
-          },
-          "subAppid": {
-            "type": "string",
-            "description": "Sub-merchant App ID. The field name is retained from the source document."
-          },
-          "subOpenid": {
-            "type": "string",
-            "description": "Sub-merchant user identifier"
-          },
-          "openid": {
-            "type": "string",
-            "description": "User identifier"
-          },
-          "clientIp": {
-            "type": "string",
-            "description": "Client IP address"
-          },
-          "body": {
-            "type": "string",
-            "description": "Product description"
-          },
-          "attach": {
-            "type": "string",
-            "description": "Additional data"
-          },
-          "posNo": {
-            "type": "string",
-            "description": "POS number"
-          },
-          "extendBusinessParams": {
-            "type": "string",
-            "description": "Extended business parameters as a JSON string"
-          },
-          "limitPay": {
-            "type": "string",
-            "description": "Restricted payment methods",
-            "enum": [
-              "NAVERPAY",
-              "TOSSPAY",
-              "TINABA",
-              "MPAY",
-              "ALIPAY_CN",
-              "ALIPAY_HK",
-              "KAKAOPAY",
-              "TNG",
-              "GCASH",
-              "TRUEMONEY"
-            ]
-          },
-          "orderExpiration": {
-            "type": "string",
-            "description": "Order expiration time"
-          },
-          "region": {
-            "type": "string",
-            "description": "Region"
-          },
-          "phoneType": {
-            "type": "string",
-            "description": "Device type"
-          },
-          "jumpUrl": {
-            "type": "string",
-            "description": "Payment completion redirect URL",
-            "format": "uri"
-          },
-          "notifyUrl": {
-            "type": "string",
-            "description": "Payment result notification URL",
-            "format": "uri"
-          },
-          "subject": {
-            "type": "string",
-            "description": "Transaction description, used by some payment methods"
-          },
-          "sellerId": {
-            "type": "string",
-            "description": "Seller identifier, used by some Alipay scenarios"
-          },
-          "orderGmtCreate": {
-            "type": "string",
-            "description": "Order creation time in Beijing time, format yyyy-MM-dd HH:mm:ss"
-          },
-          "orderValidTime": {
-            "type": "string",
-            "description": "Order validity period in seconds; used with orderGmtCreate"
-          }
-        },
-        "required": [
-          "payWay",
-          "merchantId",
-          "thirdOrderId",
-          "amount",
-          "currency",
-          "jspayFlag"
-        ]
-      },
-      "UnifiedOrderResponse": {
-        "type": "object",
-        "properties": {
-          "code": {
-            "oneOf": [
-              {
-                "type": "string",
-                "examples": [
-                  "200"
-                ]
-              },
-              {
-                "type": "integer",
-                "examples": [
-                  0
-                ]
-              }
-            ],
-            "description": "Business result code. Standard transaction examples return a string, while checkout examples return the number 0, so both formats are supported."
-          },
-          "message": {
-            "type": "string",
-            "description": "Result description"
-          },
-          "data": {
-            "type": "object",
-            "properties": {
-              "amount": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "Order amount"
-              },
-              "costTime": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "Processing duration"
-              },
-              "currency": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "Currency"
-              },
-              "leshuaOrderId": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "YeahPay order number"
-              },
-              "merchantId": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "Merchant ID"
-              },
-              "tdCode": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "QR code. The field name is retained from the source document."
-              },
-              "thirdOrderId": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "Merchant order number"
-              },
-              "payInfo": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "Payment information"
-              },
-              "channelOrderId": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "Channel order number"
-              }
-            }
-          }
-        },
-        "required": [
-          "code"
-        ]
-      },
-      "OrderLookupRequest": {
-        "type": "object",
-        "properties": {
-          "merchantId": {
-            "type": "string",
-            "description": "Merchant ID"
-          },
-          "thirdOrderId": {
-            "type": "string",
-            "description": "Merchant order number. Provide either this field or leshuaOrderId."
-          },
-          "leshuaOrderId": {
-            "type": "string",
-            "description": "YeahPay order number. Provide either this field or thirdOrderId."
-          }
-        },
-        "required": [
-          "merchantId"
-        ],
-        "anyOf": [
-          {
-            "required": [
-              "thirdOrderId"
-            ]
-          },
-          {
-            "required": [
-              "leshuaOrderId"
-            ]
-          }
-        ]
-      },
-      "QueryOrderResponse": {
-        "type": "object",
-        "properties": {
-          "code": {
-            "oneOf": [
-              {
-                "type": "string",
-                "examples": [
-                  "200"
-                ]
-              },
-              {
-                "type": "integer",
-                "examples": [
-                  0
-                ]
-              }
-            ],
-            "description": "Business result code. Standard transaction examples return a string, while checkout examples return the number 0, so both formats are supported."
-          },
-          "message": {
-            "type": "string",
-            "description": "Result description"
-          },
-          "data": {
-            "type": "object",
-            "properties": {
-              "amount": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "Order amount"
-              },
-              "buyerPayAmount": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "Buyer payment amount"
-              },
-              "buyerPayCurrency": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "Buyer payment currency"
-              },
-              "buyerPayRate": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "Buyer payment exchange rate"
-              },
-              "channelOrderId": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "Channel order number"
-              },
-              "costTime": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "Processing duration"
-              },
-              "currency": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "Order currency"
-              },
-              "leshuaOrderId": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "YeahPay order number"
-              },
-              "merchantId": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "Merchant ID"
-              },
-              "payTime": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "Payment time"
-              },
-              "payWay": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "Payment method"
-              },
-              "status": {
-                "type": "string",
-                "description": "Order status",
-                "enum": [
-                  "0",
-                  "2",
-                  "6",
-                  "8",
-                  "10",
-                  "11",
-                  "12"
-                ],
-                "x-enum-descriptions": {
-                  "0": "Unpaid",
-                  "2": "Payment successful",
-                  "6": "Closed",
-                  "8": "Refund processing",
-                  "10": "Refund successful",
-                  "11": "Refund failed",
-                  "12": "Payment processing"
-                }
-              },
-              "subMerchantId": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "Sub-merchant ID"
-              },
-              "thirdOrderId": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "Merchant order number"
-              },
-              "mppInfo": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "MPP information"
-              },
-              "orderSettleStatus": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "Order settlement status"
-              },
-              "cardType": {
-                "type": [
-                  "integer",
-                  "null"
-                ],
-                "description": "Card type"
-              },
-              "cardNativeFlag": {
-                "type": [
-                  "integer",
-                  "null"
-                ],
-                "description": "Local card indicator"
-              },
-              "encryptCardId": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "Encrypted card number"
-              },
-              "maskCardId": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "Masked card number"
-              }
-            }
-          }
-        },
-        "required": [
-          "code"
-        ]
-      },
-      "MicroPayRequest": {
-        "type": "object",
-        "properties": {
-          "merchantId": {
-            "type": "string",
-            "description": "Merchant ID"
-          },
-          "thirdOrderId": {
-            "type": "string",
-            "description": "Merchant order number"
-          },
-          "amount": {
-            "type": "integer",
-            "description": "Order amount in the smallest currency unit",
-            "format": "int64",
-            "minimum": 1
-          },
-          "currency": {
-            "type": "string",
-            "description": "Currency",
-            "enum": [
-              "SGD"
-            ]
-          },
-          "authCode": {
-            "type": "string",
-            "description": "Customer payment code"
-          },
-          "clientIp": {
-            "type": "string",
-            "description": "Client IP address"
-          },
-          "body": {
-            "type": "string",
-            "description": "Product description"
-          },
-          "attach": {
-            "type": "string",
-            "description": "Additional data"
-          },
-          "posNo": {
-            "type": "string",
-            "description": "POS number"
-          },
-          "notifyUrl": {
-            "type": "string",
-            "description": "Payment result notification URL",
-            "format": "uri"
-          }
-        },
-        "required": [
-          "merchantId",
-          "thirdOrderId",
-          "amount",
-          "currency",
-          "authCode"
-        ]
-      },
-      "MicroPayResponse": {
-        "type": "object",
-        "properties": {
-          "code": {
-            "oneOf": [
-              {
-                "type": "string",
-                "examples": [
-                  "200"
-                ]
-              },
-              {
-                "type": "integer",
-                "examples": [
-                  0
-                ]
-              }
-            ],
-            "description": "Business result code. Standard transaction examples return a string, while checkout examples return the number 0, so both formats are supported."
-          },
-          "message": {
-            "type": "string",
-            "description": "Result description"
-          },
-          "data": {
-            "type": "object",
-            "properties": {
-              "channelCode": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "Channel result code"
-              },
-              "costTime": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "Processing duration"
-              },
-              "leshuaOrderId": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "YeahPay order number"
-              },
-              "merchantId": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "Merchant ID"
-              },
-              "payWay": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "Payment method"
-              },
-              "status": {
-                "type": "string",
-                "description": "Order status",
-                "enum": [
-                  "0",
-                  "2",
-                  "6",
-                  "8",
-                  "10",
-                  "11",
-                  "12"
-                ],
-                "x-enum-descriptions": {
-                  "0": "Unpaid",
-                  "2": "Payment successful",
-                  "6": "Closed",
-                  "8": "Refund processing",
-                  "10": "Refund successful",
-                  "11": "Refund failed",
-                  "12": "Payment processing"
-                }
-              },
-              "subMerchantId": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "Sub-merchant ID"
-              },
-              "thirdOrderId": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "Merchant order number"
-              },
-              "channelOrderId": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "Channel order number"
-              },
-              "buyerPayAmount": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "Buyer payment amount"
-              },
-              "buyerPayCurrency": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "Buyer payment currency"
-              },
-              "mppInfo": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "MPP information"
-              },
-              "amount": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "Order amount"
-              },
-              "currency": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "Order currency"
-              }
-            }
-          }
-        },
-        "required": [
-          "code"
-        ]
-      },
-      "CloseOrderResponse": {
-        "type": "object",
-        "properties": {
-          "code": {
-            "oneOf": [
-              {
-                "type": "string",
-                "examples": [
-                  "200"
-                ]
-              },
-              {
-                "type": "integer",
-                "examples": [
-                  0
-                ]
-              }
-            ],
-            "description": "Business result code. Standard transaction examples return a string, while checkout examples return the number 0, so both formats are supported."
-          },
-          "message": {
-            "type": "string",
-            "description": "Result description"
-          },
-          "data": {
-            "type": "object",
-            "properties": {
-              "leshuaOrderId": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "YeahPay order number"
-              },
-              "merchantId": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "Merchant ID"
-              },
-              "status": {
-                "type": "string",
-                "description": "Order status",
-                "enum": [
-                  "0",
-                  "2",
-                  "6",
-                  "8",
-                  "10",
-                  "11",
-                  "12"
-                ],
-                "x-enum-descriptions": {
-                  "0": "Unpaid",
-                  "2": "Payment successful",
-                  "6": "Closed",
-                  "8": "Refund processing",
-                  "10": "Refund successful",
-                  "11": "Refund failed",
-                  "12": "Payment processing"
-                }
-              },
-              "thirdOrderId": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "Merchant order number"
-              }
-            }
-          }
-        },
-        "required": [
-          "code"
-        ]
-      },
-      "UnifiedRefundRequest": {
-        "type": "object",
-        "properties": {
-          "merchantId": {
-            "type": "string",
-            "description": "Merchant ID",
-            "minLength": 1
-          },
-          "thirdOrderId": {
-            "type": "string",
-            "description": "Merchant order number"
-          },
-          "leshuaOrderId": {
-            "type": "string",
-            "description": "Original YeahPay order number"
-          },
-          "merchantRefundId": {
-            "type": "string",
-            "description": "Merchant refund number",
-            "minLength": 1
-          },
-          "refundAmount": {
-            "type": "integer",
-            "format": "int64",
-            "description": "Refund amount"
-          },
-          "posNo": {
-            "type": "string",
-            "description": "POS number"
-          },
-          "notifyUrl": {
-            "type": "string",
-            "format": "uri",
-            "description": "Refund result notification URL"
-          }
-        },
-        "required": [
-          "merchantId",
-          "merchantRefundId",
-          "refundAmount"
-        ]
-      },
-      "UnifiedRefundResponse": {
-        "type": "object",
-        "properties": {
-          "code": {
-            "type": "integer",
-            "description": "Business result code. 0 indicates success."
-          },
-          "message": {
-            "type": "string",
-            "description": "Result description"
-          },
-          "traceId": {
-            "type": "string",
-            "description": "Trace ID"
-          },
-          "data": {
-            "type": "object",
-            "properties": {
-              "attach": {
-                "type": "string",
-                "description": "Additional data"
-              },
-              "thirdOrderId": {
-                "type": "string",
-                "description": "Merchant order number"
-              },
-              "merchantId": {
-                "type": "string",
-                "description": "Merchant ID"
-              },
-              "leshuaOrderId": {
-                "type": "string",
-                "description": "YeahPay order number"
-              },
-              "merchantRefundId": {
-                "type": "string",
-                "description": "Merchant refund number"
-              },
-              "leshuaRefundId": {
-                "type": "string",
-                "description": "YeahPay refund number"
-              },
-              "costTime": {
-                "type": "string",
-                "description": "Processing duration"
-              },
-              "status": {
-                "type": "string",
-                "description": "Order status"
-              },
-              "orderBalance": {
-                "type": "string",
-                "description": "Order balance"
-              },
-              "refundAmount": {
-                "type": "string",
-                "description": "Refund amount"
-              }
-            }
-          }
-        },
-        "required": [
-          "code",
-          "message"
-        ]
-      },
-      "QueryRefundRequest": {
-        "type": "object",
-        "properties": {
-          "merchantId": {
-            "type": "string",
-            "description": "Merchant ID"
-          },
-          "merchantRefundId": {
-            "type": "string",
-            "description": "Merchant refund number; provide at least one of the three order identifiers"
-          },
-          "thirdOrderId": {
-            "type": "string",
-            "description": "Merchant order number; provide at least one of the three order identifiers"
-          },
-          "leshuaOrderId": {
-            "type": "string",
-            "description": "YeahPay order number; provide at least one of the three order identifiers"
-          }
-        },
-        "required": [
-          "merchantId"
-        ],
-        "anyOf": [
-          {
-            "required": [
-              "thirdOrderId"
-            ],
-            "properties": {
-              "thirdOrderId": {
-                "minLength": 1
-              }
-            }
-          },
-          {
-            "required": [
-              "leshuaOrderId"
-            ],
-            "properties": {
-              "leshuaOrderId": {
-                "minLength": 1
-              }
-            }
-          },
-          {
-            "required": [
-              "merchantRefundId"
-            ],
-            "properties": {
-              "merchantRefundId": {
-                "minLength": 1
-              }
-            }
-          }
-        ],
-        "description": "Provide at least one of thirdOrderId, leshuaOrderId, or merchantRefundId"
-      },
-      "QueryRefundResponse": {
-        "type": "object",
-        "properties": {
-          "code": {
-            "oneOf": [
-              {
-                "type": "string",
-                "examples": [
-                  "200"
-                ]
-              },
-              {
-                "type": "integer",
-                "examples": [
-                  0
-                ]
-              }
-            ],
-            "description": "Business result code. Standard transaction examples return a string, while checkout examples return the number 0, so both formats are supported."
-          },
-          "message": {
-            "type": "string",
-            "description": "Result description"
-          },
-          "data": {
-            "type": "object",
-            "properties": {
-              "amount": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "Original order amount"
-              },
-              "costTime": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "Processing duration"
-              },
-              "currency": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "Currency"
-              },
-              "leshuaOrderId": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "YeahPay order number"
-              },
-              "leshuaRefundId": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "YeahPay refund number"
-              },
-              "merchantId": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "Merchant ID"
-              },
-              "merchantRefundId": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "Merchant refund number"
-              },
-              "refundAmount": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "Refund amount"
-              },
-              "refundTime": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "Refund time"
-              },
-              "status": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "Refund status"
-              },
-              "thirdOrderId": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "Merchant order number"
-              }
-            }
-          }
-        },
-        "required": [
-          "code"
         ]
       },
       "ReversalOperationRequest": {
@@ -8295,7 +7013,7 @@
     "The document title is 2.1, while the latest revision record says 2.0.1.",
     "The production URL was confirmed as https://open-api.yeahpay.net/acceptance/acceptance-open-api/.",
     "The common parameter table specifies version 1.0, while the signing example uses 2.0. This specification follows the common parameter table.",
-    "The Checkout production Base URL was confirmed as https://open-api.yeahpay.net/gwp/checkout. The sandbox endpoint is pending confirmation."
+    "Merchant APIs use open-api.yeahpay.net. The sandbox prefix is /acceptance/sandbox, followed by the same operation suffix as production."
   ],
   "x-embedded-checkout-source": "embedded-checkout-merchant-api-v1.5.md",
   "x-payment-link-source": "payment-link-openapi-v2.yaml"
