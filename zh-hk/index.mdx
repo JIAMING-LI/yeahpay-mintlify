@@ -1,0 +1,65 @@
+---
+title: "快速開始"
+description: "瞭解 YeahPay API 的環境地址、認證參數和接入流程"
+zh-CN_link: "/"
+en_link: "/en"
+zh-Hant_link: "/zh-hk"
+---
+
+YeahPay API 使用 HTTPS 和 JSON 提供支付、查詢、退款及收銀台服務。開始對接前，請先向 YeahPay 取得 `appId` 和 `apiKey`。
+
+## 環境地址
+
+API 域名：`https://open-api.yeahpay.net`。
+
+聯調使用沙盒環境，正式交易使用生產環境，並分別使用對應的應用憑證。在各介面頁面選擇環境，按該環境的完整請求路徑或產生的 cURL 調用。
+
+<Warning>
+  沙盒與生產使用不同的憑證。切換時同時更換介面環境路徑及對應的 `appId`、`apiKey`。
+</Warning>
+
+## 公共請求頭
+
+所有 API 請求均使用 `POST` 和 `application/json`。
+
+| Header | 必填 | 示例 | 說明 |
+| --- | --- | --- | --- |
+| `appId` | 是 | `1000122333` | YeahPay 分配的應用 ID |
+| `version` | 是 | `1.0` | 當前公共參數版本，固定為 `1.0` |
+| `timestamp` | 是 | `1694082355494` | 13 位毫秒時間戳 |
+| `nonce` | 是 | `FGHUdssdfs5sEDF` | 每次請求使用不同的隨機字符串 |
+| `algorithm` | 否 | `SHA-512` | 簽名算法 |
+| `signature` | 是 | `base64...` | SHA-512 摘要的標準 Base64 編碼 |
+| `Accept-Language` | 否 | `zh-CN` | 響應語言 |
+| `Accept-Timezone` | 否 | `Asia/Shanghai` | 響應時區 |
+| `Content-Type` | 是 | `application/json` | 請求體格式 |
+
+<Note>
+  `apiKey` 只參與簽名計算，不能作為 Header 或請求體字段發送。
+</Note>
+
+## 對接流程
+
+<Steps>
+  <Step title="申請沙盒憑證">
+    取得沙盒環境的 `appId` 和 `apiKey`。請分別保存在安全的伺服器端配置中。
+  </Step>
+  <Step title="產生簽名">
+    序列化請求體一次，使用同一份原始 JSON 計算簽名並發送請求。查看[簽名規則與示例](/zh-hk/signature)。
+  </Step>
+  <Step title="完成沙盒環境聯調">
+    驗證支付、查詢、逆向交易和非同步通知。支付或退款通知處理成功後，響應 Body 必須返回 `success`。
+  </Step>
+  <Step title="切換生產環境">
+    API 域名保持 `https://open-api.yeahpay.net`，按介面文件選擇生產路徑，並使用生產環境憑證。不要複用沙盒環境的 `appId` 或 `apiKey`。
+  </Step>
+</Steps>
+
+<CardGroup cols={2}>
+  <Card title="簽名規則與示例" icon="key" href="/zh-hk/signature">
+    查看簽名原文、URL 處理規則以及 JavaScript 和 Java 示例。
+  </Card>
+  <Card title="API文件" icon="code" href="/zh-hk/api-reference/統一收銀台/取得統一收銀台地址">
+    查看介面字段、請求體和響應結構。
+  </Card>
+</CardGroup>

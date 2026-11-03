@@ -1,0 +1,51 @@
+---
+title: "統一收銀台"
+description: "在移動瀏覽器、App WebView 或桌面網站中接入 YeahPay 託管收銀台"
+zh-CN_link: "/unified-checkout"
+en_link: "/en/unified-checkout"
+zh-Hant_link: "/zh-hk/unified-checkout"
+---
+
+統一收銀台同時適用於移動瀏覽器、App WebView 和桌面網站。商戶伺服器端建立收銀台並取得 `data.checkoutUrl`，再將消費者引導至 YeahPay 託管頁面完成付款。
+
+## 環境與簽名
+
+API 域名：`https://open-api.yeahpay.net`。在[統一收銀台介面頁面](/zh-hk/api-reference/統一收銀台/取得統一收銀台地址)選擇沙盒或生產環境，使用該環境的完整請求路徑和對應憑證。
+
+可使用[簽名測試工具](/zh-hk/api-tester?operationId=getRedirectUrl)產生請求；所選請求路徑如何產生簽名 URL，見[簽名規則](/zh-hk/signature)。
+
+收銀台 Session 和短地址的程式碼預設有效期均為 24 小時，環境配置可覆蓋；實際地址有效期取決於該環境的會話和短地址配置。地址失效不能作為支付失敗的依據。
+
+## 接入流程
+
+<Steps>
+  <Step title="伺服器端建立訂單">
+    產生當前商戶範圍內唯一的商戶訂單號 `merchantOrderId`（最長 64 個字符），準備金額（最小貨幣單位的整數）、幣種、商品類型、消費者資料、前端回跳地址 `callbackUrl` 和支付結果通知地址 `notificationUrl`。實物交易可同時傳入收貨資料 `shippingInfo` 和賬單資料 `billingInfo`。
+  </Step>
+  <Step title="取得統一收銀台地址">
+    伺服器端簽名並調用 [`POST /openapi/v2/getRedirectUrl`](/zh-hk/api-reference/統一收銀台/取得統一收銀台地址)。需要預授權時傳入 `checkoutMode=PRE_AUTH`；訂閱支付首期支付傳入 `checkoutMode=CONSENT_INITIAL`。
+  </Step>
+  <Step title="打開收銀台">
+    從響應的 `data.checkoutUrl` 取得託管頁面地址，並保存 `data.paymentIntentId`。移動端可在當前頁面跳轉；桌面網站可在新窗口或新標籤頁打開，並保留原商戶頁面。
+  </Step>
+  <Step title="確認支付結果">
+    驗證支付結果通知的簽名並冪等處理。若未及時收到通知，使用原 `paymentIntentId` 或 `merchantOrderId` 調用[支付意圖查詢介面](/zh-hk/api-reference/支付意圖/查詢支付意圖)主動確認。
+  </Step>
+</Steps>
+
+<CardGroup cols={2}>
+  <Card title="查看統一收銀台介面" icon="book-open" href="/zh-hk/api-reference/統一收銀台/取得統一收銀台地址">
+    查看完整請求字段、條件必填項和響應結構。
+  </Card>
+  <Card title="除錯簽名請求" icon="terminal" href="/zh-hk/api-tester?operationId=getRedirectUrl">
+    使用介面示例產生簽名請求頭和 cURL。
+  </Card>
+</CardGroup>
+
+<Note>
+  API 應由商戶伺服器端調用。`apiKey` 只能保存在伺服器端並參與簽名計算，不能下發到瀏覽器或 App。
+</Note>
+
+<Warning>
+  `callbackUrl` 僅用於消費者完成操作後的頁面回跳，不能作為支付成功的判斷依據。訂單最終狀態應以驗簽後的支付結果通知或支付查詢結果為準。
+</Warning>

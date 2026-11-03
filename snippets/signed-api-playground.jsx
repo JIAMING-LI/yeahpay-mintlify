@@ -10,10 +10,10 @@ export const SignedApiPlayground = ({ locale = "en" }) => {
       loadError: "Could not load the OpenAPI specification.",
       operation: "API operation",
       environment: "Environment",
-      test: "Test",
       sandbox: "Sandbox",
       production: "Production",
       credentials: "Credentials",
+      storageHint: "Kept only in this page's memory",
       appId: "appId",
       appKey: "appKey",
       appIdPlaceholder: "Enter your application ID",
@@ -56,10 +56,10 @@ export const SignedApiPlayground = ({ locale = "en" }) => {
       loadError: "无法加载 OpenAPI 文件。",
       operation: "API 接口",
       environment: "环境",
-      test: "测试环境",
       sandbox: "沙箱环境",
       production: "生产环境",
       credentials: "应用凭证",
+      storageHint: "仅保存在当前页面内存中",
       appId: "appId",
       appKey: "appKey",
       appIdPlaceholder: "请输入应用 ID",
@@ -92,24 +92,64 @@ export const SignedApiPlayground = ({ locale = "en" }) => {
       serializationWarning: "只有 Mintlify 生成的请求体与这里完全一致时签名才有效；生成的 cURL 是最可靠的请求示例。",
       selectOperation: "请选择 API 接口",
     },
+    // BEGIN AUTO-GENERATED HONG KONG TEXT
+    "zh-HK": {
+      "eyebrow": "YeahPay 開發者工具",
+      "title": "API 簽名測試台",
+      "description": "產生準確的請求體，在瀏覽器本地計算 SHA-512 簽名，然後將結果複製到 API Playground。",
+      "loading": "正在載入介面...",
+      "loadError": "無法載入 OpenAPI 文件。",
+      "operation": "API 介面",
+      "environment": "環境",
+      "sandbox": "沙盒環境",
+      "production": "生產環境",
+      "credentials": "應用憑證",
+      "storageHint": "僅保存在當前頁面內存中",
+      "appId": "appId",
+      "appKey": "appKey",
+      "appIdPlaceholder": "請輸入應用 ID",
+      "appKeyPlaceholder": "請輸入 API 密鑰",
+      "requestBody": "請求體",
+      "refreshExample": "重置示例",
+      "requestHint": "簽名會使用這裏完整的 JSON 字符串，空格和字段順序都會影響簽名。",
+      "generate": "產生簽名",
+      "generating": "正在產生...",
+      "required": "請輸入 appId 和 appKey。",
+      "invalidJson": "請求體必須是有效的 JSON。",
+      "unsupported": "當前瀏覽器不支持 Web Crypto。",
+      "generationError": "無法產生簽名。",
+      "output": "簽名請求",
+      "outputDescription": "全部在瀏覽器本地產生，appKey 不會放入請求。",
+      "waiting": "在左側填寫請求參數，然後產生簽名。",
+      "endpoint": "請求地址",
+      "signingUrl": "簽名 URL",
+      "headers": "公共請求頭",
+      "signature": "signature",
+      "curl": "cURL",
+      "copy": "複製",
+      "copied": "已複製",
+      "useInPlayground": "複製到 Mintlify API Playground",
+      "useSteps": [
+        "在 API Playground 中填寫與左側完全相同的請求參數。",
+        "把 appId、version、timestamp、nonce、algorithm 和 signature 複製到對應 Header。",
+        "不要發送 appKey，它只用於本地簽名。"
+      ],
+      "serializationWarning": "只有 Mintlify 產生的請求體與這裏完全一致時簽名才有效；產生的 cURL 是最可靠的請求示例。",
+      "selectOperation": "請選擇 API 介面"
+    },
+    // END AUTO-GENERATED HONG KONG TEXT
   }
   const text = textByLocale[locale] ?? textByLocale.en
   const environments = {
-    test: {
-      label: text.test,
-      baseUrl: "https://t-acquire-business.lepass.cn/gw/abroad-business-acceptance-open-api",
-    },
     sandbox: {
       label: text.sandbox,
-      baseUrl: "https://open-api.yeahpay.sg/acceptance/sandbox",
     },
     production: {
       label: text.production,
-      baseUrl: "https://open-api.yeahpay.sg/acceptance/acceptance-open-api",
     },
   }
   // BEGIN AUTO-GENERATED OPENAPI OPERATIONS
-  // Source fingerprint: 684c1a80b0e6cbc1
+  // Source fingerprint: 483ecdb9b013257e
   const operationDefinitions = [
     {
       "operationId": "getRedirectUrl",
@@ -117,9 +157,14 @@ export const SignedApiPlayground = ({ locale = "en" }) => {
       "path": "/openapi/v2/getRedirectUrl",
       "summaryZh": "获取统一收银台地址",
       "summaryEn": "Get Unified Checkout URL",
+      "summaryHk": "取得統一收銀台地址",
+      "serverUrls": {
+        "sandbox": "https://open-api.yeahpay.net/acceptance/sandbox",
+        "production": "https://open-api.yeahpay.net/gwp/checkout"
+      },
       "sampleBody": {
         "merchantId": "SAMPLE_MERCHANT_ID",
-        "orderId": "ORDER_TIMESTAMP",
+        "merchantOrderId": "ORDER_TIMESTAMP",
         "amount": 1000,
         "currency": "SGD",
         "productType": "VIRTUAL",
@@ -141,11 +186,59 @@ export const SignedApiPlayground = ({ locale = "en" }) => {
       }
     },
     {
+      "operationId": "createIntent",
+      "method": "POST",
+      "path": "/openapi/v2/createIntent",
+      "summaryZh": "创建支付意图",
+      "summaryEn": "Create PaymentIntent",
+      "summaryHk": "建立支付意圖",
+      "serverUrls": {
+        "sandbox": "https://open-api.yeahpay.net/acceptance/sandbox",
+        "production": "https://open-api.yeahpay.net/gwp/checkout"
+      },
+      "sampleBody": {
+        "merchantId": "SAMPLE_MERCHANT_ID",
+        "requestId": "pay-TIMESTAMP",
+        "merchantOrderId": "ORDER-TIMESTAMP",
+        "amount": 1000,
+        "currency": "SGD",
+        "checkout": {
+          "buttonType": "PAY",
+          "locale": "en-US"
+        },
+        "callback": {
+          "returnUrl": "https://shop.example.com/payment/result",
+          "notificationUrl": "https://shop.example.com/payment/notify"
+        }
+      }
+    },
+    {
+      "operationId": "queryIntentStatus",
+      "method": "POST",
+      "path": "/openapi/v2/queryIntentStatus",
+      "summaryZh": "查询支付意图",
+      "summaryEn": "Query PaymentIntent",
+      "summaryHk": "查詢支付意圖",
+      "serverUrls": {
+        "sandbox": "https://open-api.yeahpay.net/acceptance/sandbox",
+        "production": "https://open-api.yeahpay.net/gwp/checkout"
+      },
+      "sampleBody": {
+        "merchantId": "SAMPLE_MERCHANT_ID",
+        "merchantOrderId": "ORDER-TIMESTAMP"
+      }
+    },
+    {
       "operationId": "createConsentCustomer",
       "method": "POST",
       "path": "/consent-payment/customers/create",
       "summaryZh": "创建客户",
       "summaryEn": "Create customer",
+      "summaryHk": "建立客戶",
+      "serverUrls": {
+        "sandbox": "https://open-api.yeahpay.net/acceptance/sandbox",
+        "production": "https://open-api.yeahpay.net/acceptance/acceptance-open-api"
+      },
       "sampleBody": {
         "merchantId": "SAMPLE_MERCHANT_ID",
         "merchantCustomerId": "SAMPLE_MERCHANT_CUSTOMER_ID",
@@ -169,6 +262,11 @@ export const SignedApiPlayground = ({ locale = "en" }) => {
       "path": "/consent-payment/customers/update",
       "summaryZh": "更新客户",
       "summaryEn": "Update customer",
+      "summaryHk": "更新客戶",
+      "serverUrls": {
+        "sandbox": "https://open-api.yeahpay.net/acceptance/sandbox",
+        "production": "https://open-api.yeahpay.net/acceptance/acceptance-open-api"
+      },
       "sampleBody": {
         "merchantId": "SAMPLE_MERCHANT_ID",
         "customerId": "SAMPLE_CUSTOMER_ID",
@@ -193,6 +291,11 @@ export const SignedApiPlayground = ({ locale = "en" }) => {
       "path": "/consent-payment/customers/query",
       "summaryZh": "查询客户",
       "summaryEn": "Query customer",
+      "summaryHk": "查詢客戶",
+      "serverUrls": {
+        "sandbox": "https://open-api.yeahpay.net/acceptance/sandbox",
+        "production": "https://open-api.yeahpay.net/acceptance/acceptance-open-api"
+      },
       "sampleBody": {
         "merchantId": "SAMPLE_MERCHANT_ID",
         "customerId": "SAMPLE_CUSTOMER_ID",
@@ -205,6 +308,11 @@ export const SignedApiPlayground = ({ locale = "en" }) => {
       "path": "/consent-payment/customers/consents",
       "summaryZh": "查询客户授权",
       "summaryEn": "Query customer consents",
+      "summaryHk": "查詢客戶授權",
+      "serverUrls": {
+        "sandbox": "https://open-api.yeahpay.net/acceptance/sandbox",
+        "production": "https://open-api.yeahpay.net/acceptance/acceptance-open-api"
+      },
       "sampleBody": {
         "pageSize": 100,
         "currentPage": 100,
@@ -220,6 +328,11 @@ export const SignedApiPlayground = ({ locale = "en" }) => {
       "path": "/consent-payment/consents/query",
       "summaryZh": "查询授权",
       "summaryEn": "Query consent",
+      "summaryHk": "查詢授權",
+      "serverUrls": {
+        "sandbox": "https://open-api.yeahpay.net/acceptance/sandbox",
+        "production": "https://open-api.yeahpay.net/acceptance/acceptance-open-api"
+      },
       "sampleBody": {
         "merchantId": "SAMPLE_MERCHANT_ID",
         "consentId": "SAMPLE_CONSENT_ID",
@@ -233,6 +346,11 @@ export const SignedApiPlayground = ({ locale = "en" }) => {
       "path": "/consent-payment/consents/cancel",
       "summaryZh": "取消授权",
       "summaryEn": "Cancel consent",
+      "summaryHk": "取消授權",
+      "serverUrls": {
+        "sandbox": "https://open-api.yeahpay.net/acceptance/sandbox",
+        "production": "https://open-api.yeahpay.net/acceptance/acceptance-open-api"
+      },
       "sampleBody": {
         "merchantId": "SAMPLE_MERCHANT_ID",
         "consentId": "SAMPLE_CONSENT_ID",
@@ -245,6 +363,11 @@ export const SignedApiPlayground = ({ locale = "en" }) => {
       "path": "/consent-payment/consents/activate",
       "summaryZh": "重新启用授权",
       "summaryEn": "Reactivate consent",
+      "summaryHk": "重新啓用授權",
+      "serverUrls": {
+        "sandbox": "https://open-api.yeahpay.net/acceptance/sandbox",
+        "production": "https://open-api.yeahpay.net/acceptance/acceptance-open-api"
+      },
       "sampleBody": {
         "merchantId": "SAMPLE_MERCHANT_ID",
         "consentId": "SAMPLE_CONSENT_ID",
@@ -257,6 +380,11 @@ export const SignedApiPlayground = ({ locale = "en" }) => {
       "path": "/consent-payment/charges/create",
       "summaryZh": "发起后续扣款",
       "summaryEn": "Initiate subsequent charge",
+      "summaryHk": "發起後續扣款",
+      "serverUrls": {
+        "sandbox": "https://open-api.yeahpay.net/acceptance/sandbox",
+        "production": "https://open-api.yeahpay.net/acceptance/acceptance-open-api"
+      },
       "sampleBody": {
         "merchantId": "SAMPLE_MERCHANT_ID",
         "consentId": "SAMPLE_CONSENT_ID",
@@ -273,6 +401,11 @@ export const SignedApiPlayground = ({ locale = "en" }) => {
       "path": "/consent-payment/charges/list",
       "summaryZh": "查询扣款列表",
       "summaryEn": "List charges",
+      "summaryHk": "查詢扣款列表",
+      "serverUrls": {
+        "sandbox": "https://open-api.yeahpay.net/acceptance/sandbox",
+        "production": "https://open-api.yeahpay.net/acceptance/acceptance-open-api"
+      },
       "sampleBody": {
         "pageSize": 100,
         "currentPage": 100,
@@ -288,6 +421,11 @@ export const SignedApiPlayground = ({ locale = "en" }) => {
       "path": "/unified/reversalOperation",
       "summaryZh": "统一撤销或退款",
       "summaryEn": "Unified reversal or refund",
+      "summaryHk": "統一撤銷或退款",
+      "serverUrls": {
+        "sandbox": "https://open-api.yeahpay.net/acceptance/sandbox",
+        "production": "https://open-api.yeahpay.net/acceptance/acceptance-open-api"
+      },
       "sampleBody": {
         "sceneType": 1,
         "merchantId": "SAMPLE_MERCHANT_ID",
@@ -303,116 +441,16 @@ export const SignedApiPlayground = ({ locale = "en" }) => {
       }
     },
     {
-      "operationId": "unifiedOrder",
-      "method": "POST",
-      "path": "/order/unifiedOrder",
-      "summaryZh": "主扫（消费者扫商户收款码、线上支付）",
-      "summaryEn": "Merchant-presented QR order (customer scans merchant QR code)",
-      "sampleBody": {
-        "payWay": "WXZF",
-        "merchantId": "SAMPLE_MERCHANT_ID",
-        "thirdOrderId": "ORDER_TIMESTAMP",
-        "amount": 100,
-        "currency": "SGD",
-        "jspayFlag": "NATIVE",
-        "subAppid": "SAMPLE_SUB_APPID",
-        "subOpenid": "SAMPLE_SUB_OPENID",
-        "openid": "SAMPLE_OPENID",
-        "clientIp": "127.0.0.1",
-        "body": "SAMPLE_BODY",
-        "attach": "SAMPLE_ATTACH",
-        "posNo": "SAMPLE_POS_NO",
-        "extendBusinessParams": "SAMPLE_EXTEND_BUSINESS_PARAMS",
-        "limitPay": "NAVERPAY",
-        "orderExpiration": "SAMPLE_ORDER_EXPIRATION",
-        "region": "SAMPLE_REGION",
-        "phoneType": "SAMPLE_PHONE_TYPE",
-        "jumpUrl": "https://merchant.example.com/yeahpay/callback",
-        "notifyUrl": "https://merchant.example.com/yeahpay/callback",
-        "subject": "SAMPLE_SUBJECT",
-        "sellerId": "SAMPLE_SELLER_ID",
-        "orderGmtCreate": "SAMPLE_ORDER_GMT_CREATE",
-        "orderValidTime": "SAMPLE_ORDER_VALID_TIME"
-      }
-    },
-    {
-      "operationId": "queryOrder",
-      "method": "POST",
-      "path": "/order/queryOrder",
-      "summaryZh": "支付查询（扫码、刷卡）",
-      "summaryEn": "Query payment (QR code or card)",
-      "sampleBody": {
-        "merchantId": "SAMPLE_MERCHANT_ID",
-        "thirdOrderId": "ORDER_TIMESTAMP",
-        "leshuaOrderId": "ORDER_TIMESTAMP"
-      }
-    },
-    {
-      "operationId": "microPay",
-      "method": "POST",
-      "path": "/order/microPay",
-      "summaryZh": "被扫（商户扫消费者付款码）",
-      "summaryEn": "Customer-presented QR payment (merchant scans customer code)",
-      "sampleBody": {
-        "merchantId": "SAMPLE_MERCHANT_ID",
-        "thirdOrderId": "ORDER_TIMESTAMP",
-        "amount": 100,
-        "currency": "SGD",
-        "authCode": "SAMPLE_AUTH_CODE",
-        "clientIp": "127.0.0.1",
-        "body": "SAMPLE_BODY",
-        "attach": "SAMPLE_ATTACH",
-        "posNo": "SAMPLE_POS_NO",
-        "notifyUrl": "https://merchant.example.com/yeahpay/callback"
-      }
-    },
-    {
-      "operationId": "closeOrder",
-      "method": "POST",
-      "path": "/order/closeOrder",
-      "summaryZh": "订单关闭或撤销",
-      "summaryEn": "Close or reverse an order",
-      "sampleBody": {
-        "merchantId": "SAMPLE_MERCHANT_ID",
-        "thirdOrderId": "ORDER_TIMESTAMP",
-        "leshuaOrderId": "ORDER_TIMESTAMP"
-      }
-    },
-    {
-      "operationId": "unifiedRefund",
-      "method": "POST",
-      "path": "/order/unifiedRefund",
-      "summaryZh": "统一退款",
-      "summaryEn": "Unified refund",
-      "sampleBody": {
-        "merchantId": "SAMPLE_MERCHANT_ID",
-        "thirdOrderId": "ORDER_TIMESTAMP",
-        "leshuaOrderId": "ORDER_TIMESTAMP",
-        "merchantRefundId": "REFUND_TIMESTAMP",
-        "refundAmount": 100,
-        "posNo": "SAMPLE_POS_NO",
-        "notifyUrl": "https://merchant.example.com/yeahpay/callback"
-      }
-    },
-    {
-      "operationId": "queryRefund",
-      "method": "POST",
-      "path": "/order/queryRefund",
-      "summaryZh": "退款查询（扫码、刷卡）",
-      "summaryEn": "Query refund (QR code or card)",
-      "sampleBody": {
-        "merchantId": "SAMPLE_MERCHANT_ID",
-        "merchantRefundId": "REFUND_TIMESTAMP",
-        "thirdOrderId": "ORDER_TIMESTAMP",
-        "leshuaOrderId": "ORDER_TIMESTAMP"
-      }
-    },
-    {
       "operationId": "preAuthCompleteOnline",
       "method": "POST",
       "path": "/cardOrder/preAuthCompleteOnline",
       "summaryZh": "预授权完成",
       "summaryEn": "Complete Pre-Authorization",
+      "summaryHk": "預授權完成",
+      "serverUrls": {
+        "sandbox": "https://open-api.yeahpay.net/acceptance/sandbox",
+        "production": "https://open-api.yeahpay.net/acceptance/acceptance-open-api"
+      },
       "sampleBody": {
         "orderId": "ORDER_TIMESTAMP",
         "merchantId": "SAMPLE_MERCHANT_ID",
@@ -427,6 +465,11 @@ export const SignedApiPlayground = ({ locale = "en" }) => {
       "path": "/cardOrder/preAuthCompleteCancelOnline",
       "summaryZh": "预授权完成撤销",
       "summaryEn": "Cancel Pre-Authorization Completion",
+      "summaryHk": "預授權完成撤銷",
+      "serverUrls": {
+        "sandbox": "https://open-api.yeahpay.net/acceptance/sandbox",
+        "production": "https://open-api.yeahpay.net/acceptance/acceptance-open-api"
+      },
       "sampleBody": {
         "orderId": "ORDER_TIMESTAMP",
         "merchantId": "SAMPLE_MERCHANT_ID",
@@ -441,6 +484,11 @@ export const SignedApiPlayground = ({ locale = "en" }) => {
       "path": "/cardOrder/batchSettleOnline",
       "summaryZh": "结算请款",
       "summaryEn": "Batch Settlement",
+      "summaryHk": "結算請款",
+      "serverUrls": {
+        "sandbox": "https://open-api.yeahpay.net/acceptance/sandbox",
+        "production": "https://open-api.yeahpay.net/acceptance/acceptance-open-api"
+      },
       "sampleBody": {
         "merchantId": "SAMPLE_MERCHANT_ID",
         "language": "SAMPLE_LANGUAGE"
@@ -452,28 +500,226 @@ export const SignedApiPlayground = ({ locale = "en" }) => {
       "path": "/cardOrder/settleQuery",
       "summaryZh": "请款查询",
       "summaryEn": "Settlement Query",
+      "summaryHk": "請款查詢",
+      "serverUrls": {
+        "sandbox": "https://open-api.yeahpay.net/acceptance/sandbox",
+        "production": "https://open-api.yeahpay.net/acceptance/acceptance-open-api"
+      },
       "sampleBody": {
         "batchSettleId": "SAMPLE_BATCH_SETTLE_ID",
         "merchantId": "SAMPLE_MERCHANT_ID",
         "language": "SAMPLE_LANGUAGE"
+      }
+    },
+    {
+      "operationId": "createPaymentLink",
+      "method": "POST",
+      "path": "/payment-link/links/create",
+      "summaryZh": "创建支付链接",
+      "summaryEn": "Create Payment Link",
+      "summaryHk": "建立支付連結",
+      "serverUrls": {
+        "sandbox": "https://open-api.yeahpay.net/acceptance/sandbox",
+        "production": "https://open-api.yeahpay.net/acceptance/acceptance-open-api"
+      },
+      "sampleBody": {
+        "requestId": "createPaymentLink-TIMESTAMP-1",
+        "merchantLinkNo": "LINK-1-TIMESTAMP",
+        "name": "Sample payment link",
+        "linkType": "FIXED_AMOUNT",
+        "amount": 9900,
+        "paymentLimitType": "UNLIMITED",
+        "expireTime": 1924992000,
+        "notifyUrl": "https://merchant.example.com/plink/callback",
+        "merchantId": "SAMPLE_MERCHANT_ID"
+      }
+    },
+    {
+      "operationId": "queryPaymentLinks",
+      "method": "POST",
+      "path": "/payment-link/links/query",
+      "summaryZh": "分页查询支付链接",
+      "summaryEn": "List Payment Links",
+      "summaryHk": "分頁查詢支付連結",
+      "serverUrls": {
+        "sandbox": "https://open-api.yeahpay.net/acceptance/sandbox",
+        "production": "https://open-api.yeahpay.net/acceptance/acceptance-open-api"
+      },
+      "sampleBody": {
+        "createdTimeStart": 1792627200,
+        "createdTimeEnd": 1792713600,
+        "status": [
+          "ACTIVE",
+          "PENDING"
+        ],
+        "source": "API",
+        "page": 1,
+        "pageSize": 10,
+        "merchantId": "SAMPLE_MERCHANT_ID"
+      }
+    },
+    {
+      "operationId": "getPaymentLinkDetail",
+      "method": "POST",
+      "path": "/payment-link/links/detail",
+      "summaryZh": "查询支付链接详情",
+      "summaryEn": "Get Payment Link Details",
+      "summaryHk": "查詢支付連結詳情",
+      "serverUrls": {
+        "sandbox": "https://open-api.yeahpay.net/acceptance/sandbox",
+        "production": "https://open-api.yeahpay.net/acceptance/acceptance-open-api"
+      },
+      "sampleBody": {
+        "merchantLinkNo": "LINK-TIMESTAMP",
+        "includePayments": true,
+        "paymentPage": 1,
+        "paymentPageSize": 10,
+        "merchantId": "SAMPLE_MERCHANT_ID"
+      }
+    },
+    {
+      "operationId": "modifyPaymentLink",
+      "method": "POST",
+      "path": "/payment-link/links/modify",
+      "summaryZh": "修改支付链接",
+      "summaryEn": "Modify Payment Link",
+      "summaryHk": "修改支付連結",
+      "serverUrls": {
+        "sandbox": "https://open-api.yeahpay.net/acceptance/sandbox",
+        "production": "https://open-api.yeahpay.net/acceptance/acceptance-open-api"
+      },
+      "sampleBody": {
+        "requestId": "modifyPaymentLink-TIMESTAMP-1",
+        "merchantLinkNo": "LINK-TIMESTAMP",
+        "operation": "UPDATE_FIELDS",
+        "name": "Sample payment link",
+        "notifyUrl": "https://merchant.example.com/plink/callback-v2",
+        "merchantId": "SAMPLE_MERCHANT_ID"
+      }
+    },
+    {
+      "operationId": "createPaymentLinkProduct",
+      "method": "POST",
+      "path": "/payment-link/products/create",
+      "summaryZh": "创建支付链接商品",
+      "summaryEn": "Create Payment Link Product",
+      "summaryHk": "建立支付連結商品",
+      "serverUrls": {
+        "sandbox": "https://open-api.yeahpay.net/acceptance/sandbox",
+        "production": "https://open-api.yeahpay.net/acceptance/acceptance-open-api"
+      },
+      "sampleBody": {
+        "requestId": "createPaymentLinkProduct-TIMESTAMP-1",
+        "merchantProductNo": "SKU-TIMESTAMP",
+        "name": "Sample product",
+        "price": 4900,
+        "description": "Sample description",
+        "imageFileId": "SAMPLE_FILE_ID",
+        "merchantId": "SAMPLE_MERCHANT_ID"
+      }
+    },
+    {
+      "operationId": "queryPaymentLinkProducts",
+      "method": "POST",
+      "path": "/payment-link/products/query",
+      "summaryZh": "分页查询支付链接商品",
+      "summaryEn": "List Payment Link Products",
+      "summaryHk": "分頁查詢支付連結商品",
+      "serverUrls": {
+        "sandbox": "https://open-api.yeahpay.net/acceptance/sandbox",
+        "production": "https://open-api.yeahpay.net/acceptance/acceptance-open-api"
+      },
+      "sampleBody": {
+        "page": 1,
+        "pageSize": 10,
+        "merchantId": "SAMPLE_MERCHANT_ID"
+      }
+    },
+    {
+      "operationId": "getPaymentLinkProductDetail",
+      "method": "POST",
+      "path": "/payment-link/products/detail",
+      "summaryZh": "查询支付链接商品详情",
+      "summaryEn": "Get Payment Link Product Details",
+      "summaryHk": "查詢支付連結商品詳情",
+      "serverUrls": {
+        "sandbox": "https://open-api.yeahpay.net/acceptance/sandbox",
+        "production": "https://open-api.yeahpay.net/acceptance/acceptance-open-api"
+      },
+      "sampleBody": {
+        "merchantProductNo": "SKU-TIMESTAMP",
+        "merchantId": "SAMPLE_MERCHANT_ID"
+      }
+    },
+    {
+      "operationId": "modifyPaymentLinkProduct",
+      "method": "POST",
+      "path": "/payment-link/products/modify",
+      "summaryZh": "修改支付链接商品",
+      "summaryEn": "Modify Payment Link Product",
+      "summaryHk": "修改支付連結商品",
+      "serverUrls": {
+        "sandbox": "https://open-api.yeahpay.net/acceptance/sandbox",
+        "production": "https://open-api.yeahpay.net/acceptance/acceptance-open-api"
+      },
+      "sampleBody": {
+        "requestId": "modifyPaymentLinkProduct-TIMESTAMP-1",
+        "merchantProductNo": "SKU-TIMESTAMP",
+        "operation": "UPDATE_FIELDS",
+        "price": 5900,
+        "merchantId": "SAMPLE_MERCHANT_ID"
+      }
+    },
+    {
+      "operationId": "uploadPaymentLinkImage",
+      "method": "POST",
+      "path": "/payment-link/attach/upload",
+      "summaryZh": "上传支付链接商品图片",
+      "summaryEn": "Upload Payment Link Product Image",
+      "summaryHk": "上傳支付連結商品圖片",
+      "serverUrls": {
+        "sandbox": "https://open-api.yeahpay.net/acceptance/sandbox",
+        "production": "https://open-api.yeahpay.net/acceptance/acceptance-open-api"
+      },
+      "sampleBody": {
+        "file": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a0j8AAAAASUVORK5CYII=",
+        "fileName": "sample.png",
+        "merchantId": "SAMPLE_MERCHANT_ID"
       }
     }
   ]
   // END AUTO-GENERATED OPENAPI OPERATIONS
   const operations = operationDefinitions.map((operation) => ({
     ...operation,
-    summary: locale === "zh" ? operation.summaryZh : operation.summaryEn,
+    summary: locale === "zh" ? operation.summaryZh : locale === "zh-HK" ? operation.summaryHk : operation.summaryEn,
   }))
   const sampleBodyFor = (operation) => {
     const timestamp = Date.now().toString()
     const serialized = JSON.stringify(operation?.sampleBody ?? {})
       .replaceAll("TIMESTAMP", timestamp)
-      .replaceAll('"zh-CN"', locale === "zh" ? '"zh-CN"' : '"en"')
-    return JSON.parse(serialized)
+      .replaceAll('"zh-CN"', locale === "en" ? '"en"' : '"zh-CN"')
+    const body = JSON.parse(serialized)
+    if (operation?.path.startsWith("/payment-link/")) {
+      const now = Math.floor(Date.now() / 1000)
+      const offsets = {
+        effectiveTime: 60,
+        expireTime: 7 * 86400,
+        createdTimeStart: -86400,
+        createdTimeEnd: 0,
+        effectiveTimeStart: -86400,
+        effectiveTimeEnd: 0,
+        expireTimeStart: 0,
+        expireTimeEnd: 7 * 86400,
+      }
+      for (const [field, offset] of Object.entries(offsets)) {
+        if (typeof body[field] === "number") body[field] = now + offset
+      }
+    }
+    return body
   }
 
   const [selectedOperationId, setSelectedOperationId] = useState(operations[0]?.operationId ?? "")
-  const [environment, setEnvironment] = useState("test")
+  const [environment, setEnvironment] = useState("sandbox")
   const [appId, setAppId] = useState("")
   const [appKey, setAppKey] = useState("")
   const [rawBody, setRawBody] = useState(JSON.stringify(sampleBodyFor(operations[0]), null, 2))
@@ -483,6 +729,10 @@ export const SignedApiPlayground = ({ locale = "en" }) => {
   const [copiedField, setCopiedField] = useState("")
 
   const operationForId = (operationId) => operations.find((operation) => operation.operationId === operationId)
+
+  const environmentsFor = (operation) => Object.fromEntries(
+    Object.entries(operation?.serverUrls ?? {}).map(([key, baseUrl]) => [key, { label: environments[key].label, baseUrl }])
+  )
 
   const resetExample = (operationId = selectedOperationId) => {
     const operation = operationForId(operationId)
@@ -506,11 +756,11 @@ export const SignedApiPlayground = ({ locale = "en" }) => {
     return globalThis.btoa(binary)
   }
 
+  const endpointFor = (baseUrl, path) => `${baseUrl.replace(/\/+$/, "")}/${path.replace(/^\/+/, "")}`
+
   const signingUrlFor = (baseUrl, path) => {
-    const basePath = new URL(baseUrl).pathname
-      .replace(/^\/(?:gw|acceptance)(?=\/)/, "")
-      .replace(/\/+$/, "")
-    return `${basePath}/${path.replace(/^\/+/, "")}`
+    return new URL(endpointFor(baseUrl, path)).pathname
+      .replace(/^\/(?:gw|gwp|acceptance)(?=\/)/, "")
   }
 
   const copyValue = async (field, value) => {
@@ -523,14 +773,15 @@ export const SignedApiPlayground = ({ locale = "en" }) => {
     const requestedOperationId = new URLSearchParams(globalThis.location?.search ?? "").get("operationId")
     const requestedOperation = operationForId(requestedOperationId)
     if (requestedOperation) {
-      setSelectedOperationId(requestedOperation.operationId)
-      setRawBody(JSON.stringify(sampleBodyFor(requestedOperation), null, 2))
+      changeOperation(requestedOperation.operationId)
     }
   }, [])
 
   const changeOperation = (operationId) => {
     setSelectedOperationId(operationId)
     const operation = operationForId(operationId)
+    const availableEnvironments = environmentsFor(operation)
+    setEnvironment((current) => availableEnvironments[current] ? current : Object.keys(availableEnvironments)[0])
     setRawBody(JSON.stringify(sampleBodyFor(operation), null, 2))
     setResult(null)
     setError("")
@@ -557,8 +808,8 @@ export const SignedApiPlayground = ({ locale = "en" }) => {
     setGenerating(true)
     setError("")
     try {
-      const baseUrl = environments[environment].baseUrl
-      const endpoint = `${baseUrl}${operation.path}`
+      const baseUrl = environmentsFor(operation)[environment].baseUrl
+      const endpoint = endpointFor(baseUrl, operation.path)
       const signUrl = signingUrlFor(baseUrl, operation.path)
       const timestamp = Date.now().toString()
       const nonce = createNonce()
@@ -591,6 +842,7 @@ export const SignedApiPlayground = ({ locale = "en" }) => {
   }
 
   const selectedOperation = operationForId(selectedOperationId)
+  const selectedEnvironments = environmentsFor(selectedOperation)
 
   return (
     <div className="not-prose my-8 overflow-hidden rounded-2xl border border-blue-100 bg-[#f2f3f5] shadow-[0_20px_60px_-36px_rgba(0,85,255,0.4)] dark:border-blue-950 dark:bg-[#06072b]">
@@ -632,7 +884,7 @@ export const SignedApiPlayground = ({ locale = "en" }) => {
                 }}
                 className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-3 text-sm text-[#161647] outline-none transition focus:border-blue-600 focus:ring-2 focus:ring-blue-600/15 dark:border-blue-950 dark:bg-[#0a1446] dark:text-white"
               >
-                {Object.entries(environments).map(([key, value]) => (
+                {Object.entries(selectedEnvironments).map(([key, value]) => (
                   <option key={key} value={key}>{value.label}</option>
                 ))}
               </select>
@@ -642,7 +894,7 @@ export const SignedApiPlayground = ({ locale = "en" }) => {
           {selectedOperation && (
             <div className="flex flex-wrap items-center gap-2 rounded-xl border border-zinc-200 bg-white px-3 py-2.5 dark:border-zinc-800 dark:bg-zinc-900">
               <span className="rounded-md bg-blue-50 px-2 py-1 font-mono text-[11px] font-bold text-blue-700 dark:bg-blue-950 dark:text-blue-300">{selectedOperation.method}</span>
-              <code className="break-all text-xs text-zinc-700 dark:text-zinc-300">{selectedOperation.path}</code>
+              <code className="break-all text-xs text-zinc-700 dark:text-zinc-300">{new URL(endpointFor(selectedEnvironments[environment].baseUrl, selectedOperation.path)).pathname}</code>
             </div>
           )}
 
@@ -650,7 +902,7 @@ export const SignedApiPlayground = ({ locale = "en" }) => {
             <div className="flex items-center justify-between gap-3">
               <div>
                 <div className="text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">{text.credentials}</div>
-                <div className="mt-1 text-xs text-zinc-500">{locale === "zh" ? "仅保存在当前页面内存中" : "Kept only in this page's memory"}</div>
+                <div className="mt-1 text-xs text-zinc-500">{text.storageHint}</div>
               </div>
             </div>
             <div className="grid gap-3 sm:grid-cols-2">

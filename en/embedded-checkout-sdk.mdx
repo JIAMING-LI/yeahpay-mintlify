@@ -1,0 +1,264 @@
+---
+title: "Embedded SDK Integration"
+sidebarTitle: "Embedded SDK Integration"
+description: "Mount YeahPay Checkout with the JavaScript SDK and manage its lifecycle in HTML, Vue 3, and React"
+zh-CN_link: "/embedded-checkout-sdk"
+en_link: "/en/embedded-checkout-sdk"
+zh-Hant_link: "/zh-hk/embedded-checkout-sdk"
+---
+
+This guide is for merchant website developers and follows browser SDK V1.0. Your server creates payments and confirms results; see the [integration flow](/en/embedded-checkout). Examples use the production SDK and `env: 'pro'`. The frontend SDK has no sandbox option; do not use `sandbox` as an SDK initialization value. SDK scripts and application credentials must match the SDK environment.
+
+## Load the SDK
+
+The SDK is distributed as a script, without an npm package. Load it in your page HTML before running client code that uses the SDK:
+
+| Environment | SDK script URL | Initialization `env` |
+| --- | --- | --- |
+| Test | `https://t-payment.yeahpay.net/checkout/yeahpay-checkout-sdk/checkoutSDK.js` | `test` |
+| Production | `https://payment.yeahpay.net/checkout/yeahpay-checkout-sdk/checkoutSDK.js` | `pro` |
+
+```html
+<script src="https://payment.yeahpay.net/checkout/yeahpay-checkout-sdk/checkoutSDK.js"></script>
+```
+
+Access it through `window.YeahPayCheckoutSDK`. In Vue/React Vite projects, use the root `index.html`; with Create React App, use `public/index.html`. For SSR frameworks, load through the framework's client-side script mechanism and wait for completion before initializing. Do not access `window` on the server.
+
+Reference the official script directly to receive fixes; do not mirror or proxy it. Follow platform announcements if the script URL changes.
+
+## Initialize and mount
+
+```javascript
+const sdk = window.YeahPayCheckoutSDK.init({
+  appId: 'YOUR_PRODUCTION_APP_ID',
+  env: 'pro',
+  debug: false,
+})
+
+const element = sdk.createElement('checkout', {
+  paymentIntentId,
+  paymentIntentToken,
+  height: '720px',
+  minHeight: '520px',
+})
+
+// Register events before mounting into an existing DOM node.
+element.on('ended', (payload) => {
+  window.location.assign(payload.pending ? '/order/processing' : '/order/result')
+})
+element.mount(document.getElementById('yeahpay-checkout'))
+```
+
+`paymentIntentId` and `paymentIntentToken` come from a successful server-side [createIntent](/en/api-reference/payment-intents/create-paymentintent) response. Send only these two values to the frontend. Do not forward the entire response, which may contain `consentToken`.
+
+| Initialization option | Required | Description |
+| --- | --- | --- |
+| `appId` | Yes | Public application ID, never an API key |
+| `env` | Yes | `test` for test and `pro` for production; match the creation environment and SDK script |
+| `debug` | No | Defaults to `false`; enables SDK lifecycle logs |
+
+Repeated `init()` calls overwrite global configuration. Initialize once per application. Set the display language through `checkout.locale` during creation, rather than through `init()`.
+
+| Element option | Default | Description |
+| --- | --- | --- |
+| `paymentIntentId` | None | Current PaymentIntent ID, required |
+| `paymentIntentToken` | None | Session credential for this PI, required |
+| `height` | `720px` | iframe height |
+| `minHeight` | `520px` | Minimum iframe height |
+| `width` | `100%` | iframe width |
+| `style` | `{}` | Additional inline style merged with built-in styles |
+
+<Warning>
+  Never expose the API key or `consentToken` to browsers, and never log Session Tokens. YeahPay Checkout collects card numbers, expiry dates, and security codes. The merchant page and SDK do not need to read these fields.
+</Warning>
+
+## Handle events
+
+| Event | V1.0 behavior | Frontend action |
+| --- | --- | --- |
+| `load` | Checkout finishes its first render | Hide your loading indicator |
+| `error` | Payment Session loading failed; payment failures such as card declines do not trigger this event | With `recoverable=true`, the buyer can reload inside Checkout. With `false`, stop using the Session and ask your server to query the original PI. |
+| `paymentClicked` | Buyer clicked the payment button | Analytics only; cannot intercept payment |
+| `ended` | Flow ended with success, a pending result, or failure | `pending=true` can open a processing page. Otherwise open a result page and display the server-confirmed state. |
+
+`redirect`, `cancelled`, `methodChange`, `accountPendingVerification`, and `shippingChange` are reserved and do not fire in V1.0. V1.0 handles 3DS inside Checkout. Missing listeners do not block Checkout, and the SDK catches listener exceptions.
+
+<Warning>
+  `ended` with `pending=false` may still mean failure. Do not label it as “paid” or use it to fulfill orders. An unrecoverable `error` also does not prove no charge occurred; query the original PaymentIntent from your server first.
+</Warning>
+
+## Lifecycle and framework examples
+
+Call `element.destroy()` when leaving the payment page. Use `sdk.destroyAll()` when the application exits to clean up all elements created on the page. An element can be mounted again after `destroy()` removes its UI.
+
+Vue and React can share this singleton module, called after the SDK script finishes loading:
+
+```javascript
+// sdk-singleton.js
+let instance
+
+export function getCheckoutSDK() {
+  if (!window.YeahPayCheckoutSDK) {
+    throw new Error('Checkout SDK has not loaded')
+  }
+  if (!instance) {
+    instance = window.YeahPayCheckoutSDK.init({
+      appId: 'YOUR_PRODUCTION_APP_ID',
+      env: 'pro',
+      debug: false,
+    })
+  }
+  return instance
+}
+```
+
+<Tabs>
+  <Tab title="HTML">
+    `/api/checkout/session` is an example merchant backend route you must implement. The server determines the order and amount, calls `createIntent` idempotently with the original business identifiers, and returns only `{ paymentIntentId, paymentIntentToken }`.
+
+    ```html
+    <!doctype html>
+    <html lang="en">
+      <head>
+        <meta charset="UTF-8" />
+        <title>Checkout Demo</title>
+      </head>
+      <body>
+        <p id="checkout-message" role="status">Loading Checkout</p>
+        <div id="yeahpay-checkout" style="min-height: 720px"></div>
+        <script src="https://payment.yeahpay.net/checkout/yeahpay-checkout-sdk/checkoutSDK.js"></script>
+        <script>
+          let element
+          const message = document.getElementById('checkout-message')
+
+          async function startCheckout() {
+            try {
+              const response = await fetch('/api/checkout/session', { method: 'POST' })
+              if (!response.ok) throw new Error('Session request failed')
+              const { paymentIntentId, paymentIntentToken } = await response.json()
+              const sdk = window.YeahPayCheckoutSDK.init({
+                appId: 'YOUR_PRODUCTION_APP_ID', env: 'pro', debug: false,
+              })
+              element = sdk.createElement('checkout', { paymentIntentId, paymentIntentToken })
+              element.on('load', () => { message.textContent = '' })
+              element.on('error', ({ recoverable }) => {
+                message.textContent = recoverable
+                  ? 'Reload inside Checkout'
+                  : 'Session unavailable; check the original order'
+              })
+              element.on('ended', ({ pending }) => {
+                window.location.assign(pending ? '/order/processing' : '/order/result')
+              })
+              element.mount(document.getElementById('yeahpay-checkout'))
+            } catch {
+              message.textContent = 'Cannot load Checkout; confirm the original order through your server'
+            }
+          }
+
+          window.addEventListener('pagehide', () => element?.destroy())
+          window.addEventListener('pageshow', ({ persisted }) => {
+            if (persisted) element?.mount(document.getElementById('yeahpay-checkout'))
+          })
+          startCheckout()
+        </script>
+      </body>
+    </html>
+    ```
+  </Tab>
+  <Tab title="Vue 3">
+    Load the SDK in `index.html` before importing the singleton. Pass the server-provided ID and Token from the parent. When switching PaymentIntents, remount the component using `:key="paymentIntentId"`.
+
+    ```vue
+    <script setup>
+    import { onBeforeUnmount, onMounted, ref } from 'vue'
+    import { getCheckoutSDK } from './sdk-singleton'
+
+    const props = defineProps({
+      paymentIntentId: { type: String, required: true },
+      paymentIntentToken: { type: String, required: true },
+    })
+    const emit = defineEmits(['finished', 'processing', 'sessionError'])
+    const containerRef = ref(null)
+    let element
+
+    onMounted(() => {
+      element = getCheckoutSDK().createElement('checkout', {
+        paymentIntentId: props.paymentIntentId,
+        paymentIntentToken: props.paymentIntentToken,
+      })
+      element.on('ended', ({ pending }) => emit(pending ? 'processing' : 'finished'))
+      element.on('error', ({ recoverable }) => emit('sessionError', { recoverable }))
+      element.mount(containerRef.value)
+    })
+    onBeforeUnmount(() => element?.destroy())
+    </script>
+
+    <template>
+      <div ref="containerRef" style="min-height: 720px"></div>
+    </template>
+    ```
+  </Tab>
+  <Tab title="React">
+    Load the SDK in the page HTML and import the same singleton. `onFinished` means the flow ended; the parent should display the server-confirmed order result. Use `useCallback` in the parent to keep callbacks stable and avoid remounting on unrelated renders.
+
+    ```jsx
+    import { useEffect, useRef } from 'react'
+    import { getCheckoutSDK } from './sdk-singleton'
+
+    export function CheckoutPanel({
+      paymentIntentId, paymentIntentToken, onFinished, onProcessing, onSessionError,
+    }) {
+      const containerRef = useRef(null)
+
+      useEffect(() => {
+        const element = getCheckoutSDK().createElement('checkout', {
+          paymentIntentId, paymentIntentToken,
+        })
+        element.on('ended', ({ pending }) => {
+          if (pending) onProcessing?.()
+          else onFinished?.()
+        })
+        element.on('error', ({ recoverable }) => onSessionError?.({ recoverable }))
+        element.mount(containerRef.current)
+        return () => element.destroy()
+      }, [paymentIntentId, paymentIntentToken, onFinished, onProcessing, onSessionError])
+
+      return <div ref={containerRef} style={{ minHeight: 720 }} />
+    }
+    ```
+  </Tab>
+</Tabs>
+
+## Confirm results and handle expired Sessions
+
+Your server confirms results through the [merchant POST query API](/en/api-reference/payment-intents/query-paymentintent) or a verified success notification. This API uses merchant signing and differs from the SDK's internal Token-authenticated GET query. Browsers must not call merchant signing APIs directly.
+
+`paymentIntentToken` defaults to 24 hours of validity, subject to the actual Session. Expiry does not mean the PI expired or the payment failed. Creation replays do not replace the Token or extend its lifetime. Query the original PI before deciding what to do next, rather than starting another charge because of a frontend error.
+
+The SDK handles 3DS queries and Continue. Existing-Consent direct charges already start during creation, so the SDK must not submit another payment. Merchant applications should not call Cashier Continue themselves.
+
+## Device data for subsequent payments on your own page
+
+When a buyer selects a bound card on your own page and initiates a subsequent charge directly, integrate device fingerprinting there and associate the same reference with the payment. The test script can be placed near the end of the page:
+
+```html
+<script
+  async
+  id="airwallex-fraud-api"
+  data-order-session-id="PAYMENT_DEVICE_UUID"
+  src="https://static.sandbox.airwallex.com/webapp/fraud/device-fingerprint/index.js">
+</script>
+```
+
+Replace `PAYMENT_DEVICE_UUID` with a unique random value for this payment attempt, preferably a UUID. Use at most 128 characters consisting of letters, digits, underscores, and hyphens. Complete script loading before payment according to integration requirements. New payment attempts use new references; network retries of the original request retain the original reference.
+
+Under V1.5, **only a positive-amount CIT direct charge with an active `consentToken`** can include top-level `deviceId` in the server's `createIntent` request. Its value must match the page's `data-order-session-id`. Omit it for ordinary payments, initial bindings, and MIT. The merchant field is not `device_id`. Supply it during creation, before the charge starts; it cannot be added afterward with an SDK Token.
+
+<CardGroup cols={2}>
+  <Card title="Create PaymentIntent" icon="book-open" href="/en/api-reference/payment-intents/create-paymentintent">
+    Server-side fields, scenarios, and conditional validation.
+  </Card>
+  <Card title="Query PaymentIntent" icon="magnifying-glass" href="/en/api-reference/payment-intents/query-paymentintent">
+    Confirm payment and binding results and recover from uncertain outcomes.
+  </Card>
+</CardGroup>

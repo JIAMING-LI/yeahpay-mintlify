@@ -1,20 +1,21 @@
 ---
 title: "快速开始"
 description: "了解 YeahPay API 的环境地址、认证参数和接入流程"
+zh-CN_link: "/"
+en_link: "/en"
+zh-Hant_link: "/zh-hk"
 ---
 
 YeahPay API 使用 HTTPS 和 JSON 提供支付、查询、退款及收银台服务。开始对接前，请先向 YeahPay 获取 `appId` 和 `apiKey`。
 
 ## 环境地址
 
-| 环境 | Base URL | 状态 |
-| --- | --- | --- |
-| 测试环境 | `https://t-acquire-business.lepass.cn/gw/abroad-business-acceptance-open-api` | 用于开发和联调 |
-| 沙箱环境 | `https://open-api.yeahpay.sg/acceptance/sandbox` | 用于沙箱联调 |
-| 生产环境 | `https://open-api.yeahpay.sg/acceptance/acceptance-open-api` | 用于正式交易 |
+API 域名：`https://open-api.yeahpay.net`。
+
+联调使用沙箱环境，正式交易使用生产环境，并分别使用对应的应用凭证。在各接口页面选择环境，按该环境的完整请求路径或生成的 cURL 调用。
 
 <Warning>
-  不同环境使用不同的 `appId` 与 `apiKey`。切换环境时，请同时替换 Base URL 和对应凭证。
+  沙箱与生产使用不同的凭证。切换时同时更换接口环境路径及对应的 `appId`、`apiKey`。
 </Warning>
 
 ## 公共请求头
@@ -40,17 +41,17 @@ YeahPay API 使用 HTTPS 和 JSON 提供支付、查询、退款及收银台服�
 ## 对接流程
 
 <Steps>
-  <Step title="申请测试凭证">
-    获取测试环境的 `appId` 和 `apiKey`。请分别保存在安全的服务端配置中。
+  <Step title="申请沙箱凭证">
+    获取沙箱环境的 `appId` 和 `apiKey`。请分别保存在安全的服务端配置中。
   </Step>
   <Step title="生成签名">
     序列化请求体一次，使用同一份原始 JSON 计算签名并发送请求。查看[签名规则与示例](/signature)。
   </Step>
-  <Step title="完成测试环境联调">
+  <Step title="完成沙箱环境联调">
     验证支付、查询、逆向交易和异步通知。支付或退款通知处理成功后，响应 Body 必须返回 `success`。
   </Step>
   <Step title="切换生产环境">
-    将 Base URL 切换为 `https://open-api.yeahpay.sg/acceptance/acceptance-open-api`，并使用生产环境凭证。不要复用测试环境的 `appId` 或 `apiKey`。
+    API 域名保持 `https://open-api.yeahpay.net`，按接口文档选择生产路径，并使用生产环境凭证。不要复用沙箱环境的 `appId` 或 `apiKey`。
   </Step>
 </Steps>
 
@@ -58,7 +59,7 @@ YeahPay API 使用 HTTPS 和 JSON 提供支付、查询、退款及收银台服�
   <Card title="签名规则与示例" icon="key" href="/signature">
     查看签名原文、URL 处理规则以及 JavaScript 和 Java 示例。
   </Card>
-  <Card title="API文档" icon="code" href="/api-reference/扫码交易/主扫（消费者扫商户收款码、线上支付）">
+  <Card title="API文档" icon="code" href="/api-reference/统一收银台/获取统一收银台地址">
     查看接口字段、请求体和响应结构。
   </Card>
 </CardGroup>

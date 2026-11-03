@@ -1,0 +1,139 @@
+---
+title: "訂閱支付"
+description: "管理客戶與訂閱授權，並由商戶發起後續支付"
+zh-CN_link: "/subscription-payment"
+en_link: "/en/subscription-payment"
+zh-Hant_link: "/zh-hk/subscription-payment"
+---
+
+訂閱支付適合會員續費、軟件服務和內容訂閱等需要多次收款的業務。消費者通過統一收銀台完成首次支付並授權；授權生效後，商戶按雙方約定發起後續支付，消費者無需再次進入收銀台。
+
+<Note>
+  YeahPay 提供客戶、訂閱授權和後續支付能力。訂閱週期、套餐、計費日期、重試策略以及服務履約由商戶系統管理。
+</Note>
+
+## 完整接入流程
+
+<Steps>
+  <Step title="建立客戶">
+    調用 [`POST /consent-payment/customers/create`](/zh-hk/api-reference/訂閱支付/建立客戶)，使用商戶側唯一且不變的 `merchantCustomerId` 建立客戶，並保存響應中的 `customerId`。
+  </Step>
+  <Step title="建立首次支付收銀台">
+    調用[取得統一收銀台地址](/zh-hk/api-reference/統一收銀台/取得統一收銀台地址)介面，傳入 `checkoutMode=CONSENT_INITIAL`、`consumerInfo.customerId` 和 `paymentConsent`，參數要求見下表。
+  </Step>
+  <Step title="完成首次支付並取得 consentId">
+    消費者完成首次支付後，YeahPay 建立訂閱授權，並在支付結果通知中返回 `consentId`。商戶驗簽並確認支付成功後，應保存 `consentId`，用於訂閱管理和後續支付。
+  </Step>
+  <Step title="管理訂閱">
+    使用 `consentId` 查詢訂閱狀態；消費者停止訂閱時取消授權，需要恢復時重新啓用授權。
+  </Step>
+  <Step title="發起後續支付">
+    商戶根據自己的計費計劃，使用有效的 `consentId` 調用後續支付介面，並通過支付結果通知確認最終結果。
+  </Step>
+</Steps>
+
+## 首次支付參數
+
+調用統一收銀台介面時傳入以下參數：
+
+| 參數 | 值 | 說明 |
+| --- | --- | --- |
+| `checkoutMode` | `CONSENT_INITIAL` | 表示本次支付用於建立訂閱授權 |
+| `consumerInfo.customerId` | 建立客戶介面返回值 | 標識完成首次支付與授權的客戶 |
+| `paymentConsent.paymentInitiator` | `MERCHANT` | 支付發起方，目前僅支持商戶發起 |
+| `paymentConsent.paymentType` | `scheduled` 或 `unscheduled` | 支付類型：計劃扣款或非計劃扣款 |
+
+<Warning>
+  必須先建立客戶，再建立首次支付收銀台。只有首次支付成功且返回 `consentId` 後，訂閱授權才可用於後續支付；建立收銀台成功不代表支付或授權成功。
+</Warning>
+
+## 客戶管理
+
+客戶用於識別完成首次支付並授予後續支付權限的消費者。
+
+- `merchantCustomerId` 由商戶產生，在同一商戶下必須唯一且保持不變。
+- 建立客戶後保存 YeahPay 返回的 `customerId`，建立首次支付收銀台時必須傳入。
+- 客戶姓名、郵箱、手機號或地址發生變化時，可以更新客戶資料。
+- 可以使用 `customerId` 或 `merchantCustomerId` 查詢客戶；一個客戶可以關聯多個訂閱授權。
+
+<CardGroup cols={3}>
+  <Card title="建立客戶" icon="user-plus" href="/zh-hk/api-reference/訂閱支付/建立客戶">
+    建立客戶並取得 `customerId`。
+  </Card>
+  <Card title="更新客戶" icon="user-pen" href="/zh-hk/api-reference/訂閱支付/更新客戶">
+    更新客戶聯繫方式或地址。
+  </Card>
+  <Card title="查詢客戶" icon="user-magnifying-glass" href="/zh-hk/api-reference/訂閱支付/查詢客戶">
+    使用平台或商戶側客戶標識查詢資料。
+  </Card>
+</CardGroup>
+
+## 支付結果通知與 consentId
+
+建立首次支付收銀台時傳入 `notificationUrl`。首次支付成功並建立訂閱授權後，支付結果通知會在普通支付字段之外返回 `consentId`。
+
+```json
+{
+  "status": "2",
+  "merchantId": "0004905629",
+  "thirdOrderId": "SUBSCRIPTION_INITIAL_001",
+  "leshuaOrderId": "YEAHPAY_ORDER_ID",
+  "consentId": "con_yk_2ee6fa94d3b8046c8cb4dc817dd28a3f"
+}
+```
+
+收到通知後：
+
+1. 使用完整回調地址和原始請求體驗證通知簽名。
+2. 檢查支付狀態並按商戶訂單號冪等處理。
+3. 保存 `consentId` 與商戶客戶、首次支付訂單及訂閱業務的關聯關係。
+4. 成功接收後返回純文本 `success`；若未及時收到通知，可通過訂閱查詢介面補償取得 `consentId`。
+
+<Card title="查看支付結果通知" icon="bell" href="/zh-hk/api-reference/支付結果通知">
+  查看通知字段、簽名請求頭和響應要求。
+</Card>
+
+## 訂閱管理
+
+訂閱由 `consentId` 唯一標識。商戶應保存訂閱與自身會員、套餐或服務關係，不要使用渠道側標識作為業務主鍵。
+
+| 狀態 | 含義 | 可執行操作 |
+| --- | --- | --- |
+| `active` | 訂閱授權有效 | 查詢、取消、發起後續支付 |
+| `cancelled` | 商戶或消費者已停止訂閱 | 查詢、重新啓用 |
+| `suspended` | 平台暫停該訂閱 | 僅查詢；恢復後才能繼續操作 |
+
+<CardGroup cols={3}>
+  <Card title="查詢客戶訂閱" icon="list" href="/zh-hk/api-reference/訂閱支付/查詢客戶授權">
+    分頁查詢客戶關聯的所有訂閱。
+  </Card>
+  <Card title="查詢訂閱" icon="magnifying-glass" href="/zh-hk/api-reference/訂閱支付/查詢授權">
+    使用 `consentId`、`customerId` 或 `merchantCustomerId` 查詢。
+  </Card>
+  <Card title="變更訂閱狀態" icon="toggle-on" href="/zh-hk/api-reference/訂閱支付/取消授權">
+    取消訂閱，或重新啓用已取消的訂閱。
+  </Card>
+</CardGroup>
+
+## 後續支付
+
+只有 `active` 狀態的訂閱可以發起後續支付。每次後續支付都是一筆獨立交易，商戶需要自行決定扣款時間與金額。
+
+調用 [`POST /consent-payment/charges/create`](/zh-hk/api-reference/訂閱支付/發起後續扣款) 時：
+
+- 傳入有效的 `consentId`。
+- 為每筆交易產生唯一的 `merchantOrderId`，用於冪等和對賬。
+- `amount` 使用最小貨幣單位，`currency` 使用三個大寫字母。
+- 可傳入 `notifyUrl` 接收本次支付結果，`description` 用於記錄支付說明。
+- 介面受理成功不等於支付最終成功，應以驗簽後的支付結果通知為準。
+
+需要查看歷史記錄時，調用[查詢扣款列表](/zh-hk/api-reference/訂閱支付/查詢扣款列表)，按 `consentId` 分頁查詢訂單號、金額、幣種、狀態和支付時間。
+
+<CardGroup cols={2}>
+  <Card title="發起後續支付" icon="credit-card" href="/zh-hk/api-reference/訂閱支付/發起後續扣款">
+    使用有效訂閱建立一筆後續支付。
+  </Card>
+  <Card title="查詢支付記錄" icon="clock-rotate-left" href="/zh-hk/api-reference/訂閱支付/查詢扣款列表">
+    查詢指定訂閱的歷史支付記錄。
+  </Card>
+</CardGroup>

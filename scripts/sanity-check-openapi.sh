@@ -31,6 +31,14 @@ cp "$build_script" "$temp_dir/scripts/build-openapi-en.mjs"
 
 "$node_bin" "$temp_dir/scripts/build-openapi-en.mjs"
 
+if [[ -f "$root/scripts/build-zh-hk.mjs" ]]; then
+  if ! "$node_bin" "$root/scripts/build-zh-hk.mjs" --check; then
+    "$node_bin" "$root/scripts/build-zh-hk.mjs"
+    "$node_bin" "$sync_script" --write
+    "$node_bin" "$root/scripts/build-zh-hk.mjs" --check
+  fi
+fi
+
 drift=()
 if ! cmp -s "$temp_dir/openapi-en.json" "$english_spec"; then
   drift+=("openapi-en.json")

@@ -1,15 +1,26 @@
 ---
 title: "统一收银台"
 description: "在移动浏览器、App WebView 或桌面网站中接入 YeahPay 托管收银台"
+zh-CN_link: "/unified-checkout"
+en_link: "/en/unified-checkout"
+zh-Hant_link: "/zh-hk/unified-checkout"
 ---
 
 统一收银台同时适用于移动浏览器、App WebView 和桌面网站。商户服务端创建收银台并取得 `data.checkoutUrl`，再将消费者引导至 YeahPay 托管页面完成付款。
+
+## 环境与签名
+
+API 域名：`https://open-api.yeahpay.net`。在[统一收银台接口页面](/api-reference/统一收银台/获取统一收银台地址)选择沙箱或生产环境，使用该环境的完整请求路径和对应凭证。
+
+可使用[签名调试工具](/api-tester?operationId=getRedirectUrl)生成请求；所选请求路径如何生成签名 URL，见[签名规则](/signature)。
+
+收银台 Session 和短地址的代码默认有效期均为 24 小时，环境配置可覆盖；实际地址有效期取决于该环境的会话和短地址配置。地址失效不能作为支付失败的依据。
 
 ## 接入流程
 
 <Steps>
   <Step title="服务端创建订单">
-    生成唯一的商户订单号，准备金额（最小货币单位的整数）、币种、商品类型、消费者信息、前端回跳地址 `callbackUrl` 和支付结果通知地址 `notificationUrl`。实物交易可同时传入收货信息 `shippingInfo` 和账单信息 `billingInfo`。
+    生成当前商户范围内唯一的商户订单号 `merchantOrderId`（最长 64 个字符），准备金额（最小货币单位的整数）、币种、商品类型、消费者信息、前端回跳地址 `callbackUrl` 和支付结果通知地址 `notificationUrl`。实物交易可同时传入收货信息 `shippingInfo` 和账单信息 `billingInfo`。
   </Step>
   <Step title="获取统一收银台地址">
     服务端签名并调用 [`POST /openapi/v2/getRedirectUrl`](/api-reference/统一收银台/获取统一收银台地址)。需要预授权时传入 `checkoutMode=PRE_AUTH`；订阅支付首期支付传入 `checkoutMode=CONSENT_INITIAL`。
@@ -18,7 +29,7 @@ description: "在移动浏览器、App WebView 或桌面网站中接入 YeahPay 
     从响应的 `data.checkoutUrl` 取得托管页面地址，并保存 `data.paymentIntentId`。移动端可在当前页面跳转；桌面网站可在新窗口或新标签页打开，并保留原商户页面。
   </Step>
   <Step title="确认支付结果">
-    验证支付结果通知的签名并幂等处理。若未及时收到通知，调用[支付查询接口](/api-reference/扫码交易/支付查询（扫码、刷卡）)主动确认。
+    验证支付结果通知的签名并幂等处理。若未及时收到通知，使用原 `paymentIntentId` 或 `merchantOrderId` 调用[支付意图查询接口](/api-reference/支付意图/查询支付意图)主动确认。
   </Step>
 </Steps>
 

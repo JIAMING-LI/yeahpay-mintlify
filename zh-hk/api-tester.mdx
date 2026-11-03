@@ -1,0 +1,16 @@
+---
+title: "API 簽名測試"
+description: "填寫 API 參數並在瀏覽器本地產生 YeahPay 請求簽名"
+sidebarTitle: "API 簽名測試"
+zh-CN_link: "/api-tester"
+en_link: "/en/api-tester"
+zh-Hant_link: "/zh-hk/api-tester"
+---
+
+import { SignedApiPlayground } from "/snippets/signed-api-playground.jsx"
+
+<SignedApiPlayground locale="zh-HK" />
+
+<Warning>
+  此工具不會自動發送交易請求。請先使用沙盒憑證驗證請求，生產環境操作前應再次檢查金額、訂單號和回調地址。
+</Warning>

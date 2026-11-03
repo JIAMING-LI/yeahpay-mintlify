@@ -2,6 +2,9 @@
 title: "签名规则与示例"
 description: "生成 YeahPay API 请求签名并发送未经修改的原始 JSON"
 sidebarTitle: "签名规则与示例"
+zh-CN_link: "/signature"
+en_link: "/en/signature"
+zh-Hant_link: "/zh-hk/signature"
 ---
 
 每个请求都必须生成独立签名。签名使用请求路径、公共参数、原始请求体和 `apiKey` 计算。
@@ -32,21 +35,23 @@ signature = Base64(SHA-512(UTF-8(signText)))
 
 ## 签名 URL
 
-签名使用请求路径，不包含协议、域名、查询参数和网关转发前缀。
-
-测试环境示例：
+签名使用实际请求路径，不包含协议、域名、查询参数和传输层网关前缀。
 
 ```text
-请求地址：
-https://t-acquire-business.lepass.cn/gw/abroad-business-acceptance-open-api/order/unifiedOrder
+沙箱请求地址：
+https://open-api.yeahpay.net/acceptance/sandbox/consent-payment/customers/query
 
 签名 URL：
-/abroad-business-acceptance-open-api/order/unifiedOrder
+/sandbox/consent-payment/customers/query
+
+生产支付意图请求地址：
+https://open-api.yeahpay.net/gwp/checkout/openapi/v2/createIntent
+
+签名 URL：
+/checkout/openapi/v2/createIntent
 ```
 
-<Note>
-  `/gw` 和 `/acceptance` 是传输层网关前缀，不参与签名。若商户环境使用了不同的网关路径，请以 YeahPay 提供的验签路径为准。
-</Note>
+仅去掉开头的网关段 `/acceptance` 或 `/gwp`，保留后续路径。支付意图沙箱请求 `/acceptance/sandbox/openapi/v2/createIntent` 对应签名路径 `/sandbox/openapi/v2/createIntent`。在[签名调试工具](/api-tester)选择环境即可取得对应路径。
 
 ## 生成步骤
 
@@ -73,8 +78,8 @@ https://t-acquire-business.lepass.cn/gw/abroad-business-acceptance-open-api/orde
     import { createHash, randomUUID } from "node:crypto";
     
     const baseUrl =
-      "https://t-acquire-business.lepass.cn/gw/abroad-business-acceptance-open-api";
-    const path = "/order/unifiedOrder";
+      "https://open-api.yeahpay.net";
+    const path = "/acceptance/sandbox/consent-payment/customers/query";
     const appId = process.env.YEAHPAY_APP_ID;
     const apiKey = process.env.YEAHPAY_API_KEY;
     const version = "1.0";
@@ -82,22 +87,18 @@ https://t-acquire-business.lepass.cn/gw/abroad-business-acceptance-open-api/orde
     const nonce = randomUUID().replaceAll("-", "");
     
     const body = {
-      payWay: "PayNowPay",
       merchantId: "YOUR_MERCHANT_ID",
-      thirdOrderId: `ORDER_${timestamp}`,
-      amount: 100,
-      currency: "SGD",
-      jspayFlag: "NATIVE",
+      merchantCustomerId: "YOUR_CUSTOMER_REFERENCE",
     };
     
     // 只序列化一次：签名和发送必须使用同一个字符串。
     const rawBody = JSON.stringify(body);
     
     function buildSignUrl(requestBaseUrl, requestPath) {
-      const basePath = new URL(requestBaseUrl).pathname
-        .replace(/^\/(?:gw|acceptance)(?=\/)/, "")
+      const basePath = new URL(`${requestBaseUrl.replace(/\/+$/, "")}/${requestPath.replace(/^\/+/, "")}`).pathname
+        .replace(/^\/(?:gw|gwp|acceptance)(?=\/)/, "")
         .replace(/\/+$/, "");
-      return `${basePath}/${requestPath.replace(/^\/+/, "")}`;
+      return basePath;
     }
     
     const signUrl = buildSignUrl(baseUrl, path);
@@ -147,8 +148,8 @@ https://t-acquire-business.lepass.cn/gw/abroad-business-acceptance-open-api/orde
     import java.util.UUID;
     
     String baseUrl =
-        "https://t-acquire-business.lepass.cn/gw/abroad-business-acceptance-open-api";
-    String path = "/order/unifiedOrder";
+        "https://open-api.yeahpay.net";
+    String path = "/acceptance/sandbox/consent-payment/customers/query";
     String appId = System.getenv("YEAHPAY_APP_ID");
     String apiKey = System.getenv("YEAHPAY_API_KEY");
     String version = "1.0";
@@ -157,17 +158,18 @@ https://t-acquire-business.lepass.cn/gw/abroad-business-acceptance-open-api/orde
     
     // 签名和发送必须使用完全相同的 rawBody。
     String rawBody = """
-        {"payWay":"PayNowPay","merchantId":"YOUR_MERCHANT_ID","thirdOrderId":"ORDER_001","amount":100,"currency":"SGD","jspayFlag":"NATIVE"}
+        {"merchantId":"YOUR_MERCHANT_ID","merchantCustomerId":"YOUR_CUSTOMER_REFERENCE"}
         """.strip();
     
-    String basePath = URI.create(baseUrl).getPath();
+    String basePath = URI.create(baseUrl.replaceAll("/+$", "") + path).getPath();
     if (basePath.startsWith("/gw/")) {
         basePath = basePath.substring("/gw".length());
+    } else if (basePath.startsWith("/gwp/")) {
+        basePath = basePath.substring("/gwp".length());
     } else if (basePath.startsWith("/acceptance/")) {
         basePath = basePath.substring("/acceptance".length());
     }
-    String signUrl = basePath.replaceAll("/+$", "")
-        + "/" + path.replaceAll("^/+", "");
+    String signUrl = basePath.replaceAll("/+$", "");
     
     String signText = String.join(
         "\n", signUrl, appId, timestamp, version, nonce, rawBody, apiKey);

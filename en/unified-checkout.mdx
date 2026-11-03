@@ -1,15 +1,26 @@
 ---
 title: "Unified Checkout"
 description: "Integrate YeahPay-hosted Checkout in mobile browsers, in-app WebViews, or desktop websites"
+zh-CN_link: "/unified-checkout"
+en_link: "/en/unified-checkout"
+zh-Hant_link: "/zh-hk/unified-checkout"
 ---
 
 Unified Checkout works in mobile browsers, in-app WebViews, and desktop websites. Your server creates a Checkout and receives `data.checkoutUrl`, then sends the customer to the YeahPay-hosted page to complete payment.
+
+## Environments and signing
+
+API domain: `https://open-api.yeahpay.net`. Select Sandbox or Production on the [Unified Checkout API page](/en/api-reference/unified-checkout/get-unified-checkout-url), and use its complete request path and matching credentials.
+
+Generate the request with the [signed request tester](/en/api-tester?operationId=getRedirectUrl). See the [signing rules](/en/signature) for how the selected request path determines the signing URL.
+
+The code defaults for Checkout Session and short-link validity are both 24 hours and can be overridden by environment configuration. Actual URL validity depends on the deployed Session and short-link settings. An expired URL does not prove payment failed.
 
 ## Integration flow
 
 <Steps>
   <Step title="Create the order on your server">
-    Generate a unique merchant order ID and prepare the amount (an integer in the smallest currency unit), currency, product type, consumer information, frontend return URL in `callbackUrl`, and payment notification URL in `notificationUrl`. For physical goods, you can also provide `shippingInfo` and `billingInfo`.
+    Generate a `merchantOrderId` that is unique within the current merchant (up to 64 characters) and prepare the amount (an integer in the smallest currency unit), currency, product type, consumer information, frontend return URL in `callbackUrl`, and payment notification URL in `notificationUrl`. For physical goods, you can also provide `shippingInfo` and `billingInfo`.
   </Step>
   <Step title="Get the Unified Checkout URL">
     Sign and call [`POST /openapi/v2/getRedirectUrl`](/en/api-reference/unified-checkout/get-unified-checkout-url) from your server. Set `checkoutMode=PRE_AUTH` for a pre-authorization, or `checkoutMode=CONSENT_INITIAL` for the initial payment of a Subscription Payment.
@@ -18,7 +29,7 @@ Unified Checkout works in mobile browsers, in-app WebViews, and desktop websites
     Read the hosted page URL from `data.checkoutUrl` and save `data.paymentIntentId`. On mobile, redirect the current page. On desktop websites, you can open it in a new window or tab while retaining the merchant page.
   </Step>
   <Step title="Confirm the payment result">
-    Verify the payment notification signature and process notifications idempotently. If a notification is delayed, call the [payment query API](/en/api-reference/qr-code-transactions/payment-query-qr-code-and-card) to confirm the result.
+    Verify the payment notification signature and process notifications idempotently. If a notification is delayed, call the [PaymentIntent query API](/en/api-reference/payment-intents/query-paymentintent) with the original `paymentIntentId` or `merchantOrderId` to confirm the result.
   </Step>
 </Steps>
 
