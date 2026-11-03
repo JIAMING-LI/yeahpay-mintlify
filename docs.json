@@ -39,6 +39,12 @@
                 ]
               },
               {
+                "group": "支付场景",
+                "pages": [
+                  "subscription-payment"
+                ]
+              },
+              {
                 "group": "API",
                 "pages": [
                   "embedded-checkout-sdk"
@@ -83,6 +89,12 @@
                 ]
               },
               {
+                "group": "支付場景",
+                "pages": [
+                  "zh-hk/subscription-payment"
+                ]
+              },
+              {
                 "group": "API",
                 "pages": [
                   "zh-hk/embedded-checkout-sdk"
@@ -124,6 +136,12 @@
                   "en/unified-checkout",
                   "en/embedded-checkout",
                   "en/payment-link"
+                ]
+              },
+              {
+                "group": "Payment scenarios",
+                "pages": [
+                  "en/subscription-payment"
                 ]
               },
               {
