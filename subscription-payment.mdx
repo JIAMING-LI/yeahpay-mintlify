@@ -28,7 +28,7 @@ zh-Hant_link: "/zh-hk/subscription-payment"
     使用 `consentId` 查询订阅状态；消费者停止订阅时取消授权，需要恢复时重新启用授权。
   </Step>
   <Step title="发起后续支付">
-    商户根据自己的计费计划，使用有效的 `consentId` 调用后续支付接口，并通过支付结果通知确认最终结果。
+    商户根据自己的计费计划调用[创建支付意图](/api-reference/支付意图/创建支付意图)接口，在 `payment_consent` 中传入 `paymentInitiator=MIT` 和 `consentToken`（值为首次支付取得的 `consentId`），并通过支付结果通知或查询支付意图确认最终结果。
   </Step>
 </Steps>
 
@@ -119,19 +119,55 @@ zh-Hant_link: "/zh-hk/subscription-payment"
 
 只有 `active` 状态的订阅可以发起后续支付。每次后续支付都是一笔独立交易，商户需要自行决定扣款时间与金额。
 
-调用 [`POST /consent-payment/charges/create`](/api-reference/订阅支付/发起后续扣款) 时：
+后续支付调用 [`POST /openapi/v2/createIntent`](/api-reference/支付意图/创建支付意图)。请求的 `payment_consent` 中携带有效的 `consentToken` 时，YeahPay 在建单时直接发起扣款，消费者无需进入收银台。
 
-- 传入有效的 `consentId`。
-- 为每笔交易生成唯一的 `merchantOrderId`，用于幂等和对账。
-- `amount` 使用最小货币单位，`currency` 使用三个大写字母。
-- 可传入 `notifyUrl` 接收本次支付结果，`description` 用于记录支付说明。
-- 接口受理成功不等于支付最终成功，应以验签后的支付结果通知为准。
+| 参数 | 值 | 说明 |
+| --- | --- | --- |
+| `customerId` | 创建客户接口返回值 | 与首次支付时的客户一致 |
+| `payment_consent.paymentInitiator` | `MIT` | 商户发起的后续扣款 |
+| `payment_consent.consentToken` | 首次支付取得的 `consentId` | 订阅授权标识 |
+| `requestId` | 商户生成 | 建单幂等标识，网络重试时复用原值 |
+| `merchantOrderId` | 商户生成 | 每笔后续支付唯一，用于对账 |
+| `amount` | 大于 0 的整数 | 最小货币单位，例如 SGD 10.00 传 `1000` |
+| `currency` | 三位字母币种码 | 须为商户已开通的币种 |
+| `callback.notificationUrl` | 可选 | 本次支付结果通知地址，须为 HTTPS；不传时使用应用默认通知地址 |
+
+```json
+{
+  "merchantId": "SAMPLE_MERCHANT_ID",
+  "requestId": "renewal-202611-001",
+  "merchantOrderId": "SUBSCRIPTION_RENEWAL_202611_001",
+  "amount": 1000,
+  "currency": "SGD",
+  "customerId": "cus_yk_example",
+  "payment_consent": {
+    "paymentInitiator": "MIT",
+    "consentToken": "con_yk_2ee6fa94d3b8046c8cb4dc817dd28a3f"
+  },
+  "callback": {
+    "notificationUrl": "https://shop.example.com/payment/notify"
+  }
+}
+```
+
+<Warning>
+  `consentToken` 只能在商户服务端保存和使用，不得下发浏览器。MIT 后续扣款不要传 `deviceId`。
+</Warning>
+
+确认扣款结果：
+
+- 响应 `code=0` 只表示请求被正常处理，需读取 `data.status`：`SUCCEEDED` 表示扣款成功；`PENDING` 时使用原 `paymentIntentId` 或 `merchantOrderId` [查询支付意图](/api-reference/支付意图/查询支付意图)，不要重复扣款。
+- 返回 `292009`、`500` 或请求超时时，扣款可能已经发起，应先查询原订单；重试时沿用原 `requestId` 和 `merchantOrderId`。
+- 支付成功通知的格式与处理要求见[嵌入式收银台](/embedded-checkout)。
 
 需要查看历史记录时，调用[查询扣款列表](/api-reference/订阅支付/查询扣款列表)，按 `consentId` 分页查询订单号、金额、币种、状态和支付时间。
 
-<CardGroup cols={2}>
-  <Card title="发起后续支付" icon="credit-card" href="/api-reference/订阅支付/发起后续扣款">
-    使用有效订阅创建一笔后续支付。
+<CardGroup cols={3}>
+  <Card title="发起后续支付" icon="credit-card" href="/api-reference/支付意图/创建支付意图">
+    使用有效订阅创建支付意图并直接扣款。
+  </Card>
+  <Card title="查询支付意图" icon="magnifying-glass" href="/api-reference/支付意图/查询支付意图">
+    按支付意图 ID 或商户订单号确认扣款结果。
   </Card>
   <Card title="查询支付记录" icon="clock-rotate-left" href="/api-reference/订阅支付/查询扣款列表">
     查询指定订阅的历史支付记录。

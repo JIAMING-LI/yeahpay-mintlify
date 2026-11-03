@@ -149,7 +149,7 @@ export const SignedApiPlayground = ({ locale = "en" }) => {
     },
   }
   // BEGIN AUTO-GENERATED OPENAPI OPERATIONS
-  // Source fingerprint: 483ecdb9b013257e
+  // Source fingerprint: bf45714bbdd1fc0e
   const operationDefinitions = [
     {
       "operationId": "getRedirectUrl",
@@ -372,27 +372,6 @@ export const SignedApiPlayground = ({ locale = "en" }) => {
         "merchantId": "SAMPLE_MERCHANT_ID",
         "consentId": "SAMPLE_CONSENT_ID",
         "reason": "SAMPLE_REASON"
-      }
-    },
-    {
-      "operationId": "createConsentCharge",
-      "method": "POST",
-      "path": "/consent-payment/charges/create",
-      "summaryZh": "发起后续扣款",
-      "summaryEn": "Initiate subsequent charge",
-      "summaryHk": "發起後續扣款",
-      "serverUrls": {
-        "sandbox": "https://open-api.yeahpay.net/acceptance/sandbox",
-        "production": "https://open-api.yeahpay.net/acceptance/acceptance-open-api"
-      },
-      "sampleBody": {
-        "merchantId": "SAMPLE_MERCHANT_ID",
-        "consentId": "SAMPLE_CONSENT_ID",
-        "merchantOrderId": "ORDER_TIMESTAMP",
-        "amount": 100,
-        "currency": "SGD",
-        "notifyUrl": "https://merchant.example.com/yeahpay/callback",
-        "description": "127.0.0.1"
       }
     },
     {
