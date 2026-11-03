@@ -32,7 +32,7 @@
     },
     {
       "name": "Subscription payments",
-      "description": "Customer, consent, and subsequent charge management"
+      "description": "Customer, consent, and charge record management"
     },
     {
       "name": "Reversal and refund",
@@ -143,7 +143,7 @@
           "Payment Intents"
         ],
         "summary": "Create PaymentIntent",
-        "description": "Create an embedded PaymentIntent and return its ID and SDK Session Token.",
+        "description": "Create an embedded PaymentIntent and return its ID and SDK Session Token. When customerId and a payment_consent with an active consentToken are supplied, the charge is initiated on creation. For Subscription Payments subsequent charges, set paymentInitiator to MIT and use the consentId returned by the initial subscription payment as consentToken.",
         "operationId": "createIntent",
         "servers": [
           {
@@ -274,6 +274,24 @@
                       "consentToken": "SAMPLE_CONSENT_REFERENCE"
                     },
                     "deviceId": "sample-device-uuid"
+                  }
+                },
+                "subscription": {
+                  "summary": "Subscription Payments subsequent charge (MIT)",
+                  "value": {
+                    "merchantId": "SAMPLE_MERCHANT_ID",
+                    "requestId": "renewal-TIMESTAMP",
+                    "merchantOrderId": "ORDER-RENEWAL-TIMESTAMP",
+                    "amount": 1000,
+                    "currency": "SGD",
+                    "callback": {
+                      "notificationUrl": "https://shop.example.com/payment/notify"
+                    },
+                    "customerId": "cus_yk_example",
+                    "payment_consent": {
+                      "paymentInitiator": "MIT",
+                      "consentToken": "con_yk_example"
+                    }
                   }
                 }
               }
@@ -1015,81 +1033,6 @@
             "zh-CN_link": "/api-reference/%E8%AE%A2%E9%98%85%E6%94%AF%E4%BB%98/%E9%87%8D%E6%96%B0%E5%90%AF%E7%94%A8%E6%8E%88%E6%9D%83",
             "en_link": "/en/api-reference/subscription-payments/reactivate-consent",
             "zh-Hant_link": "/zh-hk/api-reference/%E8%A8%82%E9%96%B1%E6%94%AF%E4%BB%98/%E9%87%8D%E6%96%B0%E5%95%93%E7%94%A8%E6%8E%88%E6%AC%8A"
-          }
-        }
-      }
-    },
-    "/consent-payment/charges/create": {
-      "post": {
-        "tags": [
-          "Subscription payments"
-        ],
-        "summary": "Initiate subsequent charge",
-        "description": "Initiate a merchant-side subsequent charge using an active Subscription Payment consent. The amount is in the smallest currency unit.",
-        "operationId": "createConsentCharge",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/VersionHeader"
-          },
-          {
-            "$ref": "#/components/parameters/TimestampHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AlgorithmHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AppIdHeader"
-          },
-          {
-            "$ref": "#/components/parameters/NonceHeader"
-          },
-          {
-            "$ref": "#/components/parameters/SignatureHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AcceptLanguageHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AcceptTimezoneHeader"
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateConsentChargeRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Request successful",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CreateConsentChargeResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request parameters"
-          },
-          "401": {
-            "description": "Signature verification or authentication failed"
-          },
-          "500": {
-            "description": "Server error"
-          }
-        },
-        "x-mint": {
-          "content": "<Card title=\"Signed request tester\" href=\"/en/api-tester?operationId=createConsentCharge\">Generate the signature and cURL for this operation.</Card>",
-          "metadata": {
-            "zh-CN_link": "/api-reference/%E8%AE%A2%E9%98%85%E6%94%AF%E4%BB%98/%E5%8F%91%E8%B5%B7%E5%90%8E%E7%BB%AD%E6%89%A3%E6%AC%BE",
-            "en_link": "/en/api-reference/subscription-payments/initiate-subsequent-charge",
-            "zh-Hant_link": "/zh-hk/api-reference/%E8%A8%82%E9%96%B1%E6%94%AF%E4%BB%98/%E7%99%BC%E8%B5%B7%E5%BE%8C%E7%BA%8C%E6%89%A3%E6%AC%BE"
           }
         }
       }
@@ -3556,55 +3499,6 @@
           }
         ]
       },
-      "CreateConsentChargeRequest": {
-        "type": "object",
-        "properties": {
-          "merchantId": {
-            "type": "string",
-            "description": "Merchant ID",
-            "maxLength": 32
-          },
-          "consentId": {
-            "type": "string",
-            "description": "Consent identifier",
-            "maxLength": 64
-          },
-          "merchantOrderId": {
-            "type": "string",
-            "description": "Merchant order number",
-            "maxLength": 128
-          },
-          "amount": {
-            "type": "integer",
-            "description": "Charge amount in the smallest currency unit",
-            "format": "int64",
-            "minimum": 1
-          },
-          "currency": {
-            "type": "string",
-            "description": "Currency as three uppercase letters",
-            "pattern": "^[A-Z]{3}$"
-          },
-          "notifyUrl": {
-            "type": "string",
-            "description": "Payment result notification URL",
-            "format": "uri",
-            "maxLength": 1024
-          },
-          "description": {
-            "type": "string",
-            "description": "Charge description",
-            "maxLength": 512
-          }
-        },
-        "required": [
-          "merchantId",
-          "consentId",
-          "merchantOrderId",
-          "amount",
-          "currency"
-        ]
-      },
       "ConsentChargeData": {
         "type": "object",
         "properties": {
@@ -3642,39 +3536,6 @@
             "format": "date-time"
           }
         }
-      },
-      "CreateConsentChargeResponse": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/ConsentApiResponseBase"
-          },
-          {
-            "type": "object",
-            "properties": {
-              "data": {
-                "type": "object",
-                "properties": {
-                  "orderId": {
-                    "type": "string",
-                    "description": "YeahPay order number"
-                  },
-                  "merchantOrderId": {
-                    "type": "string",
-                    "description": "Merchant order number"
-                  },
-                  "consentId": {
-                    "type": "string",
-                    "description": "Consent identifier"
-                  },
-                  "status": {
-                    "type": "string",
-                    "description": "Charge status"
-                  }
-                }
-              }
-            }
-          }
-        ]
       },
       "ListConsentChargesRequest": {
         "type": "object",
@@ -5027,7 +4888,7 @@
               "CIT",
               "MIT"
             ],
-            "description": "Required for initial binding or when consentToken is supplied. Subsequent payments must match the original binding type."
+            "description": "Required for initial binding or when consentToken is supplied. Subsequent payments must match the original binding type. Use MIT for Subscription Payments subsequent charges."
           },
           "consentToken": {
             "type": [
@@ -5035,7 +4896,7 @@
               "null"
             ],
             "maxLength": 256,
-            "description": "Active binding reference kept on the server. When supplied, createIntent immediately initiates a charge and amount must be positive. Never pass it to the browser."
+            "description": "Active binding reference kept on the server: the consentToken returned by PaymentIntent queries after an Embedded Checkout binding, or the consentId returned in the initial Subscription Payments notification. When supplied, createIntent immediately initiates a charge and amount must be positive. Never pass it to the browser."
           }
         }
       },
@@ -5121,7 +4982,7 @@
           },
           "customerId": {
             "type": "string",
-            "description": "Platform customer ID, required for CIT/MIT binding and existing-Consent direct charges; also needed to show saved cards. This field alone does not initiate a charge.",
+            "description": "Platform customer ID, required for CIT/MIT binding and existing-Consent direct charges, including Subscription Payments subsequent charges; also needed to show saved cards. This field alone does not initiate a charge.",
             "maxLength": 64,
             "minLength": 1
           },

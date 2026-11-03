@@ -32,7 +32,7 @@
     },
     {
       "name": "訂閱支付",
-      "description": "客戶、授權和後續扣款管理"
+      "description": "客戶、授權和扣款記錄管理"
     },
     {
       "name": "撤銷-退款",
@@ -143,7 +143,7 @@
           "支付意圖"
         ],
         "summary": "建立支付意圖",
-        "description": "建立嵌入式支付意圖，返回支付意圖 ID 和 SDK Session Token。",
+        "description": "建立嵌入式支付意圖，返回支付意圖 ID 和 SDK Session Token。傳入 customerId 和含有效 consentToken 的 payment_consent 時，建單即發起扣款；訂閱支付後續扣款傳 paymentInitiator=MIT，consentToken 使用首次訂閱支付返回的 consentId。",
         "operationId": "createIntent",
         "servers": [
           {
@@ -274,6 +274,24 @@
                       "consentToken": "SAMPLE_CONSENT_REFERENCE"
                     },
                     "deviceId": "sample-device-uuid"
+                  }
+                },
+                "subscription": {
+                  "summary": "訂閱支付後續扣款（MIT）",
+                  "value": {
+                    "merchantId": "SAMPLE_MERCHANT_ID",
+                    "requestId": "renewal-TIMESTAMP",
+                    "merchantOrderId": "ORDER-RENEWAL-TIMESTAMP",
+                    "amount": 1000,
+                    "currency": "SGD",
+                    "callback": {
+                      "notificationUrl": "https://shop.example.com/payment/notify"
+                    },
+                    "customerId": "cus_yk_example",
+                    "payment_consent": {
+                      "paymentInitiator": "MIT",
+                      "consentToken": "con_yk_example"
+                    }
                   }
                 }
               }
@@ -1015,81 +1033,6 @@
             "zh-CN_link": "/api-reference/%E8%AE%A2%E9%98%85%E6%94%AF%E4%BB%98/%E9%87%8D%E6%96%B0%E5%90%AF%E7%94%A8%E6%8E%88%E6%9D%83",
             "en_link": "/en/api-reference/subscription-payments/reactivate-consent",
             "zh-Hant_link": "/zh-hk/api-reference/%E8%A8%82%E9%96%B1%E6%94%AF%E4%BB%98/%E9%87%8D%E6%96%B0%E5%95%93%E7%94%A8%E6%8E%88%E6%AC%8A"
-          }
-        }
-      }
-    },
-    "/consent-payment/charges/create": {
-      "post": {
-        "tags": [
-          "訂閱支付"
-        ],
-        "summary": "發起後續扣款",
-        "description": "使用有效的訂閱支付授權發起一筆商戶側後續扣款。金額單位為最小貨幣單位。",
-        "operationId": "createConsentCharge",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/VersionHeader"
-          },
-          {
-            "$ref": "#/components/parameters/TimestampHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AlgorithmHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AppIdHeader"
-          },
-          {
-            "$ref": "#/components/parameters/NonceHeader"
-          },
-          {
-            "$ref": "#/components/parameters/SignatureHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AcceptLanguageHeader"
-          },
-          {
-            "$ref": "#/components/parameters/AcceptTimezoneHeader"
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateConsentChargeRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "請求成功",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CreateConsentChargeResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "請求參數錯誤"
-          },
-          "401": {
-            "description": "簽名驗證失敗或身份認證失敗"
-          },
-          "500": {
-            "description": "伺服器端錯誤"
-          }
-        },
-        "x-mint": {
-          "content": "<Card title=\"網上簽名測試\" href=\"/zh-hk/api-tester?operationId=createConsentCharge\">使用此介面參數產生請求簽名和 cURL。</Card>",
-          "metadata": {
-            "zh-CN_link": "/api-reference/%E8%AE%A2%E9%98%85%E6%94%AF%E4%BB%98/%E5%8F%91%E8%B5%B7%E5%90%8E%E7%BB%AD%E6%89%A3%E6%AC%BE",
-            "en_link": "/en/api-reference/subscription-payments/initiate-subsequent-charge",
-            "zh-Hant_link": "/zh-hk/api-reference/%E8%A8%82%E9%96%B1%E6%94%AF%E4%BB%98/%E7%99%BC%E8%B5%B7%E5%BE%8C%E7%BA%8C%E6%89%A3%E6%AC%BE"
           }
         }
       }
@@ -3556,55 +3499,6 @@
           }
         ]
       },
-      "CreateConsentChargeRequest": {
-        "type": "object",
-        "properties": {
-          "merchantId": {
-            "type": "string",
-            "description": "商戶號",
-            "maxLength": 32
-          },
-          "consentId": {
-            "type": "string",
-            "description": "授權標識",
-            "maxLength": 64
-          },
-          "merchantOrderId": {
-            "type": "string",
-            "description": "商戶訂單號",
-            "maxLength": 128
-          },
-          "amount": {
-            "type": "integer",
-            "description": "扣款金額，單位為最小貨幣單位",
-            "format": "int64",
-            "minimum": 1
-          },
-          "currency": {
-            "type": "string",
-            "description": "幣種，使用三個大寫字母",
-            "pattern": "^[A-Z]{3}$"
-          },
-          "notifyUrl": {
-            "type": "string",
-            "description": "支付結果通知地址",
-            "format": "uri",
-            "maxLength": 1024
-          },
-          "description": {
-            "type": "string",
-            "description": "扣款描述",
-            "maxLength": 512
-          }
-        },
-        "required": [
-          "merchantId",
-          "consentId",
-          "merchantOrderId",
-          "amount",
-          "currency"
-        ]
-      },
       "ConsentChargeData": {
         "type": "object",
         "properties": {
@@ -3642,39 +3536,6 @@
             "format": "date-time"
           }
         }
-      },
-      "CreateConsentChargeResponse": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/ConsentApiResponseBase"
-          },
-          {
-            "type": "object",
-            "properties": {
-              "data": {
-                "type": "object",
-                "properties": {
-                  "orderId": {
-                    "type": "string",
-                    "description": "YeahPay 訂單號"
-                  },
-                  "merchantOrderId": {
-                    "type": "string",
-                    "description": "商戶訂單號"
-                  },
-                  "consentId": {
-                    "type": "string",
-                    "description": "授權標識"
-                  },
-                  "status": {
-                    "type": "string",
-                    "description": "扣款狀態"
-                  }
-                }
-              }
-            }
-          }
-        ]
       },
       "ListConsentChargesRequest": {
         "type": "object",
@@ -5027,7 +4888,7 @@
               "CIT",
               "MIT"
             ],
-            "description": "首次綁定或傳 consentToken 時必填；後續扣款須與首次綁定類型一致"
+            "description": "首次綁定或傳 consentToken 時必填；後續扣款須與首次綁定類型一致；訂閱支付後續扣款傳 MIT"
           },
           "consentToken": {
             "type": [
@@ -5035,7 +4896,7 @@
               "null"
             ],
             "maxLength": 256,
-            "description": "伺服器端保存的有效綁定引用。提供時 createIntent 立即發起扣款，金額必須大於 0；不得交給瀏覽器"
+            "description": "伺服器端保存的有效綁定引用：嵌入式收銀台綁定後查單返回的 consentToken，或訂閱支付首次支付通知返回的 consentId。提供時 createIntent 立即發起扣款，金額必須大於 0；不得交給瀏覽器"
           }
         }
       },
@@ -5121,7 +4982,7 @@
           },
           "customerId": {
             "type": "string",
-            "description": "平台客戶 ID；CIT/MIT 綁定、已有 Consent 直扣必填；展示已有卡也需關聯。僅傳此字段不會自動扣款",
+            "description": "平台客戶 ID；CIT/MIT 綁定、已有 Consent 直扣（含訂閱支付後續扣款）必填；展示已有卡也需關聯。僅傳此字段不會自動扣款",
             "maxLength": 64,
             "minLength": 1
           },

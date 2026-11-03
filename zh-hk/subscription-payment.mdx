@@ -28,7 +28,7 @@ zh-Hant_link: "/zh-hk/subscription-payment"
     使用 `consentId` 查詢訂閱狀態；消費者停止訂閱時取消授權，需要恢復時重新啓用授權。
   </Step>
   <Step title="發起後續支付">
-    商戶根據自己的計費計劃，使用有效的 `consentId` 調用後續支付介面，並通過支付結果通知確認最終結果。
+    商戶根據自己的計費計劃調用[建立支付意圖](/zh-hk/api-reference/支付意圖/建立支付意圖)介面，在 `payment_consent` 中傳入 `paymentInitiator=MIT` 和 `consentToken`（值為首次支付取得的 `consentId`），並通過支付結果通知或查詢支付意圖確認最終結果。
   </Step>
 </Steps>
 
@@ -119,19 +119,55 @@ zh-Hant_link: "/zh-hk/subscription-payment"
 
 只有 `active` 狀態的訂閱可以發起後續支付。每次後續支付都是一筆獨立交易，商戶需要自行決定扣款時間與金額。
 
-調用 [`POST /consent-payment/charges/create`](/zh-hk/api-reference/訂閱支付/發起後續扣款) 時：
+後續支付調用 [`POST /openapi/v2/createIntent`](/zh-hk/api-reference/支付意圖/建立支付意圖)。請求的 `payment_consent` 中攜帶有效的 `consentToken` 時，YeahPay 在建單時直接發起扣款，消費者無需進入收銀台。
 
-- 傳入有效的 `consentId`。
-- 為每筆交易產生唯一的 `merchantOrderId`，用於冪等和對賬。
-- `amount` 使用最小貨幣單位，`currency` 使用三個大寫字母。
-- 可傳入 `notifyUrl` 接收本次支付結果，`description` 用於記錄支付說明。
-- 介面受理成功不等於支付最終成功，應以驗簽後的支付結果通知為準。
+| 參數 | 值 | 說明 |
+| --- | --- | --- |
+| `customerId` | 建立客戶介面返回值 | 與首次支付時的客戶一致 |
+| `payment_consent.paymentInitiator` | `MIT` | 商戶發起的後續扣款 |
+| `payment_consent.consentToken` | 首次支付取得的 `consentId` | 訂閱授權標識 |
+| `requestId` | 商戶產生 | 建單冪等標識，網絡重試時複用原值 |
+| `merchantOrderId` | 商戶產生 | 每筆後續支付唯一，用於對賬 |
+| `amount` | 大於 0 的整數 | 最小貨幣單位，例如 SGD 10.00 傳 `1000` |
+| `currency` | 三位字母幣種碼 | 須為商戶已開通的幣種 |
+| `callback.notificationUrl` | 可選 | 本次支付結果通知地址，須為 HTTPS；不傳時使用應用預設通知地址 |
+
+```json
+{
+  "merchantId": "SAMPLE_MERCHANT_ID",
+  "requestId": "renewal-202611-001",
+  "merchantOrderId": "SUBSCRIPTION_RENEWAL_202611_001",
+  "amount": 1000,
+  "currency": "SGD",
+  "customerId": "cus_yk_example",
+  "payment_consent": {
+    "paymentInitiator": "MIT",
+    "consentToken": "con_yk_2ee6fa94d3b8046c8cb4dc817dd28a3f"
+  },
+  "callback": {
+    "notificationUrl": "https://shop.example.com/payment/notify"
+  }
+}
+```
+
+<Warning>
+  `consentToken` 只能在商戶伺服器端保存和使用，不得下發瀏覽器。MIT 後續扣款不要傳 `deviceId`。
+</Warning>
+
+確認扣款結果：
+
+- 響應 `code=0` 只表示請求被正常處理，需讀取 `data.status`：`SUCCEEDED` 表示扣款成功；`PENDING` 時使用原 `paymentIntentId` 或 `merchantOrderId` [查詢支付意圖](/zh-hk/api-reference/支付意圖/查詢支付意圖)，不要重複扣款。
+- 返回 `292009`、`500` 或請求超時時，扣款可能已經發起，應先查詢原訂單；重試時沿用原 `requestId` 和 `merchantOrderId`。
+- 支付成功通知的格式與處理要求見[嵌入式收銀台](/zh-hk/embedded-checkout)。
 
 需要查看歷史記錄時，調用[查詢扣款列表](/zh-hk/api-reference/訂閱支付/查詢扣款列表)，按 `consentId` 分頁查詢訂單號、金額、幣種、狀態和支付時間。
 
-<CardGroup cols={2}>
-  <Card title="發起後續支付" icon="credit-card" href="/zh-hk/api-reference/訂閱支付/發起後續扣款">
-    使用有效訂閱建立一筆後續支付。
+<CardGroup cols={3}>
+  <Card title="發起後續支付" icon="credit-card" href="/zh-hk/api-reference/支付意圖/建立支付意圖">
+    使用有效訂閱建立支付意圖並直接扣款。
+  </Card>
+  <Card title="查詢支付意圖" icon="magnifying-glass" href="/zh-hk/api-reference/支付意圖/查詢支付意圖">
+    按支付意圖 ID 或商戶訂單號確認扣款結果。
   </Card>
   <Card title="查詢支付記錄" icon="clock-rotate-left" href="/zh-hk/api-reference/訂閱支付/查詢扣款列表">
     查詢指定訂閱的歷史支付記錄。
