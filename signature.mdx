@@ -196,6 +196,100 @@ https://open-api.yeahpay.net/gwp/checkout/openapi/v2/createIntent
   </Tab>
 </Tabs>
 
+## 通知验签
+
+YeahPay 推送的支付结果通知、退款结果通知和支付链接收款成功通知均为明文 JSON，没有额外加密，商户只需验签。验签使用与主动请求相同的签名原文顺序和算法，区别如下：
+
+| 字段 | 主动请求 | 通知验签 |
+| --- | --- | --- |
+| `signUrl` | 去掉网关前缀的请求路径 | 商户配置的完整回调地址，包含协议、域名、路径和查询串 |
+| `appId`、`timestamp`、`version`、`nonce` | 商户生成并放入 Header | 从通知请求 Header 读取原值 |
+| `rawBody` | 商户发送的原始请求体 | 收到的原始请求体 |
+| `apiKey` | 商户 `apiKey` | 同一个 `apiKey` |
+
+<Steps>
+  <Step title="保存原始请求体">
+    在解析 JSON 之前，将收到的请求体按 UTF-8 保存为 `rawBody`。使用框架时以字符串接收请求体（例如 Spring 的 `@RequestBody String`），不要先绑定为对象再重新序列化。
+  </Step>
+  <Step title="读取通知 Header">
+    读取 `appId`、`timestamp`、`version`、`nonce` 和 `signature`。HTTP Header 名不区分大小写，支付链接通知使用 `appid`。
+  </Step>
+  <Step title="计算并比较签名">
+    `signUrl` 使用下单或创建链接时传入的通知地址原值，不要根据收到请求的 Host 或代理转发信息拼接。按签名原文顺序计算 `Base64(SHA-512(UTF-8(signText)))`，并与 `signature` Header 做常量时间比较。
+  </Step>
+  <Step title="处理业务并应答">
+    验签通过后再解析 JSON，按订单号幂等处理，成功后返回纯文本 `success`。验签失败时不要返回 `success`，也不要更新订单状态。
+  </Step>
+</Steps>
+
+<Tabs>
+  <Tab title="JavaScript">
+    ```javascript
+    import { createHash, timingSafeEqual } from "node:crypto";
+    import { createServer } from "node:http";
+
+    const apiKey = process.env.YEAHPAY_API_KEY;
+    // 与下单时传入的通知地址完全一致，包含查询串。
+    const callbackUrl = "https://shop.example.com/payment/notify";
+
+    function verifyNotification(headers, rawBody) {
+      // Node.js 会把 Header 名统一转为小写。
+      const signText = [
+        callbackUrl,
+        headers.appid,
+        headers.timestamp,
+        headers.version,
+        headers.nonce,
+        rawBody,
+        apiKey,
+      ].join("\n");
+      const expected = createHash("sha512").update(signText, "utf8").digest();
+      const received = Buffer.from(headers.signature ?? "", "base64");
+      return received.length === expected.length && timingSafeEqual(received, expected);
+    }
+
+    createServer((req, res) => {
+      const chunks = [];
+      req.on("data", chunk => chunks.push(chunk));
+      req.on("end", () => {
+        const rawBody = Buffer.concat(chunks).toString("utf8");
+        if (!verifyNotification(req.headers, rawBody)) {
+          res.writeHead(401).end();
+          return;
+        }
+        const notification = JSON.parse(rawBody);
+        // 按 notification.thirdOrderId 幂等处理业务。
+        res.writeHead(200, { "Content-Type": "text/plain" }).end("success");
+      });
+    }).listen(8080);
+    ```
+  </Tab>
+  <Tab title="Java">
+    ```java
+    import java.nio.charset.StandardCharsets;
+    import java.security.MessageDigest;
+    import java.util.Base64;
+
+    public final class YeahPayNotificationVerifier {
+
+        // 与下单时传入的通知地址完全一致，包含查询串。
+        private static final String CALLBACK_URL = "https://shop.example.com/payment/notify";
+
+        public static boolean verify(String appId, String timestamp, String version, String nonce,
+                                     String signature, String rawBody, String apiKey) throws Exception {
+            String signText = String.join(
+                "\n", CALLBACK_URL, appId, timestamp, version, nonce, rawBody, apiKey);
+            byte[] expected = MessageDigest.getInstance("SHA-512")
+                .digest(signText.getBytes(StandardCharsets.UTF_8));
+            byte[] received = Base64.getDecoder().decode(signature);
+            // 常量时间比较。
+            return MessageDigest.isEqual(expected, received);
+        }
+    }
+    ```
+  </Tab>
+</Tabs>
+
 ## 常见签名错误
 
 | 问题 | 处理方式 |
@@ -206,3 +300,5 @@ https://open-api.yeahpay.net/gwp/checkout/openapi/v2/createIntent
 | 使用秒级时间戳 | 使用 13 位毫秒时间戳 |
 | 使用十六进制 SHA-512 | 使用标准 Base64 编码 |
 | 把 `apiKey` 放进请求 Header | `apiKey` 只参与签名，不能发送 |
+| 通知验签使用去掉网关前缀的路径 | 通知验签使用完整回调地址 |
+| 解析通知 JSON 后再序列化验签 | 使用收到的原始请求体验签 |
