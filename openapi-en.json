@@ -2559,7 +2559,7 @@
       "post": {
         "summary": "Payment result notification",
         "operationId": "paymentNotification",
-        "description": "Asynchronous payment result notification. Use the complete callback URL when verifying the signature. Return plain text `success` after successful processing. The source document mentions decryption but does not define an encryption algorithm or ciphertext field, so this specification does not infer a decryption structure.",
+        "description": "Asynchronous payment result notification. The notification is plain JSON with no encryption; only signature verification is required. The signing text is `complete callback URL\\nappId\\ntimestamp\\nversion\\nnonce\\nraw request body\\napiKey`. Calculate `Base64(SHA-512(UTF-8(signing text)))` and compare it with the `signature` header in constant time. The complete callback URL is the notification URL exactly as supplied, including protocol, hostname, path, and query string. Use the original appId, timestamp, version, and nonce header values, and the raw body as received rather than parsed and re-serialized JSON. After verification and processing succeed, return plain-text `success`; do not return `success` if verification fails.",
         "parameters": [
           {
             "$ref": "#/components/parameters/VersionHeader"
@@ -2616,7 +2616,7 @@
       "post": {
         "summary": "Refund result notification",
         "operationId": "refundNotification",
-        "description": "Asynchronous refund result notification. Use the complete callback URL when verifying the signature. Return plain text `success` after successful processing. The source document mentions decryption but does not define an encryption algorithm or ciphertext field, so this specification does not infer a decryption structure.",
+        "description": "Asynchronous refund result notification. The notification is plain JSON with no encryption; only signature verification is required. The signing text is `complete callback URL\\nappId\\ntimestamp\\nversion\\nnonce\\nraw request body\\napiKey`. Calculate `Base64(SHA-512(UTF-8(signing text)))` and compare it with the `signature` header in constant time. The complete callback URL is the notification URL exactly as supplied, including protocol, hostname, path, and query string. Use the original appId, timestamp, version, and nonce header values, and the raw body as received rather than parsed and re-serialized JSON. After verification and processing succeed, return plain-text `success`; do not return `success` if verification fails.",
         "parameters": [
           {
             "$ref": "#/components/parameters/VersionHeader"
@@ -2675,7 +2675,7 @@
           "Payment Links"
         ],
         "summary": "Payment Link Paid Notification",
-        "description": "The platform notifies the merchant when an API-created payment link receives a successful payment.",
+        "description": "The platform notifies the merchant callback URL after a payment link created through the Open API is paid. The notification is plain JSON with no encryption; only signature verification is required. The signing text is `complete callback URL\\nappId\\ntimestamp\\nversion\\nnonce\\nraw request body\\napiKey`. Calculate `Base64(SHA-512(UTF-8(signing text)))` and compare it with the `signature` header in constant time. The complete callback URL is the notification URL exactly as supplied, including protocol, hostname, path, and query string. Use the original appId, timestamp, version, and nonce header values, and the raw body as received rather than parsed and re-serialized JSON. Payment link notifications send the application ID in the `appid` header. After verification and processing succeed, return plain-text `success`; do not return `success` if verification fails.",
         "requestBody": {
           "content": {
             "application/json": {

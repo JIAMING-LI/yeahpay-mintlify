@@ -2559,7 +2559,7 @@
       "post": {
         "summary": "支付结果通知",
         "operationId": "paymentNotification",
-        "description": "支付结果异步通知。验签时 URL 使用完整回调地址；成功接收后返回纯文本 `success`。源文档仍提到“解密”，但未提供加密算法或密文字段定义，本规范不臆造解密结构。",
+        "description": "支付结果异步通知。通知为明文 JSON，不加密，只需验签。签名原文为 `完整回调地址\\nappId\\ntimestamp\\nversion\\nnonce\\n原始请求体\\napiKey`，计算 `Base64(SHA-512(UTF-8(签名原文)))` 后与 `signature` Header 做常量时间比较。完整回调地址为传入的通知地址原值，包含协议、域名、路径和查询串；appId、timestamp、version、nonce 取通知 Header 原值；请求体使用收到的原始内容，不要解析后重新序列化。验签通过并完成业务处理后返回纯文本 `success`；验签失败时不要返回 `success`。",
         "parameters": [
           {
             "$ref": "#/components/parameters/VersionHeader"
@@ -2616,7 +2616,7 @@
       "post": {
         "summary": "退款结果通知",
         "operationId": "refundNotification",
-        "description": "退款结果异步通知。验签时 URL 使用完整回调地址；成功接收后返回纯文本 `success`。源文档仍提到“解密”，但未提供加密算法或密文字段定义，本规范不臆造解密结构。",
+        "description": "退款结果异步通知。通知为明文 JSON，不加密，只需验签。签名原文为 `完整回调地址\\nappId\\ntimestamp\\nversion\\nnonce\\n原始请求体\\napiKey`，计算 `Base64(SHA-512(UTF-8(签名原文)))` 后与 `signature` Header 做常量时间比较。完整回调地址为传入的通知地址原值，包含协议、域名、路径和查询串；appId、timestamp、version、nonce 取通知 Header 原值；请求体使用收到的原始内容，不要解析后重新序列化。验签通过并完成业务处理后返回纯文本 `success`；验签失败时不要返回 `success`。",
         "parameters": [
           {
             "$ref": "#/components/parameters/VersionHeader"
@@ -2675,7 +2675,7 @@
           "支付链接"
         ],
         "summary": "支付链接收款成功通知",
-        "description": "平台在开放 API 创建的链接支付成功后，向商户回调地址推送通知。",
+        "description": "平台在开放 API 创建的链接支付成功后，向商户回调地址推送通知。通知为明文 JSON，不加密，只需验签。签名原文为 `完整回调地址\\nappId\\ntimestamp\\nversion\\nnonce\\n原始请求体\\napiKey`，计算 `Base64(SHA-512(UTF-8(签名原文)))` 后与 `signature` Header 做常量时间比较。完整回调地址为传入的通知地址原值，包含协议、域名、路径和查询串；appId、timestamp、version、nonce 取通知 Header 原值；请求体使用收到的原始内容，不要解析后重新序列化。支付链接通知的应用 ID Header 名为 `appid`。验签通过并完成业务处理后返回纯文本 `success`；验签失败时不要返回 `success`。",
         "requestBody": {
           "content": {
             "application/json": {
